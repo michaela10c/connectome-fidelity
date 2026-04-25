@@ -46,7 +46,9 @@ The connectome-constrained network produces direction-sensitive representational
 
 > **Note:** With only 6 upper-triangle values in a 4×4 RDM, statistical significance is not assessable. Expanding to 12 stimulus directions (66 upper-triangle values) is the immediate next step.
 
-![RDM figure](utils/figures/moving_edge_poc_rdms.png)
+![RDM figure](figures/moving_edge_poc_rdms.png)
+
+*Left to right: connectome-constrained cosine RDM, random baseline cosine RDM, connectome-constrained Euclidean RDM, random baseline Euclidean RDM. The CC cosine RDM shows structured, direction-dependent dissimilarity (range 0.009–0.019). The random cosine RDM is nearly uniform (~0.200 off-diagonal), indicating no direction selectivity. The random Euclidean RDM is dominated by exploding activations in unstable models (5/10) and is not interpretable. Stimuli: ON moving edges at 0°, 90°, 180°, 270°. Top 10 pretrained Flyvis models, seed=42.*
 
 ---
 
