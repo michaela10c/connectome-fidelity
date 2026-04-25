@@ -1,8 +1,8 @@
 # Representational Geometry as a Fidelity Metric for Connectome-Constrained Neural Emulations
 
-This repository implements a proof-of-concept showing that connectome-constrained networks 
-produce geometrically distinct population codes compared to randomly initialized networks 
-with the same architecture — using representational similarity analysis (RSA) applied to 
+This repository implements a proof-of-concept showing that connectome-constrained networks
+produce geometrically distinct population codes compared to randomly initialized networks
+with the same architecture — using representational similarity analysis (RSA) applied to
 the [Flyvis](https://github.com/TuragaLab/flyvis) Drosophila visual system model.
 
 ---
@@ -52,8 +52,8 @@ The connectome-constrained network produces direction-sensitive representational
 
 This experiment runs on Google Colab with a GPU runtime. Local installation requires Python ≥ 3.9.
 
-```bash
-# On Google Colab
+```python
+# On Google Colab — run these cells in order
 !git clone https://github.com/TuragaLab/flyvis.git
 %cd /content/flyvis
 !pip install -e .[examples]
