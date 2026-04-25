@@ -1,8 +1,9 @@
-# connectome-fidelity
+# Representational Geometry as a Fidelity Metric for Connectome-Constrained Neural Emulations
 
-**Representational geometry as a fidelity metric for connectome-constrained neural emulations.**
-
-This repository implements a proof-of-concept showing that connectome-constrained networks produce geometrically distinct population codes compared to randomly initialized networks with the same architecture — using representational similarity analysis (RSA) applied to the [Flyvis](https://github.com/TuragaLab/flyvis) Drosophila visual system model.
+This repository implements a proof-of-concept showing that connectome-constrained networks 
+produce geometrically distinct population codes compared to randomly initialized networks 
+with the same architecture — using representational similarity analysis (RSA) applied to 
+the [Flyvis](https://github.com/TuragaLab/flyvis) Drosophila visual system model.
 
 ---
 
