@@ -46,7 +46,7 @@ The connectome-constrained network produces direction-sensitive representational
 
 > **Note:** With only 6 upper-triangle values in a 4×4 RDM, statistical significance is not assessable. Expanding to 12 stimulus directions (66 upper-triangle values) is the immediate next step.
 
-![RDM figure](figures/moving_edge_poc_rdms.png)
+![RDM figure](utils/figures/moving_edge_poc_rdms.png)
 
 ---
 
