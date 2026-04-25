@@ -1,0 +1,388 @@
+"""
+Minimal Proof of Concept: Representational Geometry as a Fidelity Metric
+for Connectome-Constrained Neural Emulations
+
+This script tests whether connectome-constrained networks (Lappalainen et al. 2024)
+produce geometrically distinct population codes compared to randomly initialized
+networks with the same architecture.
+
+Experiment:
+- Stimuli: 4 moving edge directions (0°, 90°, 180°, 270°), ON edges
+- Networks: pretrained connectome-constrained ensemble (top 10) vs random baseline
+- Population vectors: peak central-cell response per cell type (64-dim)
+- Metrics: Euclidean distance, cosine distance, RSA (RDM correlation)
+
+Run on Google Colab with GPU runtime after installing flyvis:
+    !git clone https://github.com/TuragaLab/flyvis.git
+    %cd /content/flyvis
+    !pip install -e .[examples]
+    !flyvis download-pretrained
+"""
+
+import numpy as np
+import torch
+import matplotlib.pyplot as plt
+from scipy.spatial.distance import cosine, euclidean
+from scipy.stats import spearmanr
+
+# ── 1. IMPORTS ────────────────────────────────────────────────────────────────
+
+import flyvis
+from flyvis import results_dir, EnsembleView
+from flyvis.network import NetworkView
+from flyvis.datasets.moving_bar import MovingEdge
+from flyvis.utils.activity_utils import LayerActivity
+
+# ── REPRODUCIBILITY ───────────────────────────────────────────────────────────
+SEED = 42
+np.random.seed(SEED)
+torch.manual_seed(SEED)
+torch.cuda.manual_seed_all(SEED)
+
+# ── 2. STIMULUS DATASET ───────────────────────────────────────────────────────
+
+ANGLES = [0, 90, 180, 270]          # 4 cardinal directions
+INTENSITY = 1                        # ON edges only for this POC
+
+dataset = MovingEdge(
+    offsets=[-10, 11],
+    intensities=[0, 1],              # keep both; we'll filter to intensity=1
+    speeds=[19],
+    height=80,
+    post_pad_mode="continue",
+    t_pre=1.0,
+    t_post=1.0,
+    dt=1 / 200,
+    angles=ANGLES,
+)
+
+print(f"Dataset: {len(dataset)} samples")
+print(dataset.arg_df)
+
+
+# ── 3. HELPER: EXTRACT POPULATION VECTOR ─────────────────────────────────────
+
+def get_population_vector(network_view, stimulus, dt, use_fade_in=True):
+    """
+    Simulate network response to a single stimulus and return
+    peak central-cell voltage per cell type as a population vector.
+
+    Args:
+        network_view: flyvis NetworkView instance
+        stimulus: tensor of shape (n_frames, 1, 721)
+        dt: temporal resolution
+        use_fade_in: whether to use fade_in_state initialization
+
+    Returns:
+        pop_vec: numpy array of shape (n_cell_types,)
+        cell_types: list of cell type names
+    """
+    network = network_view.init_network()
+
+    # FIX 1: unsqueeze BEFORE fade_in_state
+    if stimulus.dim() == 2:
+        stimulus = stimulus.unsqueeze(1)  # (n_frames, 721) -> (n_frames, 1, 721)
+
+    if use_fade_in:
+        initial_state = network.fade_in_state(1.0, dt, stimulus[[0]])
+    else:
+        initial_state = None
+
+    with torch.no_grad():
+        responses = network.simulate(
+            stimulus[None], dt, initial_state=initial_state
+        ).cpu()
+
+    layer_act = LayerActivity(responses, network.connectome, keepref=True)
+
+    # FIX 2: use connectome directly instead of central.keys()
+    cell_types = [
+        ct.decode() if isinstance(ct, bytes) else ct
+        for ct in network.connectome.unique_cell_types[:]
+    ]
+    pop_vec = np.array([
+        layer_act.central[ct].squeeze().numpy().max()
+        for ct in cell_types
+    ])
+
+    # FIX 3: cleanup
+    del network, responses, layer_act
+    torch.cuda.empty_cache()
+
+    return pop_vec, cell_types
+
+
+# ── 4. HELPER: BUILD RDM ──────────────────────────────────────────────────────
+
+def build_rdm(pop_matrix, metric="cosine"):
+    """
+    Build a representational dissimilarity matrix from a population matrix.
+
+    Args:
+        pop_matrix: numpy array of shape (n_stimuli, n_cells)
+        metric: "cosine" or "euclidean"
+
+    Returns:
+        rdm: numpy array of shape (n_stimuli, n_stimuli)
+    """
+    # Replace any inf/nan with large finite value before computing distances.
+    # Random baseline networks with unstable dynamics may produce exploding
+    # activations; clamping preserves the comparison (an exploding network is
+    # maximally different from a well-behaved biological one) while avoiding
+    # downstream crashes.
+    pop_matrix = np.nan_to_num(pop_matrix, nan=0.0, posinf=1e6, neginf=-1e6)
+
+    n = pop_matrix.shape[0]
+    rdm = np.zeros((n, n))
+    for i in range(n):
+        for j in range(n):
+            if i != j:
+                if metric == "cosine":
+                    rdm[i, j] = cosine(pop_matrix[i], pop_matrix[j])
+                else:
+                    rdm[i, j] = euclidean(pop_matrix[i], pop_matrix[j])
+    return rdm
+
+
+# ── 5. HELPER: COMPARE RDMs ──────────────────────────────────────────────────
+
+def rdm_similarity(rdm1, rdm2):
+    """
+    Compute Spearman rank correlation between upper triangles of two RDMs.
+    Higher = more similar representational geometry.
+    """
+    n = rdm1.shape[0]
+    idx = np.triu_indices(n, k=1)
+    r, p = spearmanr(rdm1[idx], rdm2[idx])
+    return r, p
+
+
+# ── 6. HELPER: RANDOM BASELINE NETWORK ───────────────────────────────────────
+
+def randomize_weights(network):
+    """
+    Randomize network weights while preserving sign structure (E/I identity).
+    This is the Shiu-style shuffled weights control applied to Flyvis.
+
+    Specifically: for each parameter tensor, shuffle the absolute values
+    but preserve the sign of each weight.
+
+    Note: shuffling across all parameter types (time constants, resting
+    potentials, synapse strengths) can produce unstable dynamics in some
+    random models. This is itself a meaningful observation — the biological
+    connectome occupies a stable region of parameter space that random
+    shuffles often leave.
+    """
+    with torch.no_grad():
+        for name, param in network.named_parameters():
+            if param.requires_grad:
+                signs = torch.sign(param.data)
+                abs_vals = param.data.abs()
+                flat = abs_vals.flatten()
+                perm = torch.randperm(flat.shape[0])
+                shuffled = flat[perm].reshape(abs_vals.shape)
+                param.data = signs * shuffled
+    return network
+
+
+# ── 7. MAIN EXPERIMENT ────────────────────────────────────────────────────────
+
+def run_experiment(n_models=10):
+    """
+    Run the RSA proof of concept experiment.
+
+    Args:
+        n_models: number of models to use (set to 1 for debugging, 10 for full run)
+    """
+    print("\n" + "="*60)
+    print("FLYVIS RSA PROOF OF CONCEPT")
+    print("="*60)
+    print(f"Random seed: {SEED}")
+
+    # ── 7a. Load ensemble ─────────────────────────────────────────────────────
+    print("\nLoading ensemble...")
+    ensemble = EnsembleView(results_dir / "flow/0000")
+    best_indices = list(range(n_models))  # 000-009 pre-sorted best to worst
+    print(f"Using {n_models} model(s): indices {best_indices}")
+
+    # ── 7b. Get stimuli (ON edges, 4 directions) ──────────────────────────────
+    on_edge_indices = [
+        i for i, row in dataset.arg_df.iterrows()
+        if row["intensity"] == INTENSITY
+    ]
+    print(f"\nStimulus conditions (ON edges, 4 directions): {len(on_edge_indices)}")
+    print(dataset.arg_df.iloc[on_edge_indices])
+
+    # ── 7c. Connectome-constrained: collect population vectors ────────────────
+    print("\n--- CONNECTOME-CONSTRAINED NETWORKS ---")
+    cc_pop_matrices = []
+    cell_types = None
+
+    for rank, model_idx in enumerate(best_indices):
+        model_path = results_dir / f"flow/0000/{model_idx:03d}"
+        nv = NetworkView(model_path)
+        print(f"  Model {rank+1}/{n_models} ({model_path.name})...", end=" ")
+
+        pop_vecs = []
+        for stim_idx in on_edge_indices:
+            stimulus = dataset[stim_idx]
+            if not isinstance(stimulus, torch.Tensor):
+                stimulus = torch.tensor(stimulus, dtype=torch.float32)
+            pop_vec, cell_types = get_population_vector(nv, stimulus, dataset.dt)
+            pop_vecs.append(pop_vec)
+
+        pop_matrix = np.stack(pop_vecs, axis=0)  # (4, n_cell_types)
+        cc_pop_matrices.append(pop_matrix)
+        print(f"done. Pop vec shape: {pop_matrix.shape}")
+
+        # FIX 3: cleanup between models
+        del nv
+        torch.cuda.empty_cache()
+
+    print(f"\n  Cell types ({len(cell_types)}): {cell_types[:5]}...")
+
+    # ── 7d. Random baseline: same architecture, shuffled weights ─────────────
+    print("\n--- RANDOM BASELINE NETWORKS ---")
+    rand_pop_matrices = []
+
+    for rank, model_idx in enumerate(best_indices):
+        model_path = results_dir / f"flow/0000/{model_idx:03d}"
+        nv = NetworkView(model_path)
+        network = nv.init_network()
+        network = randomize_weights(network)
+        print(f"  Random model {rank+1}/{n_models}...", end=" ")
+
+        pop_vecs = []
+        for stim_idx in on_edge_indices:
+            stimulus = dataset[stim_idx]
+            if not isinstance(stimulus, torch.Tensor):
+                stimulus = torch.tensor(stimulus, dtype=torch.float32)
+            # FIX 1: unsqueeze here too
+            if stimulus.dim() == 2:
+                stimulus = stimulus.unsqueeze(1)
+
+            with torch.no_grad():
+                initial_state = network.fade_in_state(1.0, dataset.dt, stimulus[[0]])
+                responses = network.simulate(
+                    stimulus[None], dataset.dt, initial_state=initial_state
+                ).cpu()
+            layer_act = LayerActivity(responses, network.connectome, keepref=True)
+            pop_vec = np.array([
+                layer_act.central[ct].squeeze().numpy().max()
+                for ct in cell_types
+            ])
+            pop_vecs.append(pop_vec)
+
+            # FIX 3: cleanup per stimulus
+            del responses, layer_act
+            torch.cuda.empty_cache()
+
+        pop_matrix = np.stack(pop_vecs, axis=0)
+
+        # Diagnostic: flag models with exploding activations
+        n_bad = np.sum(~np.isfinite(pop_matrix))
+        if n_bad > 0:
+            print(f"\n  WARNING: {n_bad} non-finite values in random model {rank+1} "
+                  f"(unstable dynamics — will be clamped in build_rdm)")
+
+        rand_pop_matrices.append(pop_matrix)
+        print(f"done. Pop vec shape: {pop_matrix.shape}")
+
+        # FIX 3: cleanup per model
+        del network, nv
+        torch.cuda.empty_cache()
+
+    # ── 7e. Compute RDMs ──────────────────────────────────────────────────────
+    print("\n--- COMPUTING RDMs ---")
+    cc_rdms_cosine   = [build_rdm(m, "cosine")    for m in cc_pop_matrices]
+    cc_rdms_eucl     = [build_rdm(m, "euclidean") for m in cc_pop_matrices]
+    rand_rdms_cosine = [build_rdm(m, "cosine")    for m in rand_pop_matrices]
+    rand_rdms_eucl   = [build_rdm(m, "euclidean") for m in rand_pop_matrices]
+
+    cc_rdm_cosine_mean   = np.mean(cc_rdms_cosine,   axis=0)
+    cc_rdm_eucl_mean     = np.mean(cc_rdms_eucl,     axis=0)
+    rand_rdm_cosine_mean = np.mean(rand_rdms_cosine, axis=0)
+    rand_rdm_eucl_mean   = np.mean(rand_rdms_eucl,   axis=0)
+
+    # ── 7f. RDM similarity (CC vs random) ─────────────────────────────────────
+    print("\n--- RDM SIMILARITY (Connectome-Constrained vs Random) ---")
+    r_cosine, p_cosine = rdm_similarity(cc_rdm_cosine_mean, rand_rdm_cosine_mean)
+    r_eucl,   p_eucl   = rdm_similarity(cc_rdm_eucl_mean,   rand_rdm_eucl_mean)
+    print(f"  Cosine RDM correlation:    r = {r_cosine:.3f}, p = {p_cosine:.4f}")
+    print(f"  Euclidean RDM correlation: r = {r_eucl:.3f}, p = {p_eucl:.4f}")
+    print("\n  Interpretation:")
+    print("  Low r  → CC and random networks have DIFFERENT representational geometry")
+    print("  High r → similar geometry (random network could substitute connectome)")
+
+    # ── 7g. Within-ensemble consistency ───────────────────────────────────────
+    print("\n--- WITHIN-ENSEMBLE RDM CONSISTENCY (CC models) ---")
+    within_corrs = []
+    for i in range(len(cc_rdms_cosine)):
+        for j in range(i+1, len(cc_rdms_cosine)):
+            r, _ = rdm_similarity(cc_rdms_cosine[i], cc_rdms_cosine[j])
+            within_corrs.append(r)
+    if within_corrs:
+        print(f"  Mean pairwise RDM correlation across CC models: "
+              f"{np.mean(within_corrs):.3f} ± {np.std(within_corrs):.3f}")
+    else:
+        print("  (Need >1 model to compute within-ensemble consistency)")
+
+    # ── 7h. Plot ──────────────────────────────────────────────────────────────
+    print("\n--- GENERATING FIGURE ---")
+    angle_labels = [f"{a}°" for a in ANGLES]
+
+    fig, axes = plt.subplots(1, 4, figsize=(14, 3.5))
+    fig.suptitle(
+        "Representational Geometry: Connectome-Constrained vs Random\n"
+        "Moving edge stimuli (0°, 90°, 180°, 270°), ON edges",
+        fontsize=10
+    )
+
+    for ax, rdm, title in zip(
+        axes,
+        [cc_rdm_cosine_mean, rand_rdm_cosine_mean,
+         cc_rdm_eucl_mean,   rand_rdm_eucl_mean],
+        ["CC — Cosine RDM", "Random — Cosine RDM",
+         "CC — Euclidean RDM", "Random — Euclidean RDM"]
+    ):
+        im = ax.imshow(rdm, cmap="viridis", vmin=0)
+        ax.set_title(title, fontsize=8)
+        ax.set_xticks(range(4)); ax.set_xticklabels(angle_labels, fontsize=7)
+        ax.set_yticks(range(4)); ax.set_yticklabels(angle_labels, fontsize=7)
+        plt.colorbar(im, ax=ax, fraction=0.046, pad=0.04)
+
+    plt.tight_layout()
+    fig.savefig("../figures/moving_edge_poc_rdms.png", dpi=150, bbox_inches="tight")
+    print("  Saved: ../figures/moving_edge_poc_rdms.png")
+    plt.show()
+
+    # ── 7i. Summary ───────────────────────────────────────────────────────────
+    print("\n" + "="*60)
+    print("SUMMARY")
+    print("="*60)
+    print(f"  N stimuli:          {len(on_edge_indices)} (ON edges, 4 directions)")
+    print(f"  N models:           {n_models}")
+    print(f"  Population vec dim: {cc_pop_matrices[0].shape[1]} (cell types)")
+    print(f"  Cosine RDM corr (CC vs random):    r = {r_cosine:.3f}")
+    print(f"  Euclidean RDM corr (CC vs random): r = {r_eucl:.3f}")
+    if within_corrs:
+        print(f"  Within-CC consistency:             r = {np.mean(within_corrs):.3f}")
+
+    return {
+        "cc_rdm_cosine":   cc_rdm_cosine_mean,
+        "rand_rdm_cosine": rand_rdm_cosine_mean,
+        "cc_rdm_eucl":     cc_rdm_eucl_mean,
+        "rand_rdm_eucl":   rand_rdm_eucl_mean,
+        "r_cosine": r_cosine, "p_cosine": p_cosine,
+        "r_eucl":   r_eucl,   "p_eucl":   p_eucl,
+        "within_corrs": within_corrs,
+        "cell_types": cell_types,
+    }
+
+
+# ── 8. ENTRY POINT ────────────────────────────────────────────────────────────
+
+if __name__ == "__main__":
+    # n_models=1 for debugging (confirms pop vec shape is (4, 65))
+    # n_models=10 for full run
+    results = run_experiment(n_models=10)
