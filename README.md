@@ -19,15 +19,19 @@ This project tests that hypothesis using the pretrained Flyvis ensemble (Lappala
 
 ## Experiment
 
-**Stimuli:** 4 ON moving edges at cardinal directions (0°, 90°, 180°, 270°)
+**Stimuli:** 12 ON moving edges at 30° increments (0° through 330°)
 
 **Networks:**
 - *Connectome-constrained (CC):* Top 10 pretrained Flyvis models (indices 000–009, pre-sorted by task error in directory naming), trained to perform optic flow estimation on naturalistic video with connectome-fixed architecture (734 free parameters)
-- *Random baseline:* Same 10 model architectures with weight magnitudes shuffled while preserving E/I sign structure
+- *Random baseline:* Same 10 model architectures with weight magnitudes shuffled while preserving E/I sign structure (Shiu-style control)
 
 **Population vectors:** Peak central-cell voltage per cell type (65-dim) in response to each stimulus direction
 
-**Metrics:** Cosine distance RDM, Euclidean distance RDM, Spearman RDM correlation, within-ensemble consistency
+**Metrics:**
+- Cosine distance RDM — scale-invariant, captures pattern geometry
+- Euclidean distance RDM — captures magnitude differences
+- Spearman RDM correlation — measures similarity between CC and random geometry
+- Within-ensemble consistency — measures stability of CC representational geometry across trained solutions
 
 ---
 
@@ -35,20 +39,18 @@ This project tests that hypothesis using the pretrained Flyvis ensemble (Lappala
 
 | Metric | Value |
 |--------|-------|
-| CC cosine RDM off-diagonal range | 0.009 – 0.019 (structured) |
+| CC cosine RDM off-diagonal range | 0.001 – 0.021 (structured) |
 | Random cosine RDM off-diagonal range | ~0.200 (uniform — no direction selectivity) |
-| CC vs random RDM correlation (cosine) | r = 0.371 |
-| Within-CC ensemble consistency | r = 0.337 ± 0.320 |
+| CC vs random RDM correlation (cosine) | r = 0.757, p < 0.0001 |
+| Within-CC ensemble consistency | r = 0.838 ± 0.078 |
 | Random models with unstable dynamics | 5 / 10 |
 | CC models with unstable dynamics | 0 / 10 |
 
-The connectome-constrained network produces direction-sensitive representational geometry. The random baseline produces either a uniform RDM (no direction sensitivity) or dynamic collapse (exploding activations). Zero trained models exhibited instability, suggesting the biological connectome reliably occupies a dynamically stable region of parameter space.
-
-> **Note:** With only 6 upper-triangle values in a 4×4 RDM, statistical significance is not assessable. Expanding to 12 stimulus directions (66 upper-triangle values) is the immediate next step.
+The connectome-constrained network produces direction-sensitive representational geometry with a smooth circular structure — adjacent directions are most similar, opposite directions most dissimilar — consistent with the known tuning of T4/T5 neurons in the fly visual system. The random baseline produces either a uniform RDM (no direction sensitivity) or dynamic collapse (exploding activations). Zero trained models exhibited instability, suggesting the biological connectome reliably occupies a dynamically stable region of parameter space that random weight shuffles frequently leave.
 
 ![RDM figure](figures/moving_edge_poc_rdms.png)
 
-*Left to right: connectome-constrained cosine RDM, random baseline cosine RDM, connectome-constrained Euclidean RDM, random baseline Euclidean RDM. The CC cosine RDM shows structured, direction-dependent dissimilarity (range 0.009–0.019). The random cosine RDM is nearly uniform (~0.200 off-diagonal), indicating no direction selectivity. The random Euclidean RDM is dominated by exploding activations in unstable models (5/10) and is not interpretable. Stimuli: ON moving edges at 0°, 90°, 180°, 270°. Top 10 pretrained Flyvis models, seed=42.*
+*Left to right: connectome-constrained cosine RDM, random baseline cosine RDM, connectome-constrained Euclidean RDM, random baseline Euclidean RDM. The CC cosine RDM shows structured, direction-dependent dissimilarity with a smooth circular gradient (range 0.001–0.021). The random cosine RDM is nearly uniform (~0.200 off-diagonal), indicating no direction selectivity. The random Euclidean RDM is dominated by exploding activations in unstable models (5/10) and is not interpretable. Stimuli: 12 ON moving edges at 30° increments. Top 10 pretrained Flyvis models, seed=42.*
 
 ---
 
@@ -73,7 +75,7 @@ This experiment runs on Google Colab with a GPU runtime. Local installation requ
 results = run_experiment(n_models=10)
 ```
 
-The full experiment takes approximately 10–15 minutes on a T4 GPU.
+The full experiment takes approximately 20–25 minutes on a T4 GPU.
 
 The Colab-ready notebook is at `notebooks/moving_edge_poc.ipynb`.
 The standalone script is at `experiments/moving_edge_poc.py`.
