@@ -57,7 +57,7 @@ The connectome-constrained network produces direction-sensitive representational
 ## Results
 
 ### CC Cosine RDM
-The connectome-constrained network produces a structured 12×12 dissimilarity matrix with clear direction-dependent organization. Off-diagonal values range from ~0.001 to ~0.021 — small in absolute terms but systematically organized: adjacent directions (e.g., 0°–30°) are most similar, while opposite directions (e.g., 0°–180°) are most dissimilar. The matrix shows a smooth circular gradient consistent with the known direction tuning of T4/T5 neurons in the fly visual system.
+The connectome-constrained network produces a structured 12×12 dissimilarity matrix with clear direction-dependent organization. Off-diagonal values range from ~0.001 to ~0.021 — small in absolute terms but systematically organized: adjacent directions are most similar (minimum: 0°–30°, dissimilarity = 0.001), while opposite directions are most dissimilar (maximum: 0°–180°, dissimilarity = 0.021). The matrix shows a smooth circular gradient consistent with the known direction tuning of T4/T5 neurons in the fly visual system.
 
 ### Random Cosine RDM
 The random baseline produces a nearly uniform matrix with all off-diagonal values at ~0.200. The random network cannot distinguish motion directions — all stimuli produce essentially the same population geometry, with directional variation confined to the fourth decimal place.
