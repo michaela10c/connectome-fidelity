@@ -382,6 +382,6 @@ def run_experiment(n_models=10):
 # ── 8. ENTRY POINT ────────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
-    # n_models=1 for debugging (confirms pop vec shape is (4, 65))
+    # n_models=1 for debugging (confirms pop vec shape is (12, 65))
     # n_models=10 for full run
     results = run_experiment(n_models=10)
