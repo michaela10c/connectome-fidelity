@@ -73,7 +73,7 @@ Euclidean RDM correlation: **r = −0.058, p = 0.643** — not significant and n
 ### Within-Ensemble Consistency
 Mean pairwise RDM correlation across CC models: **r = 0.838 ± 0.078**. High consistency with moderate variance indicates that the representational geometry is stable across different trained solutions — the geometric structure is a property of the connectome constraint, not of individual training runs. Values range from r = 0.601 to r = 0.956.
 
-### Limitations and Next Steps
+### Next Steps
 - Include OFF edges (intensity = 0) alongside ON edges to test whether the directional geometry generalizes across polarity
 - Euclidean metric is not suitable when random baselines are dynamically unstable; cosine distance is the appropriate primary metric for this comparison
 - Within-CC consistency could be reported separately per cluster if UMAP reveals substructure in the ensemble geometry (planned)
