@@ -84,7 +84,7 @@ Mean pairwise RDM correlation across CC models: **r = 0.838 ± 0.078**. High con
 
 ## Installation
 
-This experiment runs on Google Colab with a GPU runtime. Local installation requires Python ≥ 3.9, < 3.13.
+This experiment runs on Google Colab with a T4 GPU runtime. Local installation requires Python ≥ 3.9, < 3.13.
 
 ```python
 # On Google Colab — run these cells in order
