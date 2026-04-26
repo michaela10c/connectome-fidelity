@@ -7,9 +7,9 @@ produce geometrically distinct population codes compared to randomly initialized
 networks with the same architecture.
 
 Experiment:
-- Stimuli: 4 moving edge directions (0°, 90°, 180°, 270°), ON edges
+- Stimuli: 12 moving edge directions (0° through 330°, 30° increments), ON edges
 - Networks: pretrained connectome-constrained ensemble (top 10) vs random baseline
-- Population vectors: peak central-cell response per cell type (64-dim)
+- Population vectors: peak central-cell response per cell type (65-dim)
 - Metrics: Euclidean distance, cosine distance, RSA (RDM correlation)
 
 Run on Google Colab with GPU runtime after installing flyvis:
@@ -41,7 +41,7 @@ torch.cuda.manual_seed_all(SEED)
 
 # ── 2. STIMULUS DATASET ───────────────────────────────────────────────────────
 
-ANGLES = [0, 90, 180, 270]          # 4 cardinal directions
+ANGLES = [0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330]         # 12 directions (30° increments)
 INTENSITY = 1                        # ON edges only for this POC
 
 dataset = MovingEdge(
@@ -205,12 +205,12 @@ def run_experiment(n_models=10):
     best_indices = list(range(n_models))  # 000-009 pre-sorted best to worst
     print(f"Using {n_models} model(s): indices {best_indices}")
 
-    # ── 7b. Get stimuli (ON edges, 4 directions) ──────────────────────────────
+    # ── 7b. Get stimuli (ON edges, 12 directions) ──────────────────────────────
     on_edge_indices = [
         i for i, row in dataset.arg_df.iterrows()
         if row["intensity"] == INTENSITY
     ]
-    print(f"\nStimulus conditions (ON edges, 4 directions): {len(on_edge_indices)}")
+    print(f"\nStimulus conditions (ON edges, {len(on_edge_indices)} directions):")
     print(dataset.arg_df.iloc[on_edge_indices])
 
     # ── 7c. Connectome-constrained: collect population vectors ────────────────
@@ -231,7 +231,7 @@ def run_experiment(n_models=10):
             pop_vec, cell_types = get_population_vector(nv, stimulus, dataset.dt)
             pop_vecs.append(pop_vec)
 
-        pop_matrix = np.stack(pop_vecs, axis=0)  # (4, n_cell_types)
+        pop_matrix = np.stack(pop_vecs, axis=0)  # (12, n_cell_types)
         cc_pop_matrices.append(pop_matrix)
         print(f"done. Pop vec shape: {pop_matrix.shape}")
 
@@ -334,7 +334,7 @@ def run_experiment(n_models=10):
     fig, axes = plt.subplots(1, 4, figsize=(14, 3.5))
     fig.suptitle(
         "Representational Geometry: Connectome-Constrained vs Random\n"
-        "Moving edge stimuli (0°, 90°, 180°, 270°), ON edges",
+        "Moving edge stimuli (12 directions, 30° increments), ON edges",
         fontsize=10
     )
 
@@ -347,8 +347,8 @@ def run_experiment(n_models=10):
     ):
         im = ax.imshow(rdm, cmap="viridis", vmin=0)
         ax.set_title(title, fontsize=8)
-        ax.set_xticks(range(4)); ax.set_xticklabels(angle_labels, fontsize=7)
-        ax.set_yticks(range(4)); ax.set_yticklabels(angle_labels, fontsize=7)
+        ax.set_xticks(range(12)); ax.set_xticklabels(angle_labels, fontsize=6, rotation=90)
+        ax.set_yticks(range(12)); ax.set_yticklabels(angle_labels, fontsize=6)
         plt.colorbar(im, ax=ax, fraction=0.046, pad=0.04)
 
     plt.tight_layout()
@@ -360,7 +360,7 @@ def run_experiment(n_models=10):
     print("\n" + "="*60)
     print("SUMMARY")
     print("="*60)
-    print(f"  N stimuli:          {len(on_edge_indices)} (ON edges, 4 directions)")
+    print(f"  N stimuli:          {len(on_edge_indices)} (ON edges, 12 directions)")
     print(f"  N models:           {n_models}")
     print(f"  Population vec dim: {cc_pop_matrices[0].shape[1]} (cell types)")
     print(f"  Cosine RDM corr (CC vs random):    r = {r_cosine:.3f}")
