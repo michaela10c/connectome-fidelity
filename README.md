@@ -22,7 +22,7 @@ This project tests that hypothesis using the pretrained Flyvis ensemble (Lappala
 **Stimuli:** 4 ON moving edges at cardinal directions (0°, 90°, 180°, 270°)
 
 **Networks:**
-- *Connectome-constrained (CC):* Top 10 pretrained Flyvis models trained to perform optic flow estimation on naturalistic video with connectome-fixed architecture (734 free parameters)
+- *Connectome-constrained (CC):* Top 10 pretrained Flyvis models (indices 000–009, pre-sorted by task error in directory naming), trained to perform optic flow estimation on naturalistic video with connectome-fixed architecture (734 free parameters)
 - *Random baseline:* Same 10 model architectures with weight magnitudes shuffled while preserving E/I sign structure
 
 **Population vectors:** Peak central-cell voltage per cell type (65-dim) in response to each stimulus direction
