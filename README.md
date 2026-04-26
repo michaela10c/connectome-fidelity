@@ -39,7 +39,7 @@ This project tests that hypothesis using the pretrained Flyvis ensemble (Lappala
 
 | Metric | Value |
 |--------|-------|
-| CC cosine RDM off-diagonal range | 0.001 – 0.021 (structured) |
+| CC cosine RDM off-diagonal range | 0.001 – 0.022 (structured) |
 | Random cosine RDM off-diagonal range | ~0.200 (uniform — no direction selectivity) |
 | CC vs random RDM correlation (cosine) | r = 0.757, p < 0.0001 |
 | Within-CC ensemble consistency | r = 0.838 ± 0.078 |
@@ -50,14 +50,14 @@ The connectome-constrained network produces direction-sensitive representational
 
 ![RDM figure](figures/moving_edge_poc_rdms.png)
 
-*Left to right: connectome-constrained cosine RDM, random baseline cosine RDM, connectome-constrained Euclidean RDM, random baseline Euclidean RDM. The CC cosine RDM shows structured, direction-dependent dissimilarity with a smooth circular gradient (range 0.001–0.021). The random cosine RDM is nearly uniform (~0.200 off-diagonal), indicating no direction selectivity. The random Euclidean RDM is dominated by exploding activations in unstable models (5/10) and is not interpretable. Stimuli: 12 ON moving edges at 30° increments. Top 10 pretrained Flyvis models, seed=42.*
+*Left to right: connectome-constrained cosine RDM, random baseline cosine RDM, connectome-constrained Euclidean RDM, random baseline Euclidean RDM. The CC cosine RDM shows structured, direction-dependent dissimilarity with a smooth circular gradient (range 0.001–0.022). The random cosine RDM is nearly uniform (~0.200 off-diagonal), indicating no direction selectivity. The random Euclidean RDM is dominated by exploding activations in unstable models (5/10) and is not interpretable. Stimuli: 12 ON moving edges at 30° increments. Top 10 pretrained Flyvis models, seed=42.*
 
 ---
 
 ## Results
 
 ### CC Cosine RDM
-The connectome-constrained network produces a structured 12×12 dissimilarity matrix with clear direction-dependent organization. Off-diagonal values range from ~0.001 to ~0.021 — small in absolute terms but systematically organized: adjacent directions are most similar (minimum: 0°–30°, dissimilarity = 0.001), while opposite directions are most dissimilar (maximum: 0°–180°, dissimilarity = 0.021). The matrix shows a smooth circular gradient consistent with the known direction tuning of T4/T5 neurons in the fly visual system.
+The connectome-constrained network produces a structured 12×12 dissimilarity matrix with clear direction-dependent organization. Off-diagonal values range from ~0.001 to ~0.022 — small in absolute terms but systematically organized: adjacent directions are most similar (minimum: 0°–30°, dissimilarity = 0.001), while opposite directions are most dissimilar (maximum: 30°–210°, dissimilarity = 0.022). The matrix shows a smooth circular gradient consistent with the known direction tuning of T4/T5 neurons in the fly visual system.
 
 ### Random Cosine RDM
 The random baseline produces a nearly uniform matrix with all off-diagonal values at ~0.200. The random network cannot distinguish motion directions — all stimuli produce essentially the same population geometry, with directional variation confined to the fourth decimal place.
@@ -66,7 +66,7 @@ The random baseline produces a nearly uniform matrix with all off-diagonal value
 5 of 10 random models (models 2, 3, 4, 8, 9) produced exploding activations (756 non-finite values each, corresponding to 63 of 65 cell types across all 12 stimuli). 0 of 10 trained CC models showed any instability. This is itself a meaningful result: the biological connectome, as optimized by task training, reliably occupies a dynamically stable region of parameter space that random weight shuffles frequently leave.
 
 ### CC vs Random RDM Correlation
-Cosine RDM correlation: **r = 0.757, p < 0.0001** — highly significant. This moderate positive correlation indicates that the CC and random cosine RDMs share directional ordering — both assign smaller dissimilarities to adjacent directions and larger dissimilarities to opposing ones — but differ substantially in the depth and resolution of that structure. The CC network encodes direction with fine-grained, graded dissimilarities spanning a 20-fold range (0.001–0.021), while the random baseline collapses that structure to a nearly uniform ~0.200 with no functionally meaningful variation. The connectome constraint does not produce a categorically different geometry so much as a vastly more resolved one: biological wiring sharpens a directional signal that weight-shuffled networks can only approximate in the coarsest sense.
+Cosine RDM correlation: **r = 0.757, p < 0.0001** — highly significant. This moderate positive correlation indicates that the CC and random cosine RDMs share directional ordering — both assign smaller dissimilarities to adjacent directions and larger dissimilarities to opposing ones — but differ substantially in the depth and resolution of that structure. The CC network encodes direction with fine-grained, graded dissimilarities spanning a 20-fold range (0.001–0.022), while the random baseline collapses that structure to a nearly uniform ~0.200 with no functionally meaningful variation. The connectome constraint does not produce a categorically different geometry so much as a vastly more resolved one: biological wiring sharpens a directional signal that weight-shuffled networks can only approximate in the coarsest sense.
 
 Euclidean RDM correlation: **r = −0.058, p = 0.643** — not significant and not interpretable, dominated by extreme magnitudes from exploding activations in unstable random models.
 
