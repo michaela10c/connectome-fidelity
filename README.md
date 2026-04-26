@@ -54,7 +54,7 @@ The connectome-constrained network produces direction-sensitive representational
 
 ## Installation
 
-This experiment runs on Google Colab with a GPU runtime. Local installation requires Python ≥ 3.9.
+This experiment runs on Google Colab with a GPU runtime. Local installation requires Python ≥ 3.9, < 3.13.
 
 ```python
 # On Google Colab — run these cells in order
