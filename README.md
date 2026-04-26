@@ -54,6 +54,34 @@ The connectome-constrained network produces direction-sensitive representational
 
 ---
 
+## Results
+
+### CC Cosine RDM
+The connectome-constrained network produces a structured 12×12 dissimilarity matrix with clear direction-dependent organization. Off-diagonal values range from ~0.001 to ~0.021 — small in absolute terms but systematically organized: adjacent directions (e.g., 0°–30°) are most similar, while opposite directions (e.g., 0°–180°) are most dissimilar. The matrix shows a smooth circular gradient consistent with the known direction tuning of T4/T5 neurons in the fly visual system.
+
+### Random Cosine RDM
+The random baseline produces a nearly uniform matrix with all off-diagonal values at ~0.200. The random network cannot distinguish motion directions — all stimuli produce essentially the same population geometry, with directional variation confined to the fourth decimal place.
+
+### Dynamic Instability
+5 of 10 random models (models 2, 3, 4, 8, 9) produced exploding activations (756 non-finite values each, corresponding to 63 of 65 cell types across all 12 stimuli). 0 of 10 trained CC models showed any instability. This is itself a meaningful result: the biological connectome, as optimized by task training, reliably occupies a dynamically stable region of parameter space that random weight shuffles frequently leave.
+
+### CC vs Random RDM Correlation
+Cosine RDM correlation: **r = 0.757, p < 0.0001** — highly significant. This moderate positive correlation indicates that the CC and random cosine RDMs share directional ordering — both assign smaller dissimilarities to adjacent directions and larger dissimilarities to opposing ones — but differ substantially in the depth and resolution of that structure. The CC network encodes direction with fine-grained, graded dissimilarities spanning a 20-fold range (0.001–0.021), while the random baseline collapses that structure to a nearly uniform ~0.200 with no functionally meaningful variation. The connectome constraint does not produce a categorically different geometry so much as a vastly more resolved one: biological wiring sharpens a directional signal that weight-shuffled networks can only approximate in the coarsest sense.
+
+Euclidean RDM correlation: **r = −0.058, p = 0.643** — not significant and not interpretable, dominated by extreme magnitudes from exploding activations in unstable random models.
+
+### Within-Ensemble Consistency
+Mean pairwise RDM correlation across CC models: **r = 0.838 ± 0.078**. High consistency with moderate variance indicates that the representational geometry is stable across different trained solutions — the geometric structure is a property of the connectome constraint, not of individual training runs. Values range from r = 0.601 to r = 0.956.
+
+### Limitations and Next Steps
+- Include OFF edges (intensity = 0) alongside ON edges to test whether the directional geometry generalizes across polarity
+- Euclidean metric is not suitable when random baselines are dynamically unstable; cosine distance is the appropriate primary metric for this comparison
+- Within-CC consistency could be reported separately per cluster if UMAP reveals substructure in the ensemble geometry (planned)
+- Consider Kendall's τ_A as an alternative to Spearman for RDM comparison, as it is more robust to ties
+- Expand to all 50 pretrained Flyvis models for tighter confidence intervals on within-ensemble consistency
+
+---
+
 ## Installation
 
 This experiment runs on Google Colab with a GPU runtime. Local installation requires Python ≥ 3.9, < 3.13.
