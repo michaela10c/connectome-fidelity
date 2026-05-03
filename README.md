@@ -99,7 +99,8 @@ Euclidean RDM correlation: **r = 0.021, p = 0.865** (Shiu-style shuffle); **r = 
 At n=10, mean pairwise RDM correlation: **r = 0.838 ± 0.078** (range: 0.601–0.956). At n=50, mean pairwise RDM correlation: **r = 0.721 ± 0.150** (range: 0.323–0.983). The decrease in mean and increase in variance at n=50 reflects the inclusion of lower-performing models implementing more varied solutions, consistent with the known cluster structure of the Flyvis ensemble reported in Lappalainen et al. Fig. 3.
 
 ### Next Steps
-- Dynamic instability in random models persists across both Shiu-style shuffling (66% unstable) and matched-normal resampling (76% unstable) — a fully stable random baseline may require architectural constraints such as restricting randomization to synaptic weights only, excluding time constants and resting potentials
+- Dynamic instability in random models persists across both Shiu-style shuffling (66% unstable) and matched-normal resampling (76% unstable) — per Lappalainen et al. (Methods), time constants are clamped during training to prevent 
+instability — restricting randomization to the 604 unitary synapse scaling factors only, while preserving trained time constants and resting potentials, should produce a stable baseline
 - Include OFF edges (intensity = 0) alongside ON edges to test whether the directional geometry generalizes across polarity
 - Euclidean metric is not suitable when random baselines are dynamically unstable; cosine distance is the appropriate primary metric for this comparison
 - Within-CC consistency could be reported separately per cluster if UMAP reveals substructure in the ensemble geometry (planned)
