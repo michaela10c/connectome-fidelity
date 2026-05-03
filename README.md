@@ -152,7 +152,7 @@ Mean pairwise RDM correlation across all 50 CC models: **r = 0.838 ± 0.059**. T
 - Dynamic instability persists across all tested randomization strategies (66–76%), indicating that the trained parameter configuration as a whole determines dynamic stability; a fully stable random baseline may require adversarial stability-constrained sampling
 - Euclidean metric is not suitable when random baselines are dynamically unstable; cosine distance is the appropriate primary metric
 - Within-CC consistency could be reported separately per cluster if UMAP reveals substructure in the ensemble geometry (planned)
-- Consider Kendall's τ_A as an alternative to Spearman for RDM comparison, as it is more robust to ties
+- Consider Kendall's $\tau_A$ as an alternative to Spearman for RDM comparison, as it is more robust to ties
 
 ---
 
