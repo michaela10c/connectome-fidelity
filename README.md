@@ -83,13 +83,13 @@ At n=10, cosine RDM correlation: **r = 0.757, p < 0.0001** — highly significan
 
 At n=50, cosine RDM correlation: **NaN** — not computable due to numerical overflow in the mean random cosine RDM. The n=10 result remains the primary fidelity metric.
 
-Euclidean RDM correlation is not interpretable at either scale, dominated by extreme magnitudes from exploding activations in unstable random models.
+Euclidean RDM correlation: **r = 0.021, p = 0.865** at n=50 — not significant and not interpretable, dominated by extreme magnitudes (~10²¹) from exploding activations in unstable random models.
 
 ### Within-Ensemble Consistency
 At n=10, mean pairwise RDM correlation: **r = 0.838 ± 0.078** (range: 0.601–0.956). At n=50, mean pairwise RDM correlation: **r = 0.721 ± 0.150** (range: 0.323–0.983). The decrease in mean and increase in variance at n=50 reflects the inclusion of lower-performing models implementing more varied solutions, consistent with the known cluster structure of the Flyvis ensemble reported in Lappalainen et al. Fig. 3.
 
 ### Next Steps
-- The random baseline instability at n=50 motivates a modified control: use only stable random models for RDM comparison rather than the full 50
+- Even with a stricter clamping threshold (posinf=1e3) and restricting to the 17 stable random models, the mean cosine RDM remains NaN — the cosine metric is fundamentally unsuitable for comparison when any random models have exploding activations; a fully stable random baseline is required
 - Include OFF edges (intensity = 0) alongside ON edges to test whether the directional geometry generalizes across polarity
 - Euclidean metric is not suitable when random baselines are dynamically unstable; cosine distance is the appropriate primary metric for this comparison
 - Within-CC consistency could be reported separately per cluster if UMAP reveals substructure in the ensemble geometry (planned)
