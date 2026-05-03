@@ -130,8 +130,8 @@ def build_rdm(pop_matrix, metric="cosine"):
     # activations; clamping preserves the comparison (an exploding network is
     # maximally different from a well-behaved biological one) while avoiding
     # downstream crashes.
-    pop_matrix = np.nan_to_num(pop_matrix, nan=0.0, posinf=1e6, neginf=-1e6)
-
+    pop_matrix = np.nan_to_num(pop_matrix, nan=0.0, posinf=1e3, neginf=-1e3)
+    
     n = pop_matrix.shape[0]
     rdm = np.zeros((n, n))
     for i in range(n):
