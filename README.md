@@ -17,8 +17,9 @@ This project tests that hypothesis using the pretrained Flyvis ensemble (Lappala
 
 ---
 
-## Experiment
+## Experiments
 
+### Experiment 1: ON Edges
 **Stimuli:** 12 ON moving edges at 30° increments (0° through 330°)
 
 **Networks:**
@@ -35,9 +36,25 @@ This project tests that hypothesis using the pretrained Flyvis ensemble (Lappala
 
 ---
 
+### Experiment 2: ON + OFF Edges
+**Stimuli:** 24 moving edge conditions — 12 directions at 30° increments (0° through 330°) × 2 polarities (ON and OFF edges)
+
+**Networks:** Same as Experiment 1 — all 50 CC models and synapse-only shuffle random baseline
+
+**Population vectors:** Peak central-cell voltage per cell type (65-dim) in response to each stimulus condition
+
+**Metrics:**
+- Cosine distance RDM — scale-invariant, captures pattern geometry across all 24 conditions
+- Euclidean distance RDM — captures magnitude differences
+- Spearman RDM correlation — measures similarity between CC and random geometry
+- Within-ensemble consistency — measures stability of CC representational geometry across trained solutions
+- Polarity generalization — whether direction-sensitive geometry observed for ON edges in Experiment 1 extends to OFF edges and the combined ON+OFF space
+
+---
+
 ## Key Results
 
-### n=10 (top 10 models, primary fidelity result)
+### Experiment 1: ON Edges — n=10 (top 10 models, primary fidelity result)
 
 | Metric | Value |
 |--------|-------|
@@ -48,7 +65,7 @@ This project tests that hypothesis using the pretrained Flyvis ensemble (Lappala
 | Random models with unstable dynamics | 5 / 10 |
 | CC models with unstable dynamics | 0 / 10 |
 
-### n=50 (full ensemble) — instability across randomization strategies
+### Experiment 1: ON Edges — n=50 (full ensemble, instability across randomization strategies)
 
 | Randomization strategy | Unstable random models | CC unstable | Cosine RDM correlation |
 |------------------------|------------------------|-------------|------------------------|
@@ -56,26 +73,43 @@ This project tests that hypothesis using the pretrained Flyvis ensemble (Lappala
 | Matched-normal resampling | 38 / 50 (76%) | 0 / 50 | NaN |
 | Synapse-only shuffle (`edges_syn_strength`) | 34 / 50 (68%) | 0 / 50 | NaN |
 
-The connectome-constrained network produces direction-sensitive representational geometry with a smooth circular structure — adjacent directions are most similar, opposite directions most dissimilar — consistent with the known tuning of T4/T5 neurons in the fly visual system. Zero trained CC models exhibited instability at either n=10 or n=50 under any randomization strategy, while 66–76% of random models collapsed at n=50 across all three strategies, confirming that the biological connectome reliably occupies a dynamically stable region of parameter space that random weight configurations consistently leave.
+### Experiment 2: ON + OFF Edges — n=50 (synapse-only shuffle)
 
-![RDM figure](figures/moving_edge_on_rdms.png)
+| Metric | Value |
+|--------|-------|
+| CC cosine RDM structure | 24×24 with polarity block organization — ON and OFF edges occupy geometrically distinct regions |
+| CC vs random RDM correlation (cosine) | NaN — not computable (34/50 random models unstable) |
+| Euclidean RDM correlation | r = −0.036, p = 0.548 — not significant |
+| Within-CC ensemble consistency | r = 0.838 ± 0.059 |
+| Random models with unstable dynamics | 34 / 50 (68%) |
+| CC models with unstable dynamics | 0 / 50 |
 
-*Left to right: connectome-constrained cosine RDM, random baseline cosine RDM, connectome-constrained Euclidean RDM, random baseline Euclidean RDM (n=50 run, synapse-only shuffle of `edges_syn_strength`). The CC cosine RDM shows structured, direction-dependent dissimilarity with a smooth circular gradient (range 0.001–0.012). The random cosine RDM is entirely NaN due to numerical overflow from unstable models (34/50) and is not renderable. The random Euclidean RDM is dominated by exploding activations in unstable models and is not interpretable. Stimuli: 12 ON moving edges at 30° increments. All 50 pretrained Flyvis models, seed=42.*
+The connectome-constrained network produces direction-sensitive representational geometry with a smooth circular structure — adjacent directions are most similar, opposite directions most dissimilar — consistent with the known tuning of T4/T5 neurons in the fly visual system. In Experiment 2, this direction geometry is preserved within each polarity block, while ON and OFF edges occupy geometrically distinct population-level regions (~0.099–0.103 cross-polarity dissimilarity), consistent with the known T4/T5 ON/OFF pathway segregation. Zero trained CC models exhibited instability under any condition across either experiment.
+
+![Experiment 1 RDM figure](figures/moving_edge_on_rdms.png)
+
+*Experiment 1 — left to right: connectome-constrained cosine RDM, random baseline cosine RDM, connectome-constrained Euclidean RDM, random baseline Euclidean RDM (n=50, synapse-only shuffle of `edges_syn_strength`). The CC cosine RDM shows structured, direction-dependent dissimilarity with a smooth circular gradient (range 0.001–0.012). The random cosine RDM is entirely NaN due to numerical overflow from unstable models (34/50) and is not renderable. Stimuli: 12 ON moving edges at 30° increments. All 50 pretrained Flyvis models, seed=42.*
+
+![Experiment 2 RDM figure](figures/moving_edge_on_off_rdms.png)
+
+*Experiment 2 — left to right: connectome-constrained cosine RDM, random baseline cosine RDM, connectome-constrained Euclidean RDM, random baseline Euclidean RDM (n=50, synapse-only shuffle of `edges_syn_strength`). The CC cosine RDM shows a 24×24 block structure: within-polarity blocks (ON-ON, OFF-OFF) preserve the circular direction gradient from Experiment 1; cross-polarity dissimilarities are large and uniform (~0.099–0.103), reflecting T4/T5 pathway segregation. The random cosine RDM is entirely NaN (34/50 unstable). Stimuli: 24 conditions (12 directions × ON + OFF). All 50 pretrained Flyvis models, seed=42.*
 
 ---
 
 ## Results
 
-### CC Cosine RDM
+### Experiment 1: ON Edges
+
+#### CC Cosine RDM
 The connectome-constrained network produces a structured 12×12 dissimilarity matrix with clear direction-dependent organization. At n=10, off-diagonal values range from ~0.001 to ~0.022 — small in absolute terms but systematically organized: adjacent directions are most similar (minimum: 0°–30°, dissimilarity = 0.001), while opposite directions are most dissimilar (maximum: 30°–210°, dissimilarity = 0.022). At n=50, the range tightens to 0.001–0.012, reflecting the inclusion of lower-performing models. Both runs show a smooth circular gradient consistent with the known direction tuning of T4/T5 neurons in the fly visual system.
 
-### Random Cosine RDM
+#### Random Cosine RDM
 At n=10, the random baseline produces a nearly uniform matrix with all off-diagonal values at ~0.200 — the random network cannot distinguish motion directions, with directional variation confined to the fourth decimal place. At n=50, across all three randomization strategies tested — (1) Shiu-style shuffling of all free parameters, (2) matched-normal resampling of all free parameters, and (3) Shiu-style shuffling of synaptic weights only (`edges_syn_strength`) while preserving trained time constants and resting potentials — the mean random cosine RDM collapses to NaN due to numerical overflow from unstable models. Instability is a fundamental property of random weight configurations in this architecture, not an artifact of any particular randomization strategy.
 
-### Dynamic Instability
+#### Dynamic Instability
 Dynamic instability is robust across all three randomization strategies. At n=10, 5 of 10 random models (models 2, 3, 4, 8, 9) produced exploding activations (756 non-finite values each, corresponding to 63 of 65 cell types across all 12 stimuli). At n=50: full Shiu-style shuffling produced 33/50 unstable models (66%); matched-normal resampling produced 38/50 (76%); synapse-only shuffling of `edges_syn_strength` while preserving trained `nodes_time_const` and `nodes_bias` produced 34/50 (68%). The persistence of instability even when trained dynamical parameters are preserved confirms that randomizing synaptic weights alone is sufficient to destabilize dynamics. 0 of 50 trained CC models showed any instability under any condition. The biological connectome, as optimized by task training, reliably occupies a dynamically stable region of parameter space that random weight configurations consistently leave.
 
-### CC vs Random RDM Correlation
+#### CC vs Random RDM Correlation
 At n=10, cosine RDM correlation: **r = 0.757, p < 0.0001** — highly significant. This moderate positive correlation indicates that the CC and random cosine RDMs share directional ordering — both assign smaller dissimilarities to adjacent directions and larger dissimilarities to opposing ones — but differ substantially in the depth and resolution of that structure. The CC network encodes direction with fine-grained, graded dissimilarities spanning a 20-fold range (0.001–0.022), while the random baseline collapses that structure to a nearly uniform ~0.200 with no functionally meaningful variation.
 
 At n=50, cosine RDM correlation: **NaN** under all three randomization strategies — not computable due to numerical overflow in the mean random cosine RDM. The n=10 result remains the primary fidelity metric.
@@ -84,13 +118,39 @@ Euclidean RDM correlation: **r = 0.021, p = 0.865** (full Shiu-style shuffle); *
 
 **Interpretive note:** The n=50 random baseline is dominated by dynamically unstable models under all three randomization strategies and is not suitable for RDM correlation analysis. The meaningful fidelity signal at n=50 is the within-ensemble consistency of CC models and the instability rate of random models, not the CC vs random RDM correlation. The n=10 result (r = 0.757, p < 0.0001) remains the primary fidelity metric, computed against a random baseline with only 5/10 unstable models.
 
-### Within-Ensemble Consistency
+#### Within-Ensemble Consistency
 At n=10, mean pairwise RDM correlation: **r = 0.838 ± 0.078** (range: 0.601–0.956). At n=50, mean pairwise RDM correlation: **r = 0.721 ± 0.150** (range: 0.323–0.983). The decrease in mean and increase in variance at n=50 reflects the inclusion of lower-performing models implementing more varied solutions, consistent with the known cluster structure of the Flyvis ensemble reported in Lappalainen et al. Fig. 3.
 
-### Next Steps
-- Dynamic instability persists across all three randomization strategies (full shuffle: 66%; matched-normal: 76%; synapse-only shuffle: 68%), indicating that the trained parameter configuration as a whole — not any individual parameter type — is what keeps the biological connectome in a stable dynamical regime; a fully stable random baseline may require a different approach such as adversarial stability-constrained sampling
-- Include OFF edges (intensity = 0) alongside ON edges to test whether the directional geometry generalizes across polarity
-- Euclidean metric is not suitable when random baselines are dynamically unstable; cosine distance is the appropriate primary metric for this comparison
+---
+
+### Experiment 2: ON + OFF Edges
+
+#### CC Cosine RDM
+The connectome-constrained network produces a structured 24×24 dissimilarity matrix with clear polarity-dependent block organization. Within each polarity block (ON-ON and OFF-OFF), the same circular direction gradient observed in Experiment 1 is preserved: adjacent directions are most similar and opposite directions most dissimilar. Across polarity (ON vs OFF pairs), dissimilarities are large and nearly uniform at ~0.099–0.103 — the network represents ON and OFF edges as geometrically distinct populations regardless of direction. This block structure is consistent with the known segregation of the fly visual system into ON (T4) and OFF (T5) pathways.
+
+#### Random Cosine RDM
+The mean random cosine RDM collapses to NaN across all off-diagonal entries, as in Experiment 1, due to numerical overflow from unstable random models. The cosine metric remains unsuitable for the random baseline at n=50 under the synapse-only shuffle strategy.
+
+#### Dynamic Instability
+34 of 50 random models (68%) produced exploding activations — identical to the synapse-only shuffle rate in Experiment 1. Unstable models produced 1,512 non-finite values each, exactly double the 756 observed in Experiment 1, consistent with the doubling of stimulus conditions from 12 to 24. 0 of 50 CC models showed any instability. The instability rate and pattern are fully consistent across both experiments.
+
+#### CC vs Random RDM Correlation
+Cosine RDM correlation: **r = NaN** — not computable due to numerical overflow in the mean random cosine RDM, as in Experiment 1.
+
+Euclidean RDM correlation: **r = −0.036, p = 0.548** — not significant, and not interpretable due to extreme magnitudes (~10²⁷) from exploding activations in unstable random models.
+
+**Interpretive note:** The random baseline instability finding is consistent across both experiments. The meaningful fidelity signal in Experiment 2 is the CC representational structure itself — specifically, the polarity block organization — and the within-ensemble consistency reported below.
+
+#### Within-Ensemble Consistency
+Mean pairwise RDM correlation across all 50 CC models: **r = 0.838 ± 0.059**. This is notably higher and tighter than the n=50 ON-only result (r = 0.721 ± 0.150), suggesting that the ON+OFF stimulus set produces a more consistent representational geometry across the ensemble — likely because 24 conditions provide a richer constraint on the population code than 12. The result also matches the n=10 ON-only within-ensemble consistency (r = 0.838 ± 0.078), suggesting the full ensemble converges on a stable geometry when stimulus coverage is sufficient.
+
+---
+
+## Next Steps
+- The CC cosine RDM in Experiment 2 reveals a clear polarity block structure — ON and OFF edges occupy geometrically distinct regions of population space, consistent with T4/T5 pathway segregation; this is itself a fidelity-relevant finding worth reporting in the SfN abstract
+- The within-ensemble consistency improvement at n=50 from ON-only (r = 0.721) to ON+OFF (r = 0.838) suggests polarity is a stronger organizer of representational geometry than direction alone
+- Dynamic instability persists across all tested randomization strategies (66–76%), indicating that the trained parameter configuration as a whole determines dynamic stability; a fully stable random baseline may require adversarial stability-constrained sampling
+- Euclidean metric is not suitable when random baselines are dynamically unstable; cosine distance is the appropriate primary metric
 - Within-CC consistency could be reported separately per cluster if UMAP reveals substructure in the ensemble geometry (planned)
 - Consider Kendall's τ_A as an alternative to Spearman for RDM comparison, as it is more robust to ties
 
@@ -113,14 +173,16 @@ This experiment runs on Google Colab with a T4 GPU runtime. Local installation r
 ## Usage
 
 ```python
-# Run proof of concept (n_models=1 for debugging, n_models=50 for full run)
+# Experiment 1: ON edges (n_models=1 for debugging, n_models=50 for full run)
+results = run_experiment(n_models=50)
+
+# Experiment 2: ON + OFF edges
 results = run_experiment(n_models=50)
 ```
 
-The full experiment takes approximately 60–90 minutes on a T4 GPU.
+Each full experiment takes approximately 60–90 minutes on a T4 GPU.
 
-The Colab-ready notebook is at `notebooks/moving_edge_poc.ipynb`.
-The standalone script is at `experiments/moving_edge_poc.py`.
+Colab-ready notebooks are in `notebooks/`. Standalone scripts are in `experiments/`.
 
 ---
 
@@ -134,10 +196,10 @@ connectome-fidelity/
 │   └── moving_edge_on_off.py       ← ON+OFF edges experiment (polarity generalization)
 ├── notebooks/
 │   ├── moving_edge_on.ipynb        ← Colab-ready notebook, ON edges results
-│   └── moving_edge_on_off.ipynb    ← Colab-ready notebook, ON+OFF edges results (forthcoming)
+│   └── moving_edge_on_off.ipynb    ← Colab-ready notebook, ON+OFF edges results
 └── figures/
     ├── moving_edge_on_rdms.png     ← ON edges RDM figure
-    └── moving_edge_on_off_rdms.png ← ON+OFF edges RDM figure (forthcoming)
+    └── moving_edge_on_off_rdms.png ← ON+OFF edges RDM figure
 ```
 
 ---
