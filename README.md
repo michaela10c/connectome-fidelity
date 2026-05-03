@@ -134,7 +134,7 @@ connectome-fidelity/
 │   └── moving_edge_on_off.py       ← ON+OFF edges experiment (polarity generalization)
 ├── notebooks/
 │   ├── moving_edge_on.ipynb        ← Colab-ready notebook, ON edges results
-│   └── moving_edge_on_off.ipynb    ← Colab-ready notebook, ON+OFF edges results
+│   └── moving_edge_on_off.ipynb    ← Colab-ready notebook, ON+OFF edges results (forthcoming)
 └── figures/
     ├── moving_edge_on_rdms.png     ← ON edges RDM figure
     └── moving_edge_on_off_rdms.png ← ON+OFF edges RDM figure (forthcoming)
