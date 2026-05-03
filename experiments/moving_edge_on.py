@@ -1,6 +1,6 @@
 """
-Proof of Concept: Representational Geometry as a Fidelity Metric
-for Connectome-Constrained Neural Emulations
+Experiment 1: Representational Geometry as a Fidelity Metric
+for Connectome-Constrained Neural Emulations — ON Edges
 
 This script tests whether connectome-constrained networks (Lappalainen et al. 2024)
 produce geometrically distinct population codes compared to randomly initialized
@@ -23,7 +23,7 @@ import numpy as np
 import torch
 import matplotlib.pyplot as plt
 from scipy.spatial.distance import cosine, euclidean
-from scipy.stats import spearmanr
+from scipy.stats import spearmanr, kendalltau
 
 # ── 1. IMPORTS ────────────────────────────────────────────────────────────────
 
@@ -38,11 +38,12 @@ SEED = 42
 np.random.seed(SEED)
 torch.manual_seed(SEED)
 torch.cuda.manual_seed_all(SEED)
+torch.use_deterministic_algorithms(True)
 
 # ── 2. STIMULUS DATASET ───────────────────────────────────────────────────────
 
-ANGLES = [0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330]         # 12 directions (30° increments)
-INTENSITY = 1                        # ON edges only for this POC
+ANGLES = [0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330]  # 12 directions (30° increments)
+INTENSITY = 1                                                        # ON edges only
 
 dataset = MovingEdge(
     offsets=[-10, 11],
@@ -148,13 +149,15 @@ def build_rdm(pop_matrix, metric="cosine"):
 
 def rdm_similarity(rdm1, rdm2):
     """
-    Compute Spearman rank correlation between upper triangles of two RDMs.
-    Higher = more similar representational geometry.
+    Compute Spearman rank correlation and Kendall's tau_A between upper
+    triangles of two RDMs. Kendall's tau_A is preferred for RDM data with
+    ties (Nili et al. 2014); Spearman retained for comparison.
     """
     n = rdm1.shape[0]
     idx = np.triu_indices(n, k=1)
-    r, p = spearmanr(rdm1[idx], rdm2[idx])
-    return r, p
+    r_s, p_s = spearmanr(rdm1[idx], rdm2[idx])
+    r_k, p_k = kendalltau(rdm1[idx], rdm2[idx])
+    return r_s, p_s, r_k, p_k
 
 
 # ── 6. HELPER: RANDOM BASELINE NETWORK ───────────────────────────────────────
@@ -191,13 +194,13 @@ def randomize_weights(network):
 
 def run_experiment(n_models=50):
     """
-    Run the RSA proof of concept experiment.
+    Run the ON edges RSA experiment.
 
     Args:
         n_models: number of models to use (set to 1 for debugging, 50 for full run)
     """
     print("\n" + "="*60)
-    print("FLYVIS RSA PROOF OF CONCEPT")
+    print("FLYVIS RSA — ON EDGES")
     print("="*60)
     print(f"Random seed: {SEED}")
 
@@ -207,13 +210,15 @@ def run_experiment(n_models=50):
     best_indices = list(range(n_models))  # 000-049 pre-sorted best to worst
     print(f"Using {n_models} model(s): indices {best_indices}")
 
-    # ── 7b. Get stimuli (ON edges, 12 directions) ──────────────────────────────
+    # ── 7b. Get stimuli (ON edges, 12 directions) ─────────────────────────────
     on_edge_indices = [
         i for i, row in dataset.arg_df.iterrows()
         if row["intensity"] == INTENSITY
     ]
     print(f"\nStimulus conditions (ON edges, {len(on_edge_indices)} directions):")
     print(dataset.arg_df.iloc[on_edge_indices])
+
+    n_stim = len(on_edge_indices)
 
     # ── 7c. Connectome-constrained: collect population vectors ────────────────
     print("\n--- CONNECTOME-CONSTRAINED NETWORKS ---")
@@ -320,10 +325,15 @@ def run_experiment(n_models=50):
 
     # ── 7f. RDM similarity (CC vs random) ─────────────────────────────────────
     print("\n--- RDM SIMILARITY (Connectome-Constrained vs Random) ---")
-    r_cosine, p_cosine = rdm_similarity(cc_rdm_cosine_mean, rand_rdm_cosine_mean)
-    r_eucl,   p_eucl   = rdm_similarity(cc_rdm_eucl_mean,   rand_rdm_eucl_mean)
-    print(f"  Cosine RDM correlation:    r = {r_cosine:.3f}, p = {p_cosine:.4f}")
-    print(f"  Euclidean RDM correlation: r = {r_eucl:.3f}, p = {p_eucl:.4f}")
+    if len(stable_rand_indices) == 0:
+        print("  No stable random models — skipping RDM similarity.")
+        r_cosine = p_cosine = rk_cosine = pk_cosine = float("nan")
+        r_eucl   = p_eucl   = rk_eucl   = pk_eucl   = float("nan")
+    else:
+        r_cosine, p_cosine, rk_cosine, pk_cosine = rdm_similarity(cc_rdm_cosine_mean, rand_rdm_cosine_mean)
+        r_eucl,   p_eucl,   rk_eucl,   pk_eucl   = rdm_similarity(cc_rdm_eucl_mean,   rand_rdm_eucl_mean)
+    print(f"  Cosine RDM correlation:    Spearman r = {r_cosine:.3f}, p = {p_cosine:.4f} | Kendall τ = {rk_cosine:.3f}, p = {pk_cosine:.4f}")
+    print(f"  Euclidean RDM correlation: Spearman r = {r_eucl:.3f}, p = {p_eucl:.4f} | Kendall τ = {rk_eucl:.3f}, p = {pk_eucl:.4f}")
     print("\n  Interpretation:")
     print("  Low r  → CC and random networks have DIFFERENT representational geometry")
     print("  High r → similar geometry (random network could substitute connectome)")
@@ -333,7 +343,7 @@ def run_experiment(n_models=50):
     within_corrs = []
     for i in range(len(cc_rdms_cosine)):
         for j in range(i+1, len(cc_rdms_cosine)):
-            r, _ = rdm_similarity(cc_rdms_cosine[i], cc_rdms_cosine[j])
+            r, _, _, _ = rdm_similarity(cc_rdms_cosine[i], cc_rdms_cosine[j])
             within_corrs.append(r)
     if within_corrs:
         print(f"  Mean pairwise RDM correlation across CC models: "
@@ -361,8 +371,10 @@ def run_experiment(n_models=50):
     ):
         im = ax.imshow(rdm, cmap="viridis", vmin=0)
         ax.set_title(title, fontsize=8)
-        ax.set_xticks(range(12)); ax.set_xticklabels(angle_labels, fontsize=6, rotation=90)
-        ax.set_yticks(range(12)); ax.set_yticklabels(angle_labels, fontsize=6)
+        ax.set_xticks(range(n_stim))
+        ax.set_xticklabels(angle_labels, fontsize=6, rotation=90)
+        ax.set_yticks(range(n_stim))
+        ax.set_yticklabels(angle_labels, fontsize=6)
         plt.colorbar(im, ax=ax, fraction=0.046, pad=0.04)
 
     plt.tight_layout()
@@ -374,11 +386,11 @@ def run_experiment(n_models=50):
     print("\n" + "="*60)
     print("SUMMARY")
     print("="*60)
-    print(f"  N stimuli:          {len(on_edge_indices)} (ON edges, 12 directions)")
+    print(f"  N stimuli:          {n_stim} (ON edges, 12 directions)")
     print(f"  N models:           {n_models}")
     print(f"  Population vec dim: {cc_pop_matrices[0].shape[1]} (cell types)")
-    print(f"  Cosine RDM corr (CC vs random):    r = {r_cosine:.3f}")
-    print(f"  Euclidean RDM corr (CC vs random): r = {r_eucl:.3f}")
+    print(f"  Cosine RDM corr (CC vs random):    Spearman r = {r_cosine:.3f} | Kendall τ = {rk_cosine:.3f}")
+    print(f"  Euclidean RDM corr (CC vs random): Spearman r = {r_eucl:.3f} | Kendall τ = {rk_eucl:.3f}")
     if within_corrs:
         print(f"  Within-CC consistency:             r = {np.mean(within_corrs):.3f}")
 
@@ -388,7 +400,9 @@ def run_experiment(n_models=50):
         "cc_rdm_eucl":     cc_rdm_eucl_mean,
         "rand_rdm_eucl":   rand_rdm_eucl_mean,
         "r_cosine": r_cosine, "p_cosine": p_cosine,
+        "rk_cosine": rk_cosine, "pk_cosine": pk_cosine,
         "r_eucl":   r_eucl,   "p_eucl":   p_eucl,
+        "rk_eucl":  rk_eucl,  "pk_eucl":  pk_eucl,
         "within_corrs": within_corrs,
         "cell_types": cell_types,
     }
@@ -400,3 +414,4 @@ if __name__ == "__main__":
     # n_models=10 for primary fidelity result (top 10 models)
     # n_models=50 for full run
     results = run_experiment(n_models=50)
+
