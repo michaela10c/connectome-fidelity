@@ -56,15 +56,14 @@ This project tests that hypothesis using the pretrained Flyvis ensemble (Lappala
 
 ## Key Results
 
-### Experiment 1: ON Edges — n=10 (top 10 models, primary fidelity result)
+### Experiment 1: ON Edges — n=10 (top 10 models)
 
 | Metric | Value |
 |--------|-------|
 | CC cosine RDM off-diagonal range | 0.001 – 0.022 (structured) |
-| Random cosine RDM off-diagonal range | ~0.200 (uniform — no direction selectivity) |
-| CC vs random RDM correlation (cosine) | r = 0.757, p < 0.0001 |
+| CC vs random RDM correlation (cosine, full Shiu-style shuffle) | Spearman r = 0.757, p < 0.0001 (5/10 stable random models) |
+| CC vs random RDM correlation (cosine, synapse-only shuffle) | NaN — not computable (8/10 random models unstable) |
 | Within-CC ensemble consistency | r = 0.838 ± 0.078 |
-| Random models with unstable dynamics | 5 / 10 |
 | CC models with unstable dynamics | 0 / 10 |
 
 ### Experiment 1: ON Edges — n=50 (full ensemble, instability across randomization strategies)
@@ -106,19 +105,19 @@ The connectome-constrained network produces direction-sensitive representational
 The connectome-constrained network produces a structured 12×12 dissimilarity matrix with clear direction-dependent organization. At n=10, off-diagonal values range from ~0.001 to ~0.022 — small in absolute terms but systematically organized: adjacent directions are most similar (minimum: 0°–30°, dissimilarity = 0.001), while opposite directions are most dissimilar (maximum: 30°–210°, dissimilarity = 0.022). At n=50, the range tightens to 0.001–0.012, reflecting the inclusion of lower-performing models. Both runs show a smooth circular gradient consistent with the known direction tuning of T4/T5 neurons in the fly visual system.
 
 #### Random Cosine RDM
-At n=10, the random baseline produces a nearly uniform matrix with all off-diagonal values at ~0.200 — the random network cannot distinguish motion directions, with directional variation confined to the fourth decimal place. At n=50, across all three randomization strategies tested — (1) Shiu-style shuffling of all free parameters, (2) matched-normal resampling of all free parameters, and (3) Shiu-style shuffling of synaptic weights only (`edges_syn_strength`) while preserving trained time constants and resting potentials — the mean random cosine RDM collapses to NaN due to numerical overflow from unstable models. Instability is a fundamental property of random weight configurations in this architecture, not an artifact of any particular randomization strategy.
+Under the full Shiu-style shuffle at n=10, the random baseline produces a nearly uniform matrix with all off-diagonal values at ~0.200 — the random network cannot distinguish motion directions, with directional variation confined to the fourth decimal place. Under the synapse-only shuffle at n=10 and across all three strategies at n=50, the mean random cosine RDM collapses to NaN due to numerical overflow from unstable models. Instability is a fundamental property of random weight configurations in this architecture, not an artifact of any particular randomization strategy.
 
 #### Dynamic Instability
-Dynamic instability is robust across all three randomization strategies. At n=10, 5 of 10 random models (models 2, 3, 4, 8, 9) produced exploding activations (756 non-finite values each, corresponding to 63 of 65 cell types across all 12 stimuli). At n=50: full Shiu-style shuffling produced 33/50 unstable models (66%); matched-normal resampling produced 38/50 (76%); synapse-only shuffling of `edges_syn_strength` while preserving trained `nodes_time_const` and `nodes_bias` produced 34/50 (68%). The persistence of instability even when trained dynamical parameters are preserved confirms that randomizing synaptic weights alone is sufficient to destabilize dynamics. 0 of 50 trained CC models showed any instability under any condition. The biological connectome, as optimized by task training, reliably occupies a dynamically stable region of parameter space that random weight configurations consistently leave.
+Dynamic instability is robust across all randomization strategies and ensemble sizes. Under the full Shiu-style shuffle at n=10, 5 of 10 random models were unstable (756 non-finite values each, corresponding to 63 of 65 cell types across all 12 stimuli). Under the synapse-only shuffle at n=10, 8 of 10 (80%) were unstable. At n=50: full Shiu-style shuffling produced 33/50 unstable models (66%); matched-normal resampling produced 38/50 (76%); synapse-only shuffling of `edges_syn_strength` while preserving trained `nodes_time_const` and `nodes_bias` produced 34/50 (68%). The persistence of instability even when trained dynamical parameters are preserved confirms that randomizing synaptic weights alone is sufficient to destabilize dynamics. 0 of 50 trained CC models showed any instability under any condition. The biological connectome, as optimized by task training, reliably occupies a dynamically stable region of parameter space that random weight configurations consistently leave.
 
 #### CC vs Random RDM Correlation
-At n=10, cosine RDM correlation: **r = 0.757, p < 0.0001** — highly significant. This moderate positive correlation indicates that the CC and random cosine RDMs share directional ordering — both assign smaller dissimilarities to adjacent directions and larger dissimilarities to opposing ones — but differ substantially in the depth and resolution of that structure. The CC network encodes direction with fine-grained, graded dissimilarities spanning a 20-fold range (0.001–0.022), while the random baseline collapses that structure to a nearly uniform ~0.200 with no functionally meaningful variation.
+Cosine RDM correlation is **NaN** across all tested conditions under the canonical synapse-only shuffle — not computable due to numerical overflow in the mean random cosine RDM at both n=10 (8/10 unstable) and n=50 (34/50 unstable).
 
-At n=50, cosine RDM correlation: **NaN** under all three randomization strategies — not computable due to numerical overflow in the mean random cosine RDM. The n=10 result remains the primary fidelity metric.
+A significant cosine RDM correlation (**Spearman r = 0.757, p < 0.0001**) was obtained in an earlier exploratory run using full Shiu-style shuffling at n=10, where 5/10 random models were stable and a renderable mean random RDM was available. Under that baseline, the CC and random cosine RDMs shared directional ordering — both assigning smaller dissimilarities to adjacent directions and larger dissimilarities to opposing ones — but differed substantially in depth and resolution: the CC network encoded direction with fine-grained dissimilarities spanning a 20-fold range (0.001–0.022), while the random baseline collapsed that structure to a nearly uniform ~0.200. This result is not reproducible under the current canonical synapse-only shuffle, where instability rates at n=10 are higher (8/10), and is retained here as a documented exploratory result.
 
-Euclidean RDM correlation: **Spearman r = 0.021, p = 0.865** (full Shiu-style shuffle); **Spearman r = 0.241, p = 0.052** (matched-normal resampling); **Spearman r = 0.177, p = 0.156 | Kendall τ = 0.122, p = 0.149** (synapse-only shuffle) — none significant, and not interpretable due to extreme magnitudes (~10¹⁸–10²⁰) from exploding activations in unstable random models.
+Euclidean RDM correlation: **Spearman r = 0.021, p = 0.865** (full Shiu-style shuffle, n=50); **Spearman r = 0.241, p = 0.052** (matched-normal resampling, n=50); **Spearman r = 0.177, p = 0.156 | Kendall τ = 0.122, p = 0.149** (synapse-only shuffle, n=50); **Spearman r = 0.136, p = 0.278 | Kendall τ = 0.088, p = 0.296** (synapse-only shuffle, n=10) — none significant, and not interpretable due to extreme magnitudes (~10¹⁸–10²¹) from exploding activations in unstable random models.
 
-**Interpretive note:** The n=50 random baseline is dominated by dynamically unstable models under all three randomization strategies and is not suitable for RDM correlation analysis. The meaningful fidelity signal at n=50 is the within-ensemble consistency of CC models and the instability rate of random models, not the CC vs random RDM correlation. The n=10 result (r = 0.757, p < 0.0001) remains the primary fidelity metric, computed against a random baseline with only 5/10 unstable models.
+**Interpretive note:** The primary reproducible fidelity signals are the CC representational structure itself — the smooth circular cosine RDM gradient — and the within-ensemble consistency across trained models. The instability of random baselines across all tested strategies and ensemble sizes is itself a fidelity-relevant finding: the trained connectome reliably occupies a dynamically stable region of parameter space that no tested randomization can replicate.
 
 #### Within-Ensemble Consistency
 At n=10, mean pairwise RDM correlation: **r = 0.838 ± 0.078** (range: 0.601–0.956). At n=50, mean pairwise RDM correlation: **r = 0.721 ± 0.150** (range: 0.323–0.983). The decrease in mean and increase in variance at n=50 reflects the inclusion of lower-performing models implementing more varied solutions, consistent with the known cluster structure of the Flyvis ensemble reported in Lappalainen et al. Fig. 3.
@@ -151,7 +150,7 @@ Mean pairwise RDM correlation across all 50 CC models: **r = 0.838 ± 0.059** (r
 ## Next Steps
 - The CC cosine RDM in Experiment 2 reveals a clear polarity block structure — ON and OFF edges occupy geometrically distinct regions of population space, consistent with T4/T5 pathway segregation; this is itself a fidelity-relevant finding worth reporting in the SfN abstract
 - The within-ensemble consistency improvement at n=50 from ON-only (r = 0.721) to ON+OFF (r = 0.838) suggests polarity is a stronger organizer of representational geometry than direction alone
-- Dynamic instability persists across all tested randomization strategies (66–76%), indicating that the trained parameter configuration as a whole determines dynamic stability; a fully stable random baseline may require adversarial stability-constrained sampling
+- Dynamic instability persists across all tested randomization strategies and ensemble sizes (66–80%), indicating that the trained parameter configuration as a whole determines dynamic stability; a fully stable random baseline may require adversarial stability-constrained sampling
 - Euclidean metric is not suitable when random baselines are dynamically unstable; cosine distance is the appropriate primary metric
 - Within-CC consistency could be reported separately per cluster if UMAP reveals substructure in the ensemble geometry (planned)
 
@@ -199,8 +198,8 @@ connectome-fidelity/
 │   ├── moving_edge_on.ipynb        ← Colab-ready notebook, ON edges results
 │   └── moving_edge_on_off.ipynb    ← Colab-ready notebook, ON+OFF edges results
 └── figures/
-    ├── moving_edge_on_rdms.png     ← ON edges RDM figure
-    └── moving_edge_on_off_rdms.png ← ON+OFF edges RDM figure
+    ├── moving_edge_on_rdms_50models.png     ← ON edges RDM figure (n=50)
+    └── moving_edge_on_off_rdms_50models.png ← ON+OFF edges RDM figure (n=50)
 ```
 
 ---
