@@ -161,28 +161,29 @@ def rdm_similarity(rdm1, rdm2):
 
 def randomize_weights(network):
     """
-    Randomize network weights by sampling from a normal distribution
-    matched to the mean and std of each parameter tensor, while preserving
-    sign structure (E/I identity).
+    Randomize only the unitary synapse scaling factors (604 parameters),
+    preserving trained time constants and resting potentials.
 
-    This produces a stable random baseline by avoiding the extreme values
-    that arise from shuffling — which can place large weights in positions
-    that destabilize dynamics.
+    Per Lappalainen et al. (2024) Methods, time constants are clamped during
+    training to prevent dynamic instability. Shuffling them produces unstable
+    dynamics. This control isolates the effect of synaptic weight structure
+    by randomizing only synapse strengths while preserving the trained
+    dynamical parameters.
     """
     with torch.no_grad():
         for name, param in network.named_parameters():
             if param.requires_grad:
+                # Skip time constants and resting potentials
+                if "time_const" in name or "nodes_bias" in name:
+                    continue
+
+                # Randomize only the unitary synapse scaling factors
                 signs = torch.sign(param.data)
                 abs_vals = param.data.abs()
-                # Sample new magnitudes from a distribution matched to original
-                mean = abs_vals.mean().item()
-                std  = abs_vals.std().item()
-                new_abs = torch.abs(torch.normal(
-                    mean=mean,
-                    std=std if std > 0 else 1e-6,
-                    size=param.data.shape
-                )).to(param.data.device)
-                param.data = signs * new_abs
+                flat = abs_vals.flatten()
+                perm = torch.randperm(flat.shape[0])
+                shuffled = flat[perm].reshape(abs_vals.shape)
+                param.data = signs * shuffled
     return network
 
 
