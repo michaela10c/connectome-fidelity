@@ -79,7 +79,7 @@ This project tests that hypothesis using the pretrained Flyvis ensemble (Lappala
 |--------|-------|
 | CC cosine RDM structure | 24×24 with polarity block organization — ON and OFF edges occupy geometrically distinct regions |
 | CC vs random RDM correlation (cosine) | NaN — not computable (34/50 random models unstable) |
-| Euclidean RDM correlation | r = −0.036, p = 0.548 — not significant |
+| Euclidean RDM correlation | r = −0.083, p = 0.171 — not significant |
 | Within-CC ensemble consistency | r = 0.838 ± 0.059 |
 | Random models with unstable dynamics | 34 / 50 (68%) |
 | CC models with unstable dynamics | 0 / 50 |
@@ -137,7 +137,7 @@ The mean random cosine RDM collapses to NaN across all off-diagonal entries, as 
 #### CC vs Random RDM Correlation
 Cosine RDM correlation: **r = NaN** — not computable due to numerical overflow in the mean random cosine RDM, as in Experiment 1.
 
-Euclidean RDM correlation: **r = −0.036, p = 0.548** — not significant, and not interpretable due to extreme magnitudes (~10²⁷) from exploding activations in unstable random models.
+Euclidean RDM correlation: **r = −0.083, p = 0.171** — not significant, and not interpretable due to extreme magnitudes (~10²⁷) from exploding activations in unstable random models.
 
 **Interpretive note:** The random baseline instability finding is consistent across both experiments. The meaningful fidelity signal in Experiment 2 is the CC representational structure itself — specifically, the polarity block organization — and the within-ensemble consistency reported below.
 
