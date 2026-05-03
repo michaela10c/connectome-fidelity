@@ -142,7 +142,7 @@ Euclidean RDM correlation: **r = −0.083, p = 0.171** — not significant, and 
 **Interpretive note:** The random baseline instability finding is consistent across both experiments. The meaningful fidelity signal in Experiment 2 is the CC representational structure itself — specifically, the polarity block organization — and the within-ensemble consistency reported below.
 
 #### Within-Ensemble Consistency
-Mean pairwise RDM correlation across all 50 CC models: **r = 0.838 ± 0.059**. This is notably higher and tighter than the n=50 ON-only result (r = 0.721 ± 0.150), suggesting that the ON+OFF stimulus set produces a more consistent representational geometry across the ensemble — likely because 24 conditions provide a richer constraint on the population code than 12. The result also matches the n=10 ON-only within-ensemble consistency (r = 0.838 ± 0.078), suggesting the full ensemble converges on a stable geometry when stimulus coverage is sufficient.
+Mean pairwise RDM correlation across all 50 CC models: **r = 0.838 ± 0.059** (range: 0.642–0.967). This is notably higher and tighter than the n=50 ON-only result (r = 0.721 ± 0.150), suggesting that the ON+OFF stimulus set produces a more consistent representational geometry across the ensemble — likely because 24 conditions provide a richer constraint on the population code than 12. The result also matches the n=10 ON-only within-ensemble consistency (r = 0.838 ± 0.078), suggesting the full ensemble converges on a stable geometry when stimulus coverage is sufficient.
 
 ---
 
@@ -152,7 +152,7 @@ Mean pairwise RDM correlation across all 50 CC models: **r = 0.838 ± 0.059**. T
 - Dynamic instability persists across all tested randomization strategies (66–76%), indicating that the trained parameter configuration as a whole determines dynamic stability; a fully stable random baseline may require adversarial stability-constrained sampling
 - Euclidean metric is not suitable when random baselines are dynamically unstable; cosine distance is the appropriate primary metric
 - Within-CC consistency could be reported separately per cluster if UMAP reveals substructure in the ensemble geometry (planned)
-- Consider Kendall's $\tau_A$ as an alternative to Spearman for RDM comparison, as it is more robust to ties
+- Consider Kendall's τ_A as an alternative to Spearman for RDM comparison, as it is more robust to ties
 
 ---
 
