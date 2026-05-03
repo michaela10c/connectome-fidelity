@@ -8,7 +8,7 @@ networks with the same architecture.
 
 Experiment:
 - Stimuli: 12 moving edge directions (0° through 330°, 30° increments), ON edges
-- Networks: pretrained connectome-constrained ensemble (top 10) vs random baseline
+- Networks: pretrained connectome-constrained ensemble (all 50) vs random baseline
 - Population vectors: peak central-cell response per cell type (65-dim)
 - Metrics: Euclidean distance, cosine distance, RSA (RDM correlation)
 
@@ -187,12 +187,12 @@ def randomize_weights(network):
 
 # ── 7. MAIN EXPERIMENT ────────────────────────────────────────────────────────
 
-def run_experiment(n_models=10):
+def run_experiment(n_models=50):
     """
     Run the RSA proof of concept experiment.
 
     Args:
-        n_models: number of models to use (set to 1 for debugging, 10 for full run)
+        n_models: number of models to use (set to 1 for debugging, 50 for full run)
     """
     print("\n" + "="*60)
     print("FLYVIS RSA PROOF OF CONCEPT")
@@ -202,7 +202,7 @@ def run_experiment(n_models=10):
     # ── 7a. Load ensemble ─────────────────────────────────────────────────────
     print("\nLoading ensemble...")
     ensemble = EnsembleView(results_dir / "flow/0000")
-    best_indices = list(range(n_models))  # 000-009 pre-sorted best to worst
+    best_indices = list(range(n_models))  # 000-049 pre-sorted best to worst
     print(f"Using {n_models} model(s): indices {best_indices}")
 
     # ── 7b. Get stimuli (ON edges, 12 directions) ──────────────────────────────
@@ -299,10 +299,22 @@ def run_experiment(n_models=10):
     rand_rdms_cosine = [build_rdm(m, "cosine")    for m in rand_pop_matrices]
     rand_rdms_eucl   = [build_rdm(m, "euclidean") for m in rand_pop_matrices]
 
-    cc_rdm_cosine_mean   = np.mean(cc_rdms_cosine,   axis=0)
-    cc_rdm_eucl_mean     = np.mean(cc_rdms_eucl,     axis=0)
-    rand_rdm_cosine_mean = np.mean(rand_rdms_cosine, axis=0)
-    rand_rdm_eucl_mean   = np.mean(rand_rdms_eucl,   axis=0)
+    # Filter out unstable random models before computing mean RDMs
+    # A model is unstable if its pop matrix contains non-finite values
+    stable_rand_indices = [
+        i for i, m in enumerate(rand_pop_matrices)
+        if np.all(np.isfinite(m))
+    ]
+    print(f"\n  Stable random models: {len(stable_rand_indices)} / {n_models}")
+    print(f"  Unstable random models: {n_models - len(stable_rand_indices)} / {n_models}")
+
+    rand_rdms_cosine_stable = [rand_rdms_cosine[i] for i in stable_rand_indices]
+    rand_rdms_eucl_stable   = [rand_rdms_eucl[i]   for i in stable_rand_indices]
+
+    cc_rdm_cosine_mean   = np.mean(cc_rdms_cosine,          axis=0)
+    cc_rdm_eucl_mean     = np.mean(cc_rdms_eucl,             axis=0)
+    rand_rdm_cosine_mean = np.mean(rand_rdms_cosine_stable,  axis=0)
+    rand_rdm_eucl_mean   = np.mean(rand_rdms_eucl_stable,    axis=0)
 
     # ── 7f. RDM similarity (CC vs random) ─────────────────────────────────────
     print("\n--- RDM SIMILARITY (Connectome-Constrained vs Random) ---")
@@ -352,8 +364,8 @@ def run_experiment(n_models=10):
         plt.colorbar(im, ax=ax, fraction=0.046, pad=0.04)
 
     plt.tight_layout()
-    fig.savefig("../figures/moving_edge_poc_rdms.png", dpi=150, bbox_inches="tight")
-    print("  Saved: ../figures/moving_edge_poc_rdms.png")
+    fig.savefig("moving_edge_poc_rdms.png", dpi=150, bbox_inches="tight")
+    print("  Saved: moving_edge_poc_rdms.png")
     plt.show()
 
     # ── 7i. Summary ───────────────────────────────────────────────────────────
@@ -383,5 +395,6 @@ def run_experiment(n_models=10):
 
 if __name__ == "__main__":
     # n_models=1 for debugging (confirms pop vec shape is (12, 65))
-    # n_models=10 for full run
-    results = run_experiment(n_models=10)
+    # n_models=10 for primary fidelity result (top 10 models)
+    # n_models=50 for full run
+    results = run_experiment(n_models=50)
