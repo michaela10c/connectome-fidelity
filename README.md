@@ -104,7 +104,7 @@ instability — restricting randomization to the 604 unitary synapse scaling fac
 - Include OFF edges (intensity = 0) alongside ON edges to test whether the directional geometry generalizes across polarity
 - Euclidean metric is not suitable when random baselines are dynamically unstable; cosine distance is the appropriate primary metric for this comparison
 - Within-CC consistency could be reported separately per cluster if UMAP reveals substructure in the ensemble geometry (planned)
-- Consider Kendall's τ_A as an alternative to Spearman for RDM comparison, as it is more robust to ties
+- Consider Kendall's $\tau_A$ as an alternative to Spearman for RDM comparison, as it is more robust to ties
 
 ---
 
