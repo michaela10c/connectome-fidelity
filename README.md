@@ -58,7 +58,7 @@ This project tests that hypothesis using the pretrained Flyvis ensemble (Lappala
 
 The connectome-constrained network produces direction-sensitive representational geometry with a smooth circular structure — adjacent directions are most similar, opposite directions most dissimilar — consistent with the known tuning of T4/T5 neurons in the fly visual system. Zero trained CC models exhibited instability at either n=10 or n=50 under any randomization strategy, while 66–76% of random models collapsed at n=50 across all three strategies, confirming that the biological connectome reliably occupies a dynamically stable region of parameter space that random weight configurations consistently leave.
 
-![RDM figure](figures/moving_edge_poc_rdms.png)
+![RDM figure](figures/moving_edge_on_rdms.png)
 
 *Left to right: connectome-constrained cosine RDM, random baseline cosine RDM, connectome-constrained Euclidean RDM, random baseline Euclidean RDM (n=50 run, synapse-only shuffle of `edges_syn_strength`). The CC cosine RDM shows structured, direction-dependent dissimilarity with a smooth circular gradient (range 0.001–0.012). The random cosine RDM is entirely NaN due to numerical overflow from unstable models (34/50) and is not renderable. The random Euclidean RDM is dominated by exploding activations in unstable models and is not interpretable. Stimuli: 12 ON moving edges at 30° increments. All 50 pretrained Flyvis models, seed=42.*
 
@@ -130,11 +130,14 @@ The standalone script is at `experiments/moving_edge_poc.py`.
 connectome-fidelity/
 ├── README.md
 ├── experiments/
-│   └── moving_edge_poc.py        ← standalone experiment script
+│   ├── moving_edge_on.py           ← ON edges experiment (primary fidelity result)
+│   └── moving_edge_on_off.py       ← ON+OFF edges experiment (polarity generalization)
 ├── notebooks/
-│   └── moving_edge_poc.ipynb     ← Colab-ready notebook with results
+│   ├── moving_edge_on.ipynb        ← Colab-ready notebook, ON edges results
+│   └── moving_edge_on_off.ipynb    ← Colab-ready notebook, ON+OFF edges results
 └── figures/
-    └── moving_edge_poc_rdms.png  ← output figure
+    ├── moving_edge_on_rdms.png     ← ON edges RDM figure
+    └── moving_edge_on_off_rdms.png ← ON+OFF edges RDM figure (forthcoming)
 ```
 
 ---
