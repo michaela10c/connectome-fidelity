@@ -131,7 +131,7 @@ def build_rdm(pop_matrix, metric="cosine"):
     # maximally different from a well-behaved biological one) while avoiding
     # downstream crashes.
     pop_matrix = np.nan_to_num(pop_matrix, nan=0.0, posinf=1e3, neginf=-1e3)
-    
+
     n = pop_matrix.shape[0]
     rdm = np.zeros((n, n))
     for i in range(n):
@@ -161,27 +161,28 @@ def rdm_similarity(rdm1, rdm2):
 
 def randomize_weights(network):
     """
-    Randomize network weights while preserving sign structure (E/I identity).
-    This is the Shiu-style shuffled weights control applied to Flyvis.
+    Randomize network weights by sampling from a normal distribution
+    matched to the mean and std of each parameter tensor, while preserving
+    sign structure (E/I identity).
 
-    Specifically: for each parameter tensor, shuffle the absolute values
-    but preserve the sign of each weight.
-
-    Note: shuffling across all parameter types (time constants, resting
-    potentials, synapse strengths) can produce unstable dynamics in some
-    random models. This is itself a meaningful observation — the biological
-    connectome occupies a stable region of parameter space that random
-    shuffles often leave.
+    This produces a stable random baseline by avoiding the extreme values
+    that arise from shuffling — which can place large weights in positions
+    that destabilize dynamics.
     """
     with torch.no_grad():
         for name, param in network.named_parameters():
             if param.requires_grad:
                 signs = torch.sign(param.data)
                 abs_vals = param.data.abs()
-                flat = abs_vals.flatten()
-                perm = torch.randperm(flat.shape[0])
-                shuffled = flat[perm].reshape(abs_vals.shape)
-                param.data = signs * shuffled
+                # Sample new magnitudes from a distribution matched to original
+                mean = abs_vals.mean().item()
+                std  = abs_vals.std().item()
+                new_abs = torch.abs(torch.normal(
+                    mean=mean,
+                    std=std if std > 0 else 1e-6,
+                    size=param.data.shape
+                )).to(param.data.device)
+                param.data = signs * new_abs
     return network
 
 
