@@ -13,7 +13,7 @@ Connectome-scale neural emulations are increasingly feasible, but the field lack
 
 Representational geometry — the structure of pairwise distances between population responses to different stimuli — offers a candidate answer. If connectome-constrained networks produce a representational geometry that random networks cannot replicate, then geometry is a fidelity-discriminating signal that operates at the population level, without requiring a behavioral decoder.
 
-This project tests that hypothesis using the pretrained Flyvis ensemble (Lappalainen et al. 2024), applying RSA (Kriegeskorte et al. 2008) to compare population codes across 10 connectome-constrained models versus 10 sign-preserving random weight shuffles.
+This project tests that hypothesis using the pretrained Flyvis ensemble (Lappalainen et al. 2024), applying RSA (Kriegeskorte et al. 2008) to compare population codes across connectome-constrained models versus sign-preserving random weight shuffles.
 
 ---
 
@@ -22,8 +22,8 @@ This project tests that hypothesis using the pretrained Flyvis ensemble (Lappala
 **Stimuli:** 12 ON moving edges at 30° increments (0° through 330°)
 
 **Networks:**
-- *Connectome-constrained (CC):* Top 10 pretrained Flyvis models (indices 000–009, pre-sorted by task error in directory naming), trained to perform optic flow estimation on naturalistic video with connectome-fixed architecture (734 free parameters)
-- *Random baseline:* Same 10 model architectures with weight magnitudes shuffled while preserving E/I sign structure (Shiu-style control)
+- *Connectome-constrained (CC):* All 50 pretrained Flyvis models (indices 000–049, pre-sorted by task error in directory naming), trained to perform optic flow estimation on naturalistic video with connectome-fixed architecture (734 free parameters)
+- *Random baseline:* Same 50 model architectures with weight magnitudes shuffled while preserving E/I sign structure (Shiu-style control)
 
 **Population vectors:** Peak central-cell voltage per cell type (65-dim) in response to each stimulus direction
 
@@ -35,7 +35,9 @@ This project tests that hypothesis using the pretrained Flyvis ensemble (Lappala
 
 ---
 
-## Key Results (seed=42, n_models=10)
+## Key Results
+
+### n=10 (top 10 models, primary fidelity result)
 
 | Metric | Value |
 |--------|-------|
@@ -46,39 +48,52 @@ This project tests that hypothesis using the pretrained Flyvis ensemble (Lappala
 | Random models with unstable dynamics | 5 / 10 |
 | CC models with unstable dynamics | 0 / 10 |
 
-The connectome-constrained network produces direction-sensitive representational geometry with a smooth circular structure — adjacent directions are most similar, opposite directions most dissimilar — consistent with the known tuning of T4/T5 neurons in the fly visual system. The random baseline produces either a uniform RDM (no direction sensitivity) or dynamic collapse (exploding activations). Zero trained models exhibited instability, suggesting the biological connectome reliably occupies a dynamically stable region of parameter space that random weight shuffles frequently leave.
+### n=50 (full ensemble)
+
+| Metric | Value |
+|--------|-------|
+| CC cosine RDM off-diagonal range | 0.001 – 0.012 (structured) |
+| Random cosine RDM | NaN — undefined due to numerical overflow from unstable models |
+| CC vs random RDM correlation (cosine) | NaN — not computable |
+| Within-CC ensemble consistency | r = 0.721 ± 0.150 |
+| Random models with unstable dynamics | 33 / 50 (66%) |
+| CC models with unstable dynamics | 0 / 50 |
+
+The connectome-constrained network produces direction-sensitive representational geometry with a smooth circular structure — adjacent directions are most similar, opposite directions most dissimilar — consistent with the known tuning of T4/T5 neurons in the fly visual system. Zero trained CC models exhibited instability at either n=10 or n=50, while 66% of random models collapsed at n=50, suggesting the biological connectome reliably occupies a dynamically stable region of parameter space that random weight shuffles frequently leave.
 
 ![RDM figure](figures/moving_edge_poc_rdms.png)
 
-*Left to right: connectome-constrained cosine RDM, random baseline cosine RDM, connectome-constrained Euclidean RDM, random baseline Euclidean RDM. The CC cosine RDM shows structured, direction-dependent dissimilarity with a smooth circular gradient (range 0.001–0.022). The random cosine RDM is nearly uniform (~0.200 off-diagonal), indicating no direction selectivity. The random Euclidean RDM is dominated by exploding activations in unstable models (5/10) and is not interpretable. Stimuli: 12 ON moving edges at 30° increments. Top 10 pretrained Flyvis models, seed=42.*
+*Left to right: connectome-constrained cosine RDM, random baseline cosine RDM, connectome-constrained Euclidean RDM, random baseline Euclidean RDM (n=10 run). The CC cosine RDM shows structured, direction-dependent dissimilarity with a smooth circular gradient (range 0.001–0.022). The random cosine RDM is nearly uniform (~0.200 off-diagonal), indicating no direction selectivity. The random Euclidean RDM is dominated by exploding activations in unstable models (5/10) and is not interpretable. Stimuli: 12 ON moving edges at 30° increments. Top 10 pretrained Flyvis models, seed=42.*
 
 ---
 
 ## Results
 
 ### CC Cosine RDM
-The connectome-constrained network produces a structured 12×12 dissimilarity matrix with clear direction-dependent organization. Off-diagonal values range from ~0.001 to ~0.022 — small in absolute terms but systematically organized: adjacent directions are most similar (minimum: 0°–30°, dissimilarity = 0.001), while opposite directions are most dissimilar (maximum: 30°–210°, dissimilarity = 0.022). The matrix shows a smooth circular gradient consistent with the known direction tuning of T4/T5 neurons in the fly visual system.
+The connectome-constrained network produces a structured 12×12 dissimilarity matrix with clear direction-dependent organization. At n=10, off-diagonal values range from ~0.001 to ~0.022 — small in absolute terms but systematically organized: adjacent directions are most similar (minimum: 0°–30°, dissimilarity = 0.001), while opposite directions are most dissimilar (maximum: 30°–210°, dissimilarity = 0.022). At n=50, the range tightens to 0.001–0.012, reflecting the inclusion of lower-performing models. Both runs show a smooth circular gradient consistent with the known direction tuning of T4/T5 neurons in the fly visual system.
 
 ### Random Cosine RDM
-The random baseline produces a nearly uniform matrix with all off-diagonal values at ~0.200. The random network cannot distinguish motion directions — all stimuli produce essentially the same population geometry, with directional variation confined to the fourth decimal place.
+At n=10, the random baseline produces a nearly uniform matrix with all off-diagonal values at ~0.200 — the random network cannot distinguish motion directions, with directional variation confined to the fourth decimal place. At n=50, the mean random cosine RDM collapses to NaN due to numerical overflow from the majority of unstable models, making the cosine metric unsuitable for comparison at this scale.
 
 ### Dynamic Instability
-5 of 10 random models (models 2, 3, 4, 8, 9) produced exploding activations (756 non-finite values each, corresponding to 63 of 65 cell types across all 12 stimuli). 0 of 10 trained CC models showed any instability. This is itself a meaningful result: the biological connectome, as optimized by task training, reliably occupies a dynamically stable region of parameter space that random weight shuffles frequently leave.
+At n=10, 5 of 10 random models (models 2, 3, 4, 8, 9) produced exploding activations (756 non-finite values each, corresponding to 63 of 65 cell types across all 12 stimuli). At n=50, this strengthens to 33 of 50 random models (66%). 0 of 50 trained CC models showed any instability at either scale. The biological connectome, as optimized by task training, reliably occupies a dynamically stable region of parameter space that random weight shuffles frequently leave.
 
 ### CC vs Random RDM Correlation
-Cosine RDM correlation: **r = 0.757, p < 0.0001** — highly significant. This moderate positive correlation indicates that the CC and random cosine RDMs share directional ordering — both assign smaller dissimilarities to adjacent directions and larger dissimilarities to opposing ones — but differ substantially in the depth and resolution of that structure. The CC network encodes direction with fine-grained, graded dissimilarities spanning a 20-fold range (0.001–0.022), while the random baseline collapses that structure to a nearly uniform ~0.200 with no functionally meaningful variation. The connectome constraint does not produce a categorically different geometry so much as a vastly more resolved one: biological wiring sharpens a directional signal that weight-shuffled networks can only approximate in the coarsest sense.
+At n=10, cosine RDM correlation: **r = 0.757, p < 0.0001** — highly significant. This moderate positive correlation indicates that the CC and random cosine RDMs share directional ordering — both assign smaller dissimilarities to adjacent directions and larger dissimilarities to opposing ones — but differ substantially in the depth and resolution of that structure. The CC network encodes direction with fine-grained, graded dissimilarities spanning a 20-fold range (0.001–0.022), while the random baseline collapses that structure to a nearly uniform ~0.200 with no functionally meaningful variation.
 
-Euclidean RDM correlation: **r = −0.058, p = 0.643** — not significant and not interpretable, dominated by extreme magnitudes from exploding activations in unstable random models.
+At n=50, cosine RDM correlation: **NaN** — not computable due to numerical overflow in the mean random cosine RDM. The n=10 result remains the primary fidelity metric.
+
+Euclidean RDM correlation is not interpretable at either scale, dominated by extreme magnitudes from exploding activations in unstable random models.
 
 ### Within-Ensemble Consistency
-Mean pairwise RDM correlation across CC models: **r = 0.838 ± 0.078**. High consistency with moderate variance indicates that the representational geometry is stable across different trained solutions — the geometric structure is a property of the connectome constraint, not of individual training runs. Values range from r = 0.601 to r = 0.956.
+At n=10, mean pairwise RDM correlation: **r = 0.838 ± 0.078** (range: 0.601–0.956). At n=50, mean pairwise RDM correlation: **r = 0.721 ± 0.150** (range: 0.323–0.983). The decrease in mean and increase in variance at n=50 reflects the inclusion of lower-performing models implementing more varied solutions, consistent with the known cluster structure of the Flyvis ensemble reported in Lappalainen et al. Fig. 3.
 
 ### Next Steps
+- The random baseline instability at n=50 motivates a modified control: use only stable random models for RDM comparison rather than the full 50
 - Include OFF edges (intensity = 0) alongside ON edges to test whether the directional geometry generalizes across polarity
 - Euclidean metric is not suitable when random baselines are dynamically unstable; cosine distance is the appropriate primary metric for this comparison
 - Within-CC consistency could be reported separately per cluster if UMAP reveals substructure in the ensemble geometry (planned)
 - Consider Kendall's τ_A as an alternative to Spearman for RDM comparison, as it is more robust to ties
-- Expand to all 50 pretrained Flyvis models for tighter confidence intervals on within-ensemble consistency
 
 ---
 
@@ -99,11 +114,11 @@ This experiment runs on Google Colab with a T4 GPU runtime. Local installation r
 ## Usage
 
 ```python
-# Run proof of concept (n_models=1 for debugging, n_models=10 for full run)
-results = run_experiment(n_models=10)
+# Run proof of concept (n_models=1 for debugging, n_models=50 for full run)
+results = run_experiment(n_models=50)
 ```
 
-The full experiment takes approximately 20–25 minutes on a T4 GPU.
+The full experiment takes approximately 60–90 minutes on a T4 GPU.
 
 The Colab-ready notebook is at `notebooks/moving_edge_poc.ipynb`.
 The standalone script is at `experiments/moving_edge_poc.py`.
