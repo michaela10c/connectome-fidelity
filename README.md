@@ -79,10 +79,10 @@ This project tests that hypothesis using the pretrained Flyvis ensemble (Lappala
 | Metric | Value |
 |--------|-------|
 | CC cosine RDM structure | 24×24 with polarity block organization — ON and OFF edges occupy geometrically distinct regions |
-| CC vs random RDM correlation (cosine) | NaN — not computable (34/50 random models unstable) |
-| Euclidean RDM correlation | Spearman r = −0.083, p = 0.171 — not significant |
+| CC vs random RDM correlation (cosine) | NaN — not computable (35/50 random models unstable) |
+| Euclidean RDM correlation | Spearman r = 0.313, p < 0.0001 — nominally significant but not interpretable (see Results) |
 | Within-CC ensemble consistency | r = 0.838 ± 0.059 |
-| Random models with unstable dynamics | 34 / 50 (68%) |
+| Random models with unstable dynamics | 35 / 50 (70%) |
 | CC models with unstable dynamics | 0 / 50 |
 
 The connectome-constrained network produces direction-sensitive representational geometry with a smooth circular structure — adjacent directions are most similar, opposite directions most dissimilar — consistent with the known tuning of T4/T5 neurons in the fly visual system. In Experiment 2, this direction geometry is preserved within each polarity block, while ON and OFF edges occupy geometrically distinct population-level regions (~0.099–0.103 cross-polarity dissimilarity), consistent with the known T4/T5 ON/OFF pathway segregation. Zero trained CC models exhibited instability under any condition across either experiment.
@@ -93,7 +93,7 @@ The connectome-constrained network produces direction-sensitive representational
 
 ![Experiment 2 RDM figure](figures/moving_edge_on_off_rdms_50models.png)
 
-*Experiment 2 — left to right: connectome-constrained cosine RDM, random baseline cosine RDM, connectome-constrained Euclidean RDM, random baseline Euclidean RDM (n=50, synapse-only shuffle of `edges_syn_strength`). The CC cosine RDM shows a 24×24 block structure: within-polarity blocks (ON-ON, OFF-OFF) preserve the circular direction gradient from Experiment 1; cross-polarity dissimilarities are large and uniform (~0.099–0.103), reflecting T4/T5 pathway segregation. The random cosine RDM is entirely NaN (34/50 unstable). Stimuli: 24 conditions (12 directions × ON + OFF). All 50 pretrained Flyvis models, seed=42.*
+*Experiment 2 — left to right: connectome-constrained cosine RDM, random baseline cosine RDM, connectome-constrained Euclidean RDM, random baseline Euclidean RDM (n=50, synapse-only shuffle of `edges_syn_strength`). The CC cosine RDM shows a 24×24 block structure: within-polarity blocks (ON-ON, OFF-OFF) preserve the circular direction gradient from Experiment 1; cross-polarity dissimilarities are large and uniform (~0.099–0.103), reflecting T4/T5 pathway segregation. The random cosine RDM is entirely NaN (35/50 unstable). Stimuli: 24 conditions (12 directions × ON + OFF). All 50 pretrained Flyvis models, seed=42.*
 
 ---
 
@@ -133,17 +133,17 @@ The connectome-constrained network produces a structured 24×24 dissimilarity ma
 The mean random cosine RDM collapses to NaN across all off-diagonal entries, as in Experiment 1, due to numerical overflow from unstable random models. The cosine metric remains unsuitable for the random baseline at n=50 under the synapse-only shuffle strategy.
 
 #### Dynamic Instability
-34 of 50 random models (68%) produced exploding activations — identical to the synapse-only shuffle rate in Experiment 1. Unstable models produced 1,512 non-finite values each, exactly double the 756 observed in Experiment 1, consistent with the doubling of stimulus conditions from 12 to 24. 0 of 50 CC models showed any instability. The instability rate and pattern are fully consistent across both experiments.
+35 of 50 random models (70%) produced exploding activations — comparable to the synapse-only shuffle rate in Experiment 1 (34/50, 68%). The majority of unstable models produced 1,512 non-finite values each, exactly double the 756 observed in Experiment 1, consistent with the doubling of stimulus conditions from 12 to 24. One model produced 378 non-finite values — partial instability affecting a subset of stimuli rather than full collapse. 0 of 50 CC models showed any instability. The instability rate is fully consistent across both experiments.
 
 #### CC vs Random RDM Correlation
 Cosine RDM correlation: **r = NaN** — not computable due to numerical overflow in the mean random cosine RDM, as in Experiment 1.
 
-Euclidean RDM correlation: **Spearman r = −0.083, p = 0.171 | Kendall τ = −0.056, p = 0.171** — not significant, and not interpretable due to extreme magnitudes (~10²⁷) from exploding activations in unstable random models.
+Euclidean RDM correlation: **Spearman r = 0.313, p < 0.0001 | Kendall τ = 0.229, p < 0.0001** — nominally significant, but not scientifically interpretable. The mean random Euclidean RDM is dominated by extreme magnitudes (~10²–10⁶) from the 35 unstable random models, whose exploding activations create structured variance in Euclidean distances that incidentally correlates with the CC pattern. This is a numerical artifact of the instability, not a meaningful fidelity signal.
 
 **Interpretive note:** The random baseline instability finding is consistent across both experiments. The meaningful fidelity signal in Experiment 2 is the CC representational structure itself — specifically, the polarity block organization — and the within-ensemble consistency reported below.
 
 #### Within-Ensemble Consistency
-Mean pairwise RDM correlation across all 50 CC models: **r = 0.838 ± 0.059** (range: 0.642–0.967). This is notably higher and tighter than the n=50 ON-only result (r = 0.721 ± 0.150), suggesting that the ON+OFF stimulus set produces a more consistent representational geometry across the ensemble — likely because 24 conditions provide a richer constraint on the population code than 12. The result also matches the n=10 ON-only within-ensemble consistency (r = 0.838 ± 0.078), suggesting the full ensemble converges on a stable geometry when stimulus coverage is sufficient.
+Mean pairwise RDM correlation across all 50 CC models: **r = 0.838 ± 0.059**. This is notably higher and tighter than the n=50 ON-only result (r = 0.721 ± 0.150), suggesting that the ON+OFF stimulus set produces a more consistent representational geometry across the ensemble — likely because 24 conditions provide a richer constraint on the population code than 12. The result also matches the n=10 ON-only within-ensemble consistency (r = 0.838 ± 0.078), suggesting the full ensemble converges on a stable geometry when stimulus coverage is sufficient.
 
 ---
 
