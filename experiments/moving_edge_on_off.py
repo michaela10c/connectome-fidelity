@@ -26,7 +26,7 @@ import numpy as np
 import torch
 import matplotlib.pyplot as plt
 from scipy.spatial.distance import cosine, euclidean
-from scipy.stats import spearmanr
+from scipy.stats import spearmanr, kendalltau
 
 # ── 1. IMPORTS ────────────────────────────────────────────────────────────────
 
@@ -41,6 +41,7 @@ SEED = 42
 np.random.seed(SEED)
 torch.manual_seed(SEED)
 torch.cuda.manual_seed_all(SEED)
+torch.use_deterministic_algorithms(True)
 
 # ── 2. STIMULUS DATASET ───────────────────────────────────────────────────────
 
@@ -151,13 +152,15 @@ def build_rdm(pop_matrix, metric="cosine"):
 
 def rdm_similarity(rdm1, rdm2):
     """
-    Compute Spearman rank correlation between upper triangles of two RDMs.
-    Higher = more similar representational geometry.
+    Compute Spearman rank correlation and Kendall's tau_A between upper
+    triangles of two RDMs. Kendall's tau_A is preferred for RDM data with
+    ties (Nili et al. 2014); Spearman retained for comparison.
     """
     n = rdm1.shape[0]
     idx = np.triu_indices(n, k=1)
-    r, p = spearmanr(rdm1[idx], rdm2[idx])
-    return r, p
+    r_s, p_s = spearmanr(rdm1[idx], rdm2[idx])
+    r_k, p_k = kendalltau(rdm1[idx], rdm2[idx])
+    return r_s, p_s, r_k, p_k
 
 
 # ── 6. HELPER: RANDOM BASELINE NETWORK ───────────────────────────────────────
@@ -324,11 +327,17 @@ def run_experiment(n_models=50):
     rand_rdm_eucl_mean   = np.mean(rand_rdms_eucl_stable,    axis=0)
 
     # ── 7f. RDM similarity (CC vs random) ─────────────────────────────────────
+    # ── 7f. RDM similarity (CC vs random) ─────────────────────────────────────
     print("\n--- RDM SIMILARITY (Connectome-Constrained vs Random) ---")
-    r_cosine, p_cosine = rdm_similarity(cc_rdm_cosine_mean, rand_rdm_cosine_mean)
-    r_eucl,   p_eucl   = rdm_similarity(cc_rdm_eucl_mean,   rand_rdm_eucl_mean)
-    print(f"  Cosine RDM correlation:    r = {r_cosine:.3f}, p = {p_cosine:.4f}")
-    print(f"  Euclidean RDM correlation: r = {r_eucl:.3f}, p = {p_eucl:.4f}")
+    if len(stable_rand_indices) == 0:
+        print("  No stable random models — skipping RDM similarity.")
+        r_cosine = p_cosine = rk_cosine = pk_cosine = float("nan")
+        r_eucl   = p_eucl   = rk_eucl   = pk_eucl   = float("nan")
+    else:
+        r_cosine, p_cosine, rk_cosine, pk_cosine = rdm_similarity(cc_rdm_cosine_mean, rand_rdm_cosine_mean)
+        r_eucl,   p_eucl,   rk_eucl,   pk_eucl   = rdm_similarity(cc_rdm_eucl_mean,   rand_rdm_eucl_mean)
+    print(f"  Cosine RDM correlation:    Spearman r = {r_cosine:.3f}, p = {p_cosine:.4f} | Kendall τ = {rk_cosine:.3f}, p = {pk_cosine:.4f}")
+    print(f"  Euclidean RDM correlation: Spearman r = {r_eucl:.3f}, p = {p_eucl:.4f} | Kendall τ = {rk_eucl:.3f}, p = {pk_eucl:.4f}")
     print("\n  Interpretation:")
     print("  Low r  → CC and random networks have DIFFERENT representational geometry")
     print("  High r → similar geometry (random network could substitute connectome)")
@@ -338,7 +347,7 @@ def run_experiment(n_models=50):
     within_corrs = []
     for i in range(len(cc_rdms_cosine)):
         for j in range(i+1, len(cc_rdms_cosine)):
-            r, _ = rdm_similarity(cc_rdms_cosine[i], cc_rdms_cosine[j])
+            r, _, _, _ = rdm_similarity(cc_rdms_cosine[i], cc_rdms_cosine[j])
             within_corrs.append(r)
     if within_corrs:
         print(f"  Mean pairwise RDM correlation across CC models: "
@@ -378,8 +387,8 @@ def run_experiment(n_models=50):
         plt.colorbar(im, ax=ax, fraction=0.046, pad=0.04)
 
     plt.tight_layout()
-    fig.savefig("../moving_edge_on_off_rdms.png", dpi=150, bbox_inches="tight")
-    print("  Saved: ../moving_edge_on_off_rdms.png")
+    fig.savefig(f"../moving_edge_on_off_rdms_{n_models}models.png", dpi=150, bbox_inches="tight")
+    print(f"  Saved: ../moving_edge_on_off_rdms_{n_models}models.png")
     plt.show()
 
     # ── 7i. Summary ───────────────────────────────────────────────────────────
@@ -389,8 +398,8 @@ def run_experiment(n_models=50):
     print(f"  N stimuli:          {n_stim} (ON + OFF edges, 12 directions each)")
     print(f"  N models:           {n_models}")
     print(f"  Population vec dim: {cc_pop_matrices[0].shape[1]} (cell types)")
-    print(f"  Cosine RDM corr (CC vs random):    r = {r_cosine:.3f}")
-    print(f"  Euclidean RDM corr (CC vs random): r = {r_eucl:.3f}")
+    print(f"  Cosine RDM corr (CC vs random):    Spearman r = {r_cosine:.3f} | Kendall τ = {rk_cosine:.3f}")
+    print(f"  Euclidean RDM corr (CC vs random): Spearman r = {r_eucl:.3f} | Kendall τ = {rk_eucl:.3f}")
     if within_corrs:
         print(f"  Within-CC consistency:             r = {np.mean(within_corrs):.3f}")
 
@@ -400,11 +409,14 @@ def run_experiment(n_models=50):
         "cc_rdm_eucl":     cc_rdm_eucl_mean,
         "rand_rdm_eucl":   rand_rdm_eucl_mean,
         "r_cosine": r_cosine, "p_cosine": p_cosine,
+        "rk_cosine": rk_cosine, "pk_cosine": pk_cosine,
         "r_eucl":   r_eucl,   "p_eucl":   p_eucl,
+        "rk_eucl":  rk_eucl,  "pk_eucl":  pk_eucl,
         "within_corrs": within_corrs,
         "cell_types": cell_types,
         "stim_labels": stim_labels,
     }
+
 
 # ── 8. ENTRY POINT ────────────────────────────────────────────────────────────
 
