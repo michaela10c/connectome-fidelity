@@ -88,11 +88,11 @@ This project tests that hypothesis using the pretrained Flyvis ensemble (Lappala
 
 The connectome-constrained network produces direction-sensitive representational geometry with a smooth circular structure — adjacent directions are most similar, opposite directions most dissimilar — consistent with the known tuning of T4/T5 neurons in the fly visual system. In Experiment 2, this direction geometry is preserved within each polarity block, while ON and OFF edges occupy geometrically distinct population-level regions (~0.099–0.103 cross-polarity dissimilarity), consistent with the known T4/T5 ON/OFF pathway segregation. Zero trained CC models exhibited instability under any condition across either experiment.
 
-![Experiment 1 RDM figure](figures/moving_edge_on_rdms.png)
+![Experiment 1 RDM figure](figures/moving_edge_on_rdms_50models.png)
 
 *Experiment 1 — left to right: connectome-constrained cosine RDM, random baseline cosine RDM, connectome-constrained Euclidean RDM, random baseline Euclidean RDM (n=50, synapse-only shuffle of `edges_syn_strength`). The CC cosine RDM shows structured, direction-dependent dissimilarity with a smooth circular gradient (range 0.001–0.012). The random cosine RDM is entirely NaN due to numerical overflow from unstable models (34/50) and is not renderable. Stimuli: 12 ON moving edges at 30° increments. All 50 pretrained Flyvis models, seed=42.*
 
-![Experiment 2 RDM figure](figures/moving_edge_on_off_rdms.png)
+![Experiment 2 RDM figure](figures/moving_edge_on_off_rdms_50models.png)
 
 *Experiment 2 — left to right: connectome-constrained cosine RDM, random baseline cosine RDM, connectome-constrained Euclidean RDM, random baseline Euclidean RDM (n=50, synapse-only shuffle of `edges_syn_strength`). The CC cosine RDM shows a 24×24 block structure: within-polarity blocks (ON-ON, OFF-OFF) preserve the circular direction gradient from Experiment 1; cross-polarity dissimilarities are large and uniform (~0.099–0.103), reflecting T4/T5 pathway segregation. The random cosine RDM is entirely NaN (34/50 unstable). Stimuli: 24 conditions (12 directions × ON + OFF). All 50 pretrained Flyvis models, seed=42.*
 
