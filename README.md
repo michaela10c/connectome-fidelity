@@ -32,6 +32,7 @@ This project tests that hypothesis using the pretrained Flyvis ensemble (Lappala
 - Cosine distance RDM — scale-invariant, captures pattern geometry
 - Euclidean distance RDM — captures magnitude differences
 - Spearman RDM correlation — measures similarity between CC and random geometry
+- Kendall's τ_A RDM correlation — preferred for RDM data with ties (Nili et al. 2014); reported alongside Spearman for all CC vs random comparisons
 - Within-ensemble consistency — measures stability of CC representational geometry across trained solutions
 
 ---
@@ -47,6 +48,7 @@ This project tests that hypothesis using the pretrained Flyvis ensemble (Lappala
 - Cosine distance RDM — scale-invariant, captures pattern geometry across all 24 conditions
 - Euclidean distance RDM — captures magnitude differences
 - Spearman RDM correlation — measures similarity between CC and random geometry
+- Kendall's τ_A RDM correlation — preferred for RDM data with ties (Nili et al. 2014); reported alongside Spearman for all CC vs random comparisons
 - Within-ensemble consistency — measures stability of CC representational geometry across trained solutions
 - Polarity generalization — whether direction-sensitive geometry observed for ON edges in Experiment 1 extends to OFF edges and the combined ON+OFF space
 
@@ -79,7 +81,7 @@ This project tests that hypothesis using the pretrained Flyvis ensemble (Lappala
 |--------|-------|
 | CC cosine RDM structure | 24×24 with polarity block organization — ON and OFF edges occupy geometrically distinct regions |
 | CC vs random RDM correlation (cosine) | NaN — not computable (34/50 random models unstable) |
-| Euclidean RDM correlation | r = −0.083, p = 0.171 — not significant |
+| Euclidean RDM correlation | Spearman r = −0.083, p = 0.171 — not significant |
 | Within-CC ensemble consistency | r = 0.838 ± 0.059 |
 | Random models with unstable dynamics | 34 / 50 (68%) |
 | CC models with unstable dynamics | 0 / 50 |
@@ -114,7 +116,7 @@ At n=10, cosine RDM correlation: **r = 0.757, p < 0.0001** — highly significan
 
 At n=50, cosine RDM correlation: **NaN** under all three randomization strategies — not computable due to numerical overflow in the mean random cosine RDM. The n=10 result remains the primary fidelity metric.
 
-Euclidean RDM correlation: **r = 0.021, p = 0.865** (full Shiu-style shuffle); **r = 0.241, p = 0.052** (matched-normal resampling); **r = −0.145, p = 0.247** (synapse-only shuffle) — none significant, and not interpretable due to extreme magnitudes (~10²¹–10²⁷) from exploding activations in unstable random models.
+Euclidean RDM correlation: **Spearman r = 0.021, p = 0.865** (full Shiu-style shuffle); **Spearman r = 0.241, p = 0.052** (matched-normal resampling); **Spearman r = 0.177, p = 0.156 | Kendall τ = 0.122, p = 0.149** (synapse-only shuffle) — none significant, and not interpretable due to extreme magnitudes (~10¹⁸–10²⁰) from exploding activations in unstable random models.
 
 **Interpretive note:** The n=50 random baseline is dominated by dynamically unstable models under all three randomization strategies and is not suitable for RDM correlation analysis. The meaningful fidelity signal at n=50 is the within-ensemble consistency of CC models and the instability rate of random models, not the CC vs random RDM correlation. The n=10 result (r = 0.757, p < 0.0001) remains the primary fidelity metric, computed against a random baseline with only 5/10 unstable models.
 
@@ -137,7 +139,7 @@ The mean random cosine RDM collapses to NaN across all off-diagonal entries, as 
 #### CC vs Random RDM Correlation
 Cosine RDM correlation: **r = NaN** — not computable due to numerical overflow in the mean random cosine RDM, as in Experiment 1.
 
-Euclidean RDM correlation: **r = −0.083, p = 0.171** — not significant, and not interpretable due to extreme magnitudes (~10²⁷) from exploding activations in unstable random models.
+Euclidean RDM correlation: **Spearman r = −0.083, p = 0.171 | Kendall τ = −0.056, p = 0.171** — not significant, and not interpretable due to extreme magnitudes (~10²⁷) from exploding activations in unstable random models.
 
 **Interpretive note:** The random baseline instability finding is consistent across both experiments. The meaningful fidelity signal in Experiment 2 is the CC representational structure itself — specifically, the polarity block organization — and the within-ensemble consistency reported below.
 
@@ -152,7 +154,6 @@ Mean pairwise RDM correlation across all 50 CC models: **r = 0.838 ± 0.059** (r
 - Dynamic instability persists across all tested randomization strategies (66–76%), indicating that the trained parameter configuration as a whole determines dynamic stability; a fully stable random baseline may require adversarial stability-constrained sampling
 - Euclidean metric is not suitable when random baselines are dynamically unstable; cosine distance is the appropriate primary metric
 - Within-CC consistency could be reported separately per cluster if UMAP reveals substructure in the ensemble geometry (planned)
-- Consider Kendall's τ_A as an alternative to Spearman for RDM comparison, as it is more robust to ties
 
 ---
 
@@ -213,6 +214,8 @@ connectome-fidelity/
 - Kriegeskorte et al. 2008. Representational similarity analysis — connecting the branches of systems neuroscience. *Frontiers in Systems Neuroscience* 2:4. https://www.frontiersin.org/journals/systems-neuroscience/articles/10.3389/neuro.06.004.2008/full
 
 - Kriegeskorte & Wei 2021. Neural tuning and representational geometry. *Nature Reviews Neuroscience* 22, 703–718. https://www.nature.com/articles/s41583-021-00502-3
+
+- Nili et al. 2014. A toolbox for representational similarity analysis. *PLOS Computational Biology* 10(4): e1003553. https://doi.org/10.1371/journal.pcbi.1003553
 
 - Brunton et al. 2026. The digital sphinx: Can a worm brain control a fly body? *bioRxiv*. https://www.biorxiv.org/content/10.64898/2026.03.20.713233v1
 
