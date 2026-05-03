@@ -1,13 +1,16 @@
 """
-Proof of Concept: Representational Geometry as a Fidelity Metric
-for Connectome-Constrained Neural Emulations
+Experiment 2: Representational Geometry as a Fidelity Metric
+for Connectome-Constrained Neural Emulations — ON + OFF Edges
 
-This script tests whether connectome-constrained networks (Lappalainen et al. 2024)
-produce geometrically distinct population codes compared to randomly initialized
-networks with the same architecture.
+This script extends Experiment 1 (ON edges only) to test whether connectome-constrained
+networks (Lappalainen et al. 2024) produce geometrically distinct population codes
+compared to randomly initialized networks when stimulated with both ON and OFF moving
+edges. A meaningful fidelity signal across both polarities would strengthen the claim
+that representational geometry is a general property of the connectome constraint,
+not specific to the ON pathway.
 
 Experiment:
-- Stimuli: 12 moving edge directions (0° through 330°, 30° increments), ON edges
+- Stimuli: 24 moving edge conditions (12 directions × 2 polarities: ON and OFF)
 - Networks: pretrained connectome-constrained ensemble (all 50) vs random baseline
 - Population vectors: peak central-cell response per cell type (65-dim)
 - Metrics: Euclidean distance, cosine distance, RSA (RDM correlation)
@@ -41,12 +44,12 @@ torch.cuda.manual_seed_all(SEED)
 
 # ── 2. STIMULUS DATASET ───────────────────────────────────────────────────────
 
-ANGLES = [0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330]         # 12 directions (30° increments)
-INTENSITY = 1                        # ON edges only for this POC
+ANGLES = [0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330]  # 12 directions (30° increments)
+INTENSITIES = [0, 1]                                                # ON (1) and OFF (0) edges
 
 dataset = MovingEdge(
     offsets=[-10, 11],
-    intensities=[0, 1],              # keep both; we'll filter to intensity=1
+    intensities=INTENSITIES,         # include both ON and OFF
     speeds=[19],
     height=80,
     post_pad_mode="continue",
@@ -191,13 +194,13 @@ def randomize_weights(network):
 
 def run_experiment(n_models=50):
     """
-    Run the RSA proof of concept experiment.
+    Run the ON+OFF RSA experiment.
 
     Args:
         n_models: number of models to use (set to 1 for debugging, 50 for full run)
     """
     print("\n" + "="*60)
-    print("FLYVIS RSA PROOF OF CONCEPT")
+    print("FLYVIS RSA — ON + OFF EDGES")
     print("="*60)
     print(f"Random seed: {SEED}")
 
@@ -207,13 +210,15 @@ def run_experiment(n_models=50):
     best_indices = list(range(n_models))  # 000-049 pre-sorted best to worst
     print(f"Using {n_models} model(s): indices {best_indices}")
 
-    # ── 7b. Get stimuli (ON edges, 12 directions) ──────────────────────────────
-    on_edge_indices = [
+    # ── 7b. Get stimuli (ON + OFF edges, 12 directions each = 24 conditions) ──
+    stim_indices = [
         i for i, row in dataset.arg_df.iterrows()
-        if row["intensity"] == INTENSITY
+        if row["intensity"] in INTENSITIES
     ]
-    print(f"\nStimulus conditions (ON edges, {len(on_edge_indices)} directions):")
-    print(dataset.arg_df.iloc[on_edge_indices])
+    print(f"\nStimulus conditions (ON + OFF edges, {len(stim_indices)} total):")
+    print(dataset.arg_df.iloc[stim_indices])
+
+    n_stim = len(stim_indices)
 
     # ── 7c. Connectome-constrained: collect population vectors ────────────────
     print("\n--- CONNECTOME-CONSTRAINED NETWORKS ---")
@@ -226,14 +231,14 @@ def run_experiment(n_models=50):
         print(f"  Model {rank+1}/{n_models} ({model_path.name})...", end=" ")
 
         pop_vecs = []
-        for stim_idx in on_edge_indices:
+        for stim_idx in stim_indices:
             stimulus = dataset[stim_idx]
             if not isinstance(stimulus, torch.Tensor):
                 stimulus = torch.tensor(stimulus, dtype=torch.float32)
             pop_vec, cell_types = get_population_vector(nv, stimulus, dataset.dt)
             pop_vecs.append(pop_vec)
 
-        pop_matrix = np.stack(pop_vecs, axis=0)  # (12, n_cell_types)
+        pop_matrix = np.stack(pop_vecs, axis=0)  # (24, n_cell_types)
         cc_pop_matrices.append(pop_matrix)
         print(f"done. Pop vec shape: {pop_matrix.shape}")
 
@@ -255,7 +260,7 @@ def run_experiment(n_models=50):
         print(f"  Random model {rank+1}/{n_models}...", end=" ")
 
         pop_vecs = []
-        for stim_idx in on_edge_indices:
+        for stim_idx in stim_indices:
             stimulus = dataset[stim_idx]
             if not isinstance(stimulus, torch.Tensor):
                 stimulus = torch.tensor(stimulus, dtype=torch.float32)
@@ -343,12 +348,17 @@ def run_experiment(n_models=50):
 
     # ── 7h. Plot ──────────────────────────────────────────────────────────────
     print("\n--- GENERATING FIGURE ---")
-    angle_labels = [f"{a}°" for a in ANGLES]
 
-    fig, axes = plt.subplots(1, 4, figsize=(14, 3.5))
+    # Labels: OFF 0°, OFF 30°, ..., OFF 330°, ON 0°, ON 30°, ..., ON 330°
+    stim_labels = (
+        [f"OFF {a}°" for a in ANGLES] +
+        [f"ON {a}°"  for a in ANGLES]
+    )
+
+    fig, axes = plt.subplots(1, 4, figsize=(18, 4.5))
     fig.suptitle(
         "Representational Geometry: Connectome-Constrained vs Random\n"
-        "Moving edge stimuli (12 directions, 30° increments), ON edges",
+        "Moving edge stimuli (12 directions × ON + OFF = 24 conditions)",
         fontsize=10
     )
 
@@ -361,20 +371,22 @@ def run_experiment(n_models=50):
     ):
         im = ax.imshow(rdm, cmap="viridis", vmin=0)
         ax.set_title(title, fontsize=8)
-        ax.set_xticks(range(12)); ax.set_xticklabels(angle_labels, fontsize=6, rotation=90)
-        ax.set_yticks(range(12)); ax.set_yticklabels(angle_labels, fontsize=6)
+        ax.set_xticks(range(n_stim))
+        ax.set_xticklabels(stim_labels, fontsize=4, rotation=90)
+        ax.set_yticks(range(n_stim))
+        ax.set_yticklabels(stim_labels, fontsize=4)
         plt.colorbar(im, ax=ax, fraction=0.046, pad=0.04)
 
     plt.tight_layout()
-    fig.savefig("../moving_edge_on_rdms.png", dpi=150, bbox_inches="tight")
-    print("  Saved: ../moving_edge_on_rdms.png")
+    fig.savefig("../moving_edge_on_off_rdms.png", dpi=150, bbox_inches="tight")
+    print("  Saved: ../moving_edge_on_off_rdms.png")
     plt.show()
 
     # ── 7i. Summary ───────────────────────────────────────────────────────────
     print("\n" + "="*60)
     print("SUMMARY")
     print("="*60)
-    print(f"  N stimuli:          {len(on_edge_indices)} (ON edges, 12 directions)")
+    print(f"  N stimuli:          {n_stim} (ON + OFF edges, 12 directions each)")
     print(f"  N models:           {n_models}")
     print(f"  Population vec dim: {cc_pop_matrices[0].shape[1]} (cell types)")
     print(f"  Cosine RDM corr (CC vs random):    r = {r_cosine:.3f}")
@@ -391,12 +403,5 @@ def run_experiment(n_models=50):
         "r_eucl":   r_eucl,   "p_eucl":   p_eucl,
         "within_corrs": within_corrs,
         "cell_types": cell_types,
+        "stim_labels": stim_labels,
     }
-
-# ── 8. ENTRY POINT ────────────────────────────────────────────────────────────
-
-if __name__ == "__main__":
-    # n_models=1 for debugging (confirms pop vec shape is (12, 65))
-    # n_models=10 for primary fidelity result (top 10 models)
-    # n_models=50 for full run
-    results = run_experiment(n_models=50)
