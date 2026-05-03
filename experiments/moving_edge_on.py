@@ -378,8 +378,8 @@ def run_experiment(n_models=50):
         plt.colorbar(im, ax=ax, fraction=0.046, pad=0.04)
 
     plt.tight_layout()
-    fig.savefig("../moving_edge_on_rdms.png", dpi=150, bbox_inches="tight")
-    print("  Saved: ../moving_edge_on_rdms.png")
+    fig.savefig(f"../moving_edge_on_rdms_{n_models}models.png", dpi=150, bbox_inches="tight")
+    print(f"  Saved: ../moving_edge_on_rdms_{n_models}models.png")
     plt.show()
 
     # ── 7i. Summary ───────────────────────────────────────────────────────────
