@@ -63,7 +63,7 @@ The connectome-constrained network produces direction-sensitive representational
 
 ![RDM figure](figures/moving_edge_poc_rdms.png)
 
-*Left to right: connectome-constrained cosine RDM, random baseline cosine RDM, connectome-constrained Euclidean RDM, random baseline Euclidean RDM (n=50 run). The CC cosine RDM shows structured, direction-dependent dissimilarity with a smooth circular gradient (range 0.001–0.012). The random cosine RDM is nearly uniform (~0.200 off-diagonal), indicating no direction selectivity. The random Euclidean RDM is dominated by exploding activations in unstable models (33/50) and is not interpretable. Stimuli: 12 ON moving edges at 30° increments. All 50 pretrained Flyvis models, seed=42.*
+*Left to right: connectome-constrained cosine RDM, random baseline cosine RDM, connectome-constrained Euclidean RDM, random baseline Euclidean RDM (n=50 run). The CC cosine RDM shows structured, direction-dependent dissimilarity with a smooth circular gradient (range 0.001–0.012). The random cosine RDM is entirely NaN due to numerical overflow from unstable models and is not renderable. The random Euclidean RDM is dominated by exploding activations in unstable models (33/50) and is not interpretable. Stimuli: 12 ON moving edges at 30° increments. All 50 pretrained Flyvis models, seed=42.*
 
 ---
 
