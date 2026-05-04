@@ -169,7 +169,7 @@ At n=10, mean pairwise RDM correlation: **r = 0.850 ± 0.057**. At n=50, mean pa
 
 ---
 
-## Next Steps
+## Discussion
 - The n=10 full Shiu-style cosine results across both experiments (Experiment 1: r = 0.757, τ = 0.562; Experiment 2: r = 0.862, τ = 0.660) confirm that representational geometry is a general fidelity signal across both ON and OFF edges — the primary finding for the SfN abstract
 - The within-ensemble consistency improvement from ON-only (r = 0.721 at n=50) to ON+OFF (r = 0.838 at n=50, r = 0.850 at n=10) supports polarity as a stronger organizer of representational geometry than direction alone
 - Dynamic instability persists across all tested randomization strategies and ensemble sizes (66–80%), indicating that the trained parameter configuration as a whole determines dynamic stability; a fully stable random baseline may require adversarial stability-constrained sampling
