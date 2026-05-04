@@ -170,6 +170,60 @@ def rdm_similarity(rdm1, rdm2):
     return r_s, p_s, r_k, p_k
 
 
+# ── 5b. HELPER: PERMUTATION TEST ─────────────────────────────────────────────
+
+def permutation_test_rdm(rdm1, rdm2, n_permutations=10000, seed=42):
+    """
+    Stimulus-label randomization test for RDM correlation (Nili et al. 2014).
+
+    Permutes rows and columns of rdm2 simultaneously to preserve RDM symmetry,
+    building a null distribution of RDM correlations under the hypothesis that
+    the two RDMs are unrelated. The one-sided p-value is the proportion of
+    permuted correlations >= the observed correlation.
+
+    This is the recommended fixed-effects inference procedure from Nili et al.
+    (2014) when a single RDM estimate is available (rather than multiple subjects).
+
+    Args:
+        rdm1: numpy array of shape (n_stimuli, n_stimuli) — reference RDM
+        rdm2: numpy array of shape (n_stimuli, n_stimuli) — candidate RDM
+              (stimulus labels of this RDM are permuted)
+        n_permutations: number of permutations (default: 10000)
+        seed: random seed for reproducibility
+
+    Returns:
+        obs_r:    observed Spearman correlation
+        p_r:      permutation p-value for Spearman
+        obs_tau:  observed Kendall tau_A
+        p_tau:    permutation p-value for Kendall tau_A
+        null_r:   null distribution of Spearman correlations
+        null_tau: null distribution of Kendall tau_A values
+    """
+    rng = np.random.default_rng(seed)
+    n = rdm1.shape[0]
+    idx = np.triu_indices(n, k=1)
+
+    # Observed correlations
+    obs_r,   _ = spearmanr(rdm1[idx], rdm2[idx])
+    obs_tau, _ = kendalltau(rdm1[idx], rdm2[idx])
+
+    # Null distribution via stimulus-label permutation
+    null_r   = np.zeros(n_permutations)
+    null_tau = np.zeros(n_permutations)
+
+    for i in range(n_permutations):
+        perm = rng.permutation(n)
+        rdm2_perm = rdm2[np.ix_(perm, perm)]
+        null_r[i],   _ = spearmanr(rdm1[idx], rdm2_perm[idx])
+        null_tau[i], _ = kendalltau(rdm1[idx], rdm2_perm[idx])
+
+    # One-sided p-value: proportion of null >= observed
+    p_r   = np.mean(null_r   >= obs_r)
+    p_tau = np.mean(null_tau >= obs_tau)
+
+    return obs_r, p_r, obs_tau, p_tau, null_r, null_tau
+
+
 # ── 6. HELPER: RANDOM BASELINE NETWORK ───────────────────────────────────────
 
 def randomize_weights(network, strategy="full_shiu"):
@@ -210,13 +264,16 @@ def randomize_weights(network, strategy="full_shiu"):
 
 # ── 7. MAIN EXPERIMENT ────────────────────────────────────────────────────────
 
-def run_experiment(n_models=50, randomization_strategy="full_shiu"):
+def run_experiment(n_models=50, randomization_strategy="full_shiu",
+                   n_permutations=10000):
     """
     Run the ON+OFF RSA experiment.
 
     Args:
         n_models: number of models to use (set to 1 for debugging, 50 for full run)
         randomization_strategy: "full_shiu" or "synapse_only" (see randomize_weights)
+        n_permutations: number of permutations for stimulus-label randomization test
+                        (Nili et al. 2014). Set to 0 to skip permutation testing.
     """
     print("\n" + "="*60)
     print("FLYVIS RSA — ON + OFF EDGES")
@@ -262,7 +319,6 @@ def run_experiment(n_models=50, randomization_strategy="full_shiu"):
         cc_pop_matrices.append(pop_matrix)
         print(f"done. Pop vec shape: {pop_matrix.shape}")
 
-        # Free GPU memory between models to avoid OOM on T4 (14.56 GiB)
         del nv
         torch.cuda.empty_cache()
 
@@ -284,7 +340,6 @@ def run_experiment(n_models=50, randomization_strategy="full_shiu"):
             stimulus = dataset[stim_idx]
             if not isinstance(stimulus, torch.Tensor):
                 stimulus = torch.tensor(stimulus, dtype=torch.float32)
-            # Same shape correction as in get_population_vector
             if stimulus.dim() == 2:
                 stimulus = stimulus.unsqueeze(1)
 
@@ -300,13 +355,11 @@ def run_experiment(n_models=50, randomization_strategy="full_shiu"):
             ])
             pop_vecs.append(pop_vec)
 
-            # Free GPU memory after each stimulus
             del responses, layer_act
             torch.cuda.empty_cache()
 
         pop_matrix = np.stack(pop_vecs, axis=0)
 
-        # Diagnostic: flag models with exploding activations
         n_bad = np.sum(~np.isfinite(pop_matrix))
         if n_bad > 0:
             print(f"\n  WARNING: {n_bad} non-finite values in random model {rank+1} "
@@ -315,7 +368,6 @@ def run_experiment(n_models=50, randomization_strategy="full_shiu"):
         rand_pop_matrices.append(pop_matrix)
         print(f"done. Pop vec shape: {pop_matrix.shape}")
 
-        # Free GPU memory between models
         del network, nv
         torch.cuda.empty_cache()
 
@@ -326,8 +378,6 @@ def run_experiment(n_models=50, randomization_strategy="full_shiu"):
     rand_rdms_cosine = [build_rdm(m, "cosine")    for m in rand_pop_matrices]
     rand_rdms_eucl   = [build_rdm(m, "euclidean") for m in rand_pop_matrices]
 
-    # Filter out unstable random models before computing mean RDMs
-    # A model is unstable if its pop matrix contains non-finite values
     stable_rand_indices = [
         i for i, m in enumerate(rand_pop_matrices)
         if np.all(np.isfinite(m))
@@ -338,22 +388,83 @@ def run_experiment(n_models=50, randomization_strategy="full_shiu"):
     rand_rdms_cosine_stable = [rand_rdms_cosine[i] for i in stable_rand_indices]
     rand_rdms_eucl_stable   = [rand_rdms_eucl[i]   for i in stable_rand_indices]
 
-    cc_rdm_cosine_mean   = np.mean(cc_rdms_cosine,          axis=0)
-    cc_rdm_eucl_mean     = np.mean(cc_rdms_eucl,             axis=0)
-    rand_rdm_cosine_mean = np.mean(rand_rdms_cosine_stable,  axis=0)
-    rand_rdm_eucl_mean   = np.mean(rand_rdms_eucl_stable,    axis=0)
+    cc_rdm_cosine_mean   = np.mean(cc_rdms_cosine,         axis=0)
+    cc_rdm_eucl_mean     = np.mean(cc_rdms_eucl,            axis=0)
+    rand_rdm_cosine_mean = np.mean(rand_rdms_cosine_stable, axis=0)
+    rand_rdm_eucl_mean   = np.mean(rand_rdms_eucl_stable,   axis=0)
 
-    # ── 7f. RDM similarity (CC vs random) ─────────────────────────────────────
+    # ── 7f. RDM similarity (CC vs random) — analytical ────────────────────────
     print("\n--- RDM SIMILARITY (Connectome-Constrained vs Random) ---")
     if len(stable_rand_indices) == 0:
         print("  No stable random models — skipping RDM similarity.")
         r_cosine = p_cosine = rk_cosine = pk_cosine = float("nan")
         r_eucl   = p_eucl   = rk_eucl   = pk_eucl   = float("nan")
     else:
-        r_cosine, p_cosine, rk_cosine, pk_cosine = rdm_similarity(cc_rdm_cosine_mean, rand_rdm_cosine_mean)
-        r_eucl,   p_eucl,   rk_eucl,   pk_eucl   = rdm_similarity(cc_rdm_eucl_mean,   rand_rdm_eucl_mean)
-    print(f"  Cosine RDM correlation:    Spearman r = {r_cosine:.3f}, p = {p_cosine:.4f} | Kendall τ = {rk_cosine:.3f}, p = {pk_cosine:.4f}")
-    print(f"  Euclidean RDM correlation: Spearman r = {r_eucl:.3f}, p = {p_eucl:.4f} | Kendall τ = {rk_eucl:.3f}, p = {pk_eucl:.4f}")
+        r_cosine, p_cosine, rk_cosine, pk_cosine = rdm_similarity(
+            cc_rdm_cosine_mean, rand_rdm_cosine_mean)
+        r_eucl, p_eucl, rk_eucl, pk_eucl = rdm_similarity(
+            cc_rdm_eucl_mean, rand_rdm_eucl_mean)
+    print(f"  Cosine RDM:    Spearman r = {r_cosine:.3f}, p = {p_cosine:.4f} "
+          f"| Kendall τ = {rk_cosine:.3f}, p = {pk_cosine:.4f}  [analytical]")
+    print(f"  Euclidean RDM: Spearman r = {r_eucl:.3f}, p = {p_eucl:.4f} "
+          f"| Kendall τ = {rk_eucl:.3f}, p = {pk_eucl:.4f}  [analytical]")
+
+    # ── 7f2. Permutation test (Nili et al. 2014 stimulus-label randomization) ─
+    perm_results_cosine = None
+    perm_results_eucl   = None
+
+    if n_permutations > 0 and len(stable_rand_indices) > 0:
+        print(f"\n--- PERMUTATION TEST ({n_permutations} permutations, "
+              f"Nili et al. 2014) ---")
+
+        obs_r, p_r_perm, obs_tau, p_tau_perm, null_r, null_tau = \
+            permutation_test_rdm(cc_rdm_cosine_mean, rand_rdm_cosine_mean,
+                                 n_permutations=n_permutations, seed=SEED)
+        print(f"  Cosine RDM:    Spearman r = {obs_r:.3f}, p_perm = {p_r_perm:.4f} "
+              f"| Kendall τ = {obs_tau:.3f}, p_perm = {p_tau_perm:.4f}  [permutation]")
+        perm_results_cosine = dict(obs_r=obs_r, p_r=p_r_perm,
+                                   obs_tau=obs_tau, p_tau=p_tau_perm,
+                                   null_r=null_r, null_tau=null_tau)
+
+        obs_r_e, p_r_e, obs_tau_e, p_tau_e, null_r_e, null_tau_e = \
+            permutation_test_rdm(cc_rdm_eucl_mean, rand_rdm_eucl_mean,
+                                 n_permutations=n_permutations, seed=SEED)
+        print(f"  Euclidean RDM: Spearman r = {obs_r_e:.3f}, p_perm = {p_r_e:.4f} "
+              f"| Kendall τ = {obs_tau_e:.3f}, p_perm = {p_tau_e:.4f}  [permutation]")
+        perm_results_eucl = dict(obs_r=obs_r_e, p_r=p_r_e,
+                                 obs_tau=obs_tau_e, p_tau=p_tau_e,
+                                 null_r=null_r_e, null_tau=null_tau_e)
+
+        # ── Plot null distributions ───────────────────────────────────────────
+        fig_perm, axes_perm = plt.subplots(1, 2, figsize=(10, 3.5))
+        fig_perm.suptitle(
+            f"Permutation null distributions — ON+OFF edges "
+            f"[{randomization_strategy}, n={n_models}]",
+            fontsize=10
+        )
+        for ax, null, obs, metric in zip(
+            axes_perm,
+            [null_r,   null_tau],
+            [obs_r,    obs_tau],
+            ["Spearman r (cosine RDM)", "Kendall τ (cosine RDM)"]
+        ):
+            ax.hist(null, bins=50, color="steelblue", alpha=0.7,
+                    label="Null distribution")
+            ax.axvline(obs, color="red", linewidth=2,
+                       label=f"Observed = {obs:.3f}")
+            ax.set_xlabel(metric)
+            ax.set_ylabel("Count")
+            ax.legend(fontsize=8)
+        plt.tight_layout()
+        fname_perm = (f"moving_edge_on_off_permtest_{n_models}models"
+                      f"_{randomization_strategy}.png")
+        fig_perm.savefig(fname_perm, dpi=150, bbox_inches="tight")
+        print(f"  Saved: {fname_perm}")
+        plt.show()
+
+    elif n_permutations > 0:
+        print("\n  [Permutation test skipped — no stable random models]")
+
     print("\n  Interpretation:")
     print("  Low r  → CC and random networks have DIFFERENT representational geometry")
     print("  High r → similar geometry (random network could substitute connectome)")
@@ -371,10 +482,9 @@ def run_experiment(n_models=50, randomization_strategy="full_shiu"):
     else:
         print("  (Need >1 model to compute within-ensemble consistency)")
 
-    # ── 7h. Plot ──────────────────────────────────────────────────────────────
+    # ── 7h. Plot RDMs ─────────────────────────────────────────────────────────
     print("\n--- GENERATING FIGURE ---")
 
-    # Labels: OFF 0°, OFF 30°, ..., OFF 330°, ON 0°, ON 30°, ..., ON 330°
     stim_labels = (
         [f"OFF {a}°" for a in ANGLES] +
         [f"ON {a}°"  for a in ANGLES]
@@ -409,7 +519,7 @@ def run_experiment(n_models=50, randomization_strategy="full_shiu"):
 
     plt.tight_layout()
     fname = f"moving_edge_on_off_rdms_{n_models}models_{randomization_strategy}.png"
-    fig.savefig("../" + fname, dpi=150, bbox_inches="tight")
+    fig.savefig("../"+fname, dpi=150, bbox_inches="tight")
     print(f"  Saved: ../{fname}")
     plt.show()
 
@@ -421,23 +531,34 @@ def run_experiment(n_models=50, randomization_strategy="full_shiu"):
     print(f"  N models:               {n_models}")
     print(f"  Randomization strategy: {randomization_strategy}")
     print(f"  Population vec dim:     {cc_pop_matrices[0].shape[1]} (cell types)")
-    print(f"  Cosine RDM corr (CC vs random):    Spearman r = {r_cosine:.3f} | Kendall τ = {rk_cosine:.3f}")
-    print(f"  Euclidean RDM corr (CC vs random): Spearman r = {r_eucl:.3f} | Kendall τ = {rk_eucl:.3f}")
+    print(f"  Cosine RDM corr (CC vs random):    Spearman r = {r_cosine:.3f} "
+          f"| Kendall τ = {rk_cosine:.3f}  [analytical]")
+    if perm_results_cosine:
+        print(f"                                     Spearman r = "
+              f"{perm_results_cosine['obs_r']:.3f}, "
+              f"p_perm = {perm_results_cosine['p_r']:.4f} "
+              f"| Kendall τ = {perm_results_cosine['obs_tau']:.3f}, "
+              f"p_perm = {perm_results_cosine['p_tau']:.4f}  [permutation]")
+    print(f"  Euclidean RDM corr (CC vs random): Spearman r = {r_eucl:.3f} "
+          f"| Kendall τ = {rk_eucl:.3f}  [analytical]")
     if within_corrs:
-        print(f"  Within-CC consistency:             r = {np.mean(within_corrs):.3f}")
+        print(f"  Within-CC consistency:             "
+              f"r = {np.mean(within_corrs):.3f} ± {np.std(within_corrs):.3f}")
 
     return {
-        "cc_rdm_cosine":   cc_rdm_cosine_mean,
-        "rand_rdm_cosine": rand_rdm_cosine_mean,
-        "cc_rdm_eucl":     cc_rdm_eucl_mean,
-        "rand_rdm_eucl":   rand_rdm_eucl_mean,
-        "r_cosine": r_cosine, "p_cosine": p_cosine,
+        "cc_rdm_cosine":    cc_rdm_cosine_mean,
+        "rand_rdm_cosine":  rand_rdm_cosine_mean,
+        "cc_rdm_eucl":      cc_rdm_eucl_mean,
+        "rand_rdm_eucl":    rand_rdm_eucl_mean,
+        "r_cosine":  r_cosine,  "p_cosine":  p_cosine,
         "rk_cosine": rk_cosine, "pk_cosine": pk_cosine,
-        "r_eucl":   r_eucl,   "p_eucl":   p_eucl,
-        "rk_eucl":  rk_eucl,  "pk_eucl":  pk_eucl,
+        "r_eucl":    r_eucl,    "p_eucl":    p_eucl,
+        "rk_eucl":   rk_eucl,   "pk_eucl":   pk_eucl,
+        "perm_cosine": perm_results_cosine,
+        "perm_eucl":   perm_results_eucl,
         "within_corrs": within_corrs,
-        "cell_types": cell_types,
-        "stim_labels": stim_labels,
+        "cell_types":   cell_types,
+        "stim_labels":  stim_labels,
         "randomization_strategy": randomization_strategy,
     }
 
