@@ -34,6 +34,7 @@ import torch
 import matplotlib.pyplot as plt
 from scipy.spatial.distance import cosine, euclidean
 from scipy.stats import spearmanr, kendalltau
+from google.colab import files
 
 # ── 1. IMPORTS ────────────────────────────────────────────────────────────────
 
@@ -570,3 +571,16 @@ if __name__ == "__main__":
     # n_models=10 for primary fidelity result (top 10 models)
     # n_models=50 for full run
     results = run_experiment(n_models=10, randomization_strategy="full_shiu")
+
+    # Save results to .npz file
+    np.savez("../results/results_exp2.npz",
+        cc_rdm_cosine=results["cc_rdm_cosine"],
+        rand_rdm_cosine=results["rand_rdm_cosine"],
+        cc_rdm_eucl=results["cc_rdm_eucl"],
+        rand_rdm_eucl=results["rand_rdm_eucl"],
+        cell_types=results["cell_types"],
+        stim_labels=results["stim_labels"],
+    )
+    print("Saved ../results/results_exp2.npz")
+
+
