@@ -99,19 +99,19 @@ This project tests that hypothesis using the pretrained Flyvis ensemble (Lappala
 
 The connectome-constrained network produces direction-sensitive representational geometry with a smooth circular structure — adjacent directions are most similar, opposite directions most dissimilar — consistent with the known tuning of T4/T5 neurons in the fly visual system. In Experiment 2, this direction geometry is preserved within each polarity block, while ON and OFF edges occupy geometrically distinct population-level regions (~0.099–0.103 cross-polarity dissimilarity), consistent with the known T4/T5 ON/OFF pathway segregation. Zero trained CC models exhibited instability under any condition across either experiment.
 
-![Experiment 1 RDM figure — n=10](figures/moving_edge_on_rdms_10models.png)
+![Experiment 1 RDM figure — n=10](figures/moving_edge_on_rdms_10models_full_shiu.png)
 
 *Experiment 1 (n=10, full Shiu-style shuffle of all 734 free parameters) — left to right: connectome-constrained cosine RDM, random baseline cosine RDM, connectome-constrained Euclidean RDM, random baseline Euclidean RDM. The CC cosine RDM shows structured, direction-dependent dissimilarity with a smooth circular gradient (range 0.001–0.022). The random cosine RDM is renderable (5/10 stable models) and nearly uniform at ~0.400 — the random network encodes no direction structure. Cosine RDM correlation: Spearman r = 0.757, p < 0.0001 | Kendall τ = 0.562, p < 0.0001. Stimuli: 12 ON moving edges at 30° increments. Top 10 pretrained Flyvis models, seed=42.*
 
-![Experiment 1 RDM figure — n=50](figures/moving_edge_on_rdms_50models.png)
+![Experiment 1 RDM figure — n=50](figures/moving_edge_on_rdms_50models_synapse_only.png)
 
 *Experiment 1 (n=50, synapse-only shuffle of `edges_syn_strength`) — left to right: connectome-constrained cosine RDM, random baseline cosine RDM, connectome-constrained Euclidean RDM, random baseline Euclidean RDM. The CC cosine RDM shows the same circular gradient at reduced range (0.001–0.012). The random cosine RDM is entirely NaN due to numerical overflow from unstable models (34/50) and is not renderable. Stimuli: 12 ON moving edges at 30° increments. All 50 pretrained Flyvis models, seed=42.*
 
-![Experiment 2 RDM figure — n=10](figures/moving_edge_on_off_rdms_10models.png)
+![Experiment 2 RDM figure — n=10](figures/moving_edge_on_off_rdms_10models_full_shiu.png)
 
 *Experiment 2 (n=10, full Shiu-style shuffle of all 734 free parameters) — left to right: connectome-constrained cosine RDM, random baseline cosine RDM, connectome-constrained Euclidean RDM, random baseline Euclidean RDM. The CC cosine RDM shows a 24×24 block structure with circular direction gradients within each polarity block and large cross-polarity dissimilarities (~0.099–0.103). The random cosine RDM is renderable (5/10 stable models) and shows polarity block structure at ~0.400–0.423 but no within-polarity direction gradient. Cosine RDM correlation: Spearman r = 0.862, p < 0.0001 | Kendall τ = 0.660, p < 0.0001. Stimuli: 24 conditions (12 directions × ON + OFF). Top 10 pretrained Flyvis models, seed=42.*
 
-![Experiment 2 RDM figure — n=50](figures/moving_edge_on_off_rdms_50models.png)
+![Experiment 2 RDM figure — n=50](figures/moving_edge_on_off_rdms_50models_synapse_only.png)
 
 *Experiment 2 (n=50, synapse-only shuffle of `edges_syn_strength`) — left to right: connectome-constrained cosine RDM, random baseline cosine RDM, connectome-constrained Euclidean RDM, random baseline Euclidean RDM. The CC cosine RDM shows the same 24×24 block structure. The random cosine RDM is entirely NaN (35/50 unstable). Stimuli: 24 conditions (12 directions × ON + OFF). All 50 pretrained Flyvis models, seed=42.*
 
