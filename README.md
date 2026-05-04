@@ -32,7 +32,7 @@ This project tests that hypothesis using the pretrained Flyvis ensemble (Lappala
 - Cosine distance RDM — scale-invariant, captures pattern geometry
 - Euclidean distance RDM — captures magnitude differences
 - Spearman RDM correlation — measures similarity between CC and random geometry
-- Kendall's τ_A RDM correlation — preferred for RDM data with ties (Nili et al. 2014); reported alongside Spearman for all CC vs random comparisons
+- Kendall's $\tau_A$ RDM correlation — preferred for RDM data with ties (Nili et al. 2014); reported alongside Spearman for all CC vs random comparisons
 - Stimulus-label permutation test — nonparametric inference on RDM correlations (Nili et al. 2014, 10,000 permutations)
 - Within-ensemble consistency — measures stability of CC representational geometry across trained solutions
 
@@ -49,7 +49,7 @@ This project tests that hypothesis using the pretrained Flyvis ensemble (Lappala
 - Cosine distance RDM — scale-invariant, captures pattern geometry across all 24 conditions
 - Euclidean distance RDM — captures magnitude differences
 - Spearman RDM correlation — measures similarity between CC and random geometry
-- Kendall's τ_A RDM correlation — preferred for RDM data with ties (Nili et al. 2014); reported alongside Spearman for all CC vs random comparisons
+- Kendall's $\tau_A$ RDM correlation — preferred for RDM data with ties (Nili et al. 2014); reported alongside Spearman for all CC vs random comparisons
 - Stimulus-label permutation test — nonparametric inference on RDM correlations (Nili et al. 2014, 10,000 permutations)
 - Within-ensemble consistency — measures stability of CC representational geometry across trained solutions
 - Polarity generalization — whether direction-sensitive geometry observed for ON edges in Experiment 1 extends to OFF edges and the combined ON+OFF space
