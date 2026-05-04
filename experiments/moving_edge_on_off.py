@@ -167,23 +167,13 @@ def rdm_similarity(rdm1, rdm2):
 
 def randomize_weights(network):
     """
-    Randomize only the unitary synapse scaling factors (604 parameters),
-    preserving trained time constants and resting potentials.
-
-    Per Lappalainen et al. (2024) Methods, time constants are clamped during
-    training to prevent dynamic instability. Shuffling them produces unstable
-    dynamics. This control isolates the effect of synaptic weight structure
-    by randomizing only synapse strengths while preserving the trained
-    dynamical parameters.
+    Full Shiu-style shuffle: randomize all free parameters (resting potentials,
+    time constants, and synapse scaling factors), preserving E/I sign structure.
+    This was the strategy used in the original n=10 run that produced r = 0.757.
     """
     with torch.no_grad():
         for name, param in network.named_parameters():
             if param.requires_grad:
-                # Skip time constants and resting potentials
-                if "time_const" in name or "nodes_bias" in name:
-                    continue
-
-                # Randomize only the unitary synapse scaling factors
                 signs = torch.sign(param.data)
                 abs_vals = param.data.abs()
                 flat = abs_vals.flatten()
@@ -191,6 +181,33 @@ def randomize_weights(network):
                 shuffled = flat[perm].reshape(abs_vals.shape)
                 param.data = signs * shuffled
     return network
+
+# def randomize_weights(network):
+#     """
+#     Randomize only the unitary synapse scaling factors (604 parameters),
+#     preserving trained time constants and resting potentials.
+
+#     Per Lappalainen et al. (2024) Methods, time constants are clamped during
+#     training to prevent dynamic instability. Shuffling them produces unstable
+#     dynamics. This control isolates the effect of synaptic weight structure
+#     by randomizing only synapse strengths while preserving the trained
+#     dynamical parameters.
+#     """
+#     with torch.no_grad():
+#         for name, param in network.named_parameters():
+#             if param.requires_grad:
+#                 # Skip time constants and resting potentials
+#                 if "time_const" in name or "nodes_bias" in name:
+#                     continue
+
+#                 # Randomize only the unitary synapse scaling factors
+#                 signs = torch.sign(param.data)
+#                 abs_vals = param.data.abs()
+#                 flat = abs_vals.flatten()
+#                 perm = torch.randperm(flat.shape[0])
+#                 shuffled = flat[perm].reshape(abs_vals.shape)
+#                 param.data = signs * shuffled
+#     return network
 
 
 # ── 7. MAIN EXPERIMENT ────────────────────────────────────────────────────────
