@@ -32,7 +32,8 @@ This project tests that hypothesis using the pretrained Flyvis ensemble (Lappala
 - Cosine distance RDM — scale-invariant, captures pattern geometry
 - Euclidean distance RDM — captures magnitude differences
 - Spearman RDM correlation — measures similarity between CC and random geometry
-- Kendall's $\tau_A$ RDM correlation — preferred for RDM data with ties (Nili et al. 2014); reported alongside Spearman for all CC vs random comparisons
+- Kendall's τ_A RDM correlation — preferred for RDM data with ties (Nili et al. 2014); reported alongside Spearman for all CC vs random comparisons
+- Stimulus-label permutation test — nonparametric inference on RDM correlations (Nili et al. 2014, 10,000 permutations)
 - Within-ensemble consistency — measures stability of CC representational geometry across trained solutions
 
 ---
@@ -48,7 +49,8 @@ This project tests that hypothesis using the pretrained Flyvis ensemble (Lappala
 - Cosine distance RDM — scale-invariant, captures pattern geometry across all 24 conditions
 - Euclidean distance RDM — captures magnitude differences
 - Spearman RDM correlation — measures similarity between CC and random geometry
-- Kendall's $\tau_A$ RDM correlation — preferred for RDM data with ties (Nili et al. 2014); reported alongside Spearman for all CC vs random comparisons
+- Kendall's τ_A RDM correlation — preferred for RDM data with ties (Nili et al. 2014); reported alongside Spearman for all CC vs random comparisons
+- Stimulus-label permutation test — nonparametric inference on RDM correlations (Nili et al. 2014, 10,000 permutations)
 - Within-ensemble consistency — measures stability of CC representational geometry across trained solutions
 - Polarity generalization — whether direction-sensitive geometry observed for ON edges in Experiment 1 extends to OFF edges and the combined ON+OFF space
 
@@ -63,6 +65,7 @@ This project tests that hypothesis using the pretrained Flyvis ensemble (Lappala
 | CC cosine RDM off-diagonal range | 0.001 – 0.022 (structured) |
 | Random cosine RDM off-diagonal range | ~0.400 (uniform — no direction selectivity) |
 | CC vs random RDM correlation (cosine) | Spearman r = 0.757, p < 0.0001 \| Kendall τ = 0.562, p < 0.0001 |
+| Permutation test (cosine, 10,000 permutations) | p_perm < 0.0001 (Spearman) \| p_perm < 0.0001 (Kendall τ) |
 | Within-CC ensemble consistency | r = 0.838 ± 0.078 |
 | Random models with unstable dynamics | 5 / 10 |
 | CC models with unstable dynamics | 0 / 10 |
@@ -82,6 +85,7 @@ This project tests that hypothesis using the pretrained Flyvis ensemble (Lappala
 | CC cosine RDM structure | 24×24 with polarity block organization |
 | Random cosine RDM off-diagonal range | ~0.400 (within-polarity) / ~0.423 (cross-polarity) — polarity-sensitive but no direction selectivity |
 | CC vs random RDM correlation (cosine) | Spearman r = 0.862, p < 0.0001 \| Kendall τ = 0.660, p < 0.0001 |
+| Permutation test (cosine, 10,000 permutations) | p_perm < 0.0001 (Spearman) \| p_perm < 0.0001 (Kendall τ) |
 | Within-CC ensemble consistency | r = 0.850 ± 0.057 |
 | Random models with unstable dynamics | 5 / 10 |
 | CC models with unstable dynamics | 0 / 10 |
@@ -101,7 +105,11 @@ The connectome-constrained network produces direction-sensitive representational
 
 ![Experiment 1 RDM figure — n=10](figures/moving_edge_on_rdms_10models_full_shiu.png)
 
-*Experiment 1 (n=10, full Shiu-style shuffle of all 734 free parameters) — left to right: connectome-constrained cosine RDM, random baseline cosine RDM, connectome-constrained Euclidean RDM, random baseline Euclidean RDM. The CC cosine RDM shows structured, direction-dependent dissimilarity with a smooth circular gradient (range 0.001–0.022). The random cosine RDM is renderable (5/10 stable models) and nearly uniform at ~0.400 — the random network encodes no direction structure. Cosine RDM correlation: Spearman r = 0.757, p < 0.0001 | Kendall τ = 0.562, p < 0.0001. Stimuli: 12 ON moving edges at 30° increments. Top 10 pretrained Flyvis models, seed=42.*
+*Experiment 1 (n=10, full Shiu-style shuffle of all 734 free parameters) — left to right: connectome-constrained cosine RDM, random baseline cosine RDM, connectome-constrained Euclidean RDM, random baseline Euclidean RDM. The CC cosine RDM shows structured, direction-dependent dissimilarity with a smooth circular gradient (range 0.001–0.022). The random cosine RDM is renderable (5/10 stable models) and nearly uniform at ~0.400 — the random network encodes no direction structure. Cosine RDM correlation: Spearman r = 0.757, p < 0.0001 | Kendall τ = 0.562, p < 0.0001; p_perm < 0.0001 (10,000 permutations). Stimuli: 12 ON moving edges at 30° increments. Top 10 pretrained Flyvis models, seed=42.*
+
+![Experiment 1 permutation test](figures/moving_edge_on_permtest_10models_full_shiu.png)
+
+*Experiment 1 permutation test (n=10, full Shiu-style shuffle, 10,000 stimulus-label permutations, Nili et al. 2014). Left: null distribution of Spearman r with observed r = 0.757 (red line) falling far outside the null. Right: null distribution of Kendall τ with observed τ = 0.562 (red line). Both p_perm < 0.0001 — zero of 10,000 permutations exceeded the observed correlation.*
 
 ![Experiment 1 RDM figure — n=50](figures/moving_edge_on_rdms_50models_synapse_only.png)
 
@@ -109,7 +117,11 @@ The connectome-constrained network produces direction-sensitive representational
 
 ![Experiment 2 RDM figure — n=10](figures/moving_edge_on_off_rdms_10models_full_shiu.png)
 
-*Experiment 2 (n=10, full Shiu-style shuffle of all 734 free parameters) — left to right: connectome-constrained cosine RDM, random baseline cosine RDM, connectome-constrained Euclidean RDM, random baseline Euclidean RDM. The CC cosine RDM shows a 24×24 block structure with circular direction gradients within each polarity block and large cross-polarity dissimilarities (~0.099–0.103). The random cosine RDM is renderable (5/10 stable models) and shows polarity block structure at ~0.400–0.423 but no within-polarity direction gradient. Cosine RDM correlation: Spearman r = 0.862, p < 0.0001 | Kendall τ = 0.660, p < 0.0001. Stimuli: 24 conditions (12 directions × ON + OFF). Top 10 pretrained Flyvis models, seed=42.*
+*Experiment 2 (n=10, full Shiu-style shuffle of all 734 free parameters) — left to right: connectome-constrained cosine RDM, random baseline cosine RDM, connectome-constrained Euclidean RDM, random baseline Euclidean RDM. The CC cosine RDM shows a 24×24 block structure with circular direction gradients within each polarity block and large cross-polarity dissimilarities (~0.099–0.103). The random cosine RDM is renderable (5/10 stable models) and shows polarity block structure at ~0.400–0.423 but no within-polarity direction gradient. Cosine RDM correlation: Spearman r = 0.862, p < 0.0001 | Kendall τ = 0.660, p < 0.0001; p_perm < 0.0001 (10,000 permutations). Stimuli: 24 conditions (12 directions × ON + OFF). Top 10 pretrained Flyvis models, seed=42.*
+
+![Experiment 2 permutation test](figures/moving_edge_on_off_permtest_10models_full_shiu.png)
+
+*Experiment 2 permutation test (n=10, full Shiu-style shuffle, 10,000 stimulus-label permutations, Nili et al. 2014). Left: null distribution of Spearman r with observed r = 0.862 (red line) falling far outside the null — further than Experiment 1, consistent with the richer 24-condition stimulus set. Right: null distribution of Kendall τ with observed τ = 0.660 (red line). Both p_perm < 0.0001.*
 
 ![Experiment 2 RDM figure — n=50](figures/moving_edge_on_off_rdms_50models_synapse_only.png)
 
@@ -131,13 +143,13 @@ Under the full Shiu-style shuffle at n=10 (5/10 stable random models), the rando
 Dynamic instability is robust across all randomization strategies and ensemble sizes. Under the full Shiu-style shuffle at n=10, 5 of 10 random models (models 2, 3, 4, 8, 9) were unstable (756 non-finite values each, corresponding to 63 of 65 cell types across all 12 stimuli) — the instability pattern is fully reproducible under seed=42. Under the synapse-only shuffle at n=10, 8 of 10 (80%) were unstable. At n=50: full Shiu-style shuffling produced 33/50 unstable models (66%); matched-normal resampling produced 38/50 (76%); synapse-only shuffling of `edges_syn_strength` while preserving trained `nodes_time_const` and `nodes_bias` produced 34/50 (68%). The persistence of instability even when trained dynamical parameters are preserved confirms that randomizing synaptic weights alone is sufficient to destabilize dynamics. 0 of 50 trained CC models showed any instability under any condition. The biological connectome, as optimized by task training, reliably occupies a dynamically stable region of parameter space that random weight configurations consistently leave.
 
 #### CC vs Random RDM Correlation
-Under the full Shiu-style shuffle at n=10 with 5/10 stable random models, cosine RDM correlation: **Spearman r = 0.757, p < 0.0001 | Kendall τ = 0.562, p < 0.0001** — highly significant by both measures, confirmed reproducible under `torch.use_deterministic_algorithms(True)` with seed=42. This indicates that the CC and random cosine RDMs share directional ordering — both assign smaller dissimilarities to adjacent directions and larger dissimilarities to opposing ones — but differ substantially in depth and resolution: the CC network encodes direction with fine-grained dissimilarities spanning a 20-fold range (0.001–0.022), while the random baseline collapses that structure to a nearly uniform ~0.400 with no functionally meaningful variation.
+Under the full Shiu-style shuffle at n=10 with 5/10 stable random models, cosine RDM correlation: **Spearman r = 0.757, p < 0.0001 | Kendall τ = 0.562, p < 0.0001** (analytical); **p_perm < 0.0001 for both measures** (stimulus-label randomization test, 10,000 permutations, Nili et al. 2014) — zero of 10,000 permutations exceeded the observed correlation. This result is highly significant by all inference methods, confirmed reproducible under `torch.use_deterministic_algorithms(True)` with seed=42. The CC and random cosine RDMs share directional ordering — both assign smaller dissimilarities to adjacent directions and larger dissimilarities to opposing ones — but differ substantially in depth and resolution: the CC network encodes direction with fine-grained dissimilarities spanning a 20-fold range (0.001–0.022), while the random baseline collapses that structure to a nearly uniform ~0.400 with no functionally meaningful variation.
 
 Cosine RDM correlation is **NaN** under the canonical synapse-only shuffle at both n=10 (8/10 unstable) and n=50 (34/50 unstable) — not computable due to numerical overflow.
 
-Euclidean RDM correlation: **Spearman r = 0.021, p = 0.865** (full Shiu-style shuffle, n=50); **Spearman r = 0.241, p = 0.052** (matched-normal resampling, n=50); **Spearman r = 0.177, p = 0.156 | Kendall τ = 0.122, p = 0.149** (synapse-only shuffle, n=50); **Spearman r = 0.136, p = 0.278 | Kendall τ = 0.088, p = 0.296** (synapse-only shuffle, n=10); **Spearman r = 0.094, p = 0.451 | Kendall τ = 0.056, p = 0.503** (full Shiu-style shuffle, n=10) — none significant, and not interpretable due to extreme magnitudes (~10¹⁰–10²¹) from exploding activations in unstable random models.
+Euclidean RDM correlation: **Spearman r = 0.021, p = 0.865** (full Shiu-style shuffle, n=50); **Spearman r = 0.241, p = 0.052** (matched-normal resampling, n=50); **Spearman r = 0.177, p = 0.156 | Kendall τ = 0.122, p = 0.149** (synapse-only shuffle, n=50); **Spearman r = 0.136, p = 0.278 | Kendall τ = 0.088, p = 0.296** (synapse-only shuffle, n=10); **Spearman r = 0.094, p = 0.451 | Kendall τ = 0.056, p = 0.503; p_perm = 0.190 | p_perm = 0.213** (full Shiu-style shuffle, n=10) — none significant by any inference method, and not interpretable due to extreme magnitudes (~10¹⁰–10²¹) from exploding activations in unstable random models.
 
-**Interpretive note:** The primary fidelity result is the n=10 full Shiu-style shuffle cosine correlation (Spearman r = 0.757, Kendall τ = 0.562), which is significant, reproducible, and demonstrates that CC representational geometry is meaningfully distinct from random baselines when a stable comparison is available. The instability of random baselines across all tested strategies is itself a fidelity-relevant finding: the trained connectome reliably occupies a dynamically stable region of parameter space that no tested randomization can replicate.
+**Interpretive note:** The cosine RDM correlation result is significant by analytical p-values, Kendall τ, and permutation test — three independent inference methods converging on the same conclusion. The Euclidean result is non-significant by all methods including permutation, providing clean confirmation that it carries no fidelity signal under these conditions.
 
 #### Within-Ensemble Consistency
 At n=10, mean pairwise RDM correlation: **r = 0.838 ± 0.078** (range: 0.601–0.956). At n=50, mean pairwise RDM correlation: **r = 0.721 ± 0.150** (range: 0.323–0.983). The decrease in mean and increase in variance at n=50 reflects the inclusion of lower-performing models implementing more varied solutions, consistent with the known cluster structure of the Flyvis ensemble reported in Lappalainen et al. Fig. 3.
@@ -156,13 +168,13 @@ Under the full Shiu-style shuffle at n=10 (5/10 stable random models), the rando
 Under the full Shiu-style shuffle at n=10, 5 of 10 random models were unstable (1,512 non-finite values each, corresponding to 63 of 65 cell types across all 24 stimuli) — identical model indices as Experiment 1 (models 2, 3, 4, 8, 9), confirming that the instability pattern is reproducible under seed=42 regardless of stimulus count. Under the synapse-only shuffle at n=50, 35 of 50 random models (70%) were unstable — comparable to the Experiment 1 synapse-only rate (34/50, 68%). One model in the n=50 run produced 378 non-finite values — partial instability affecting a subset of stimuli rather than full collapse. 0 of 50 CC models showed any instability under any condition.
 
 #### CC vs Random RDM Correlation
-Under the full Shiu-style shuffle at n=10 with 5/10 stable random models, cosine RDM correlation: **Spearman r = 0.862, p < 0.0001 | Kendall τ = 0.660, p < 0.0001** — highly significant by both measures, and stronger than the Experiment 1 result (r = 0.757, τ = 0.562), consistent with the richer constraint provided by 24 stimulus conditions. This confirms that representational geometry is a fidelity-discriminating signal that generalizes across polarity, not just direction.
+Under the full Shiu-style shuffle at n=10 with 5/10 stable random models, cosine RDM correlation: **Spearman r = 0.862, p < 0.0001 | Kendall τ = 0.660, p < 0.0001** (analytical); **p_perm < 0.0001 for both measures** (stimulus-label randomization test, 10,000 permutations, Nili et al. 2014) — zero of 10,000 permutations exceeded the observed correlation. This result is highly significant by all inference methods, stronger than the Experiment 1 result (r = 0.757, τ = 0.562), consistent with the richer constraint provided by 24 stimulus conditions. It confirms that representational geometry is a fidelity-discriminating signal that generalizes across polarity, not just direction.
 
 Under the synapse-only shuffle at n=50, cosine RDM correlation: **r = NaN** — not computable due to numerical overflow.
 
-Euclidean RDM correlation: **Spearman r = 0.051, p = 0.400 | Kendall τ = 0.034, p = 0.398** (full Shiu-style shuffle, n=10) — not significant; **Spearman r = 0.313, p < 0.0001 | Kendall τ = 0.229, p < 0.0001** (synapse-only shuffle, n=50) — nominally significant but not scientifically interpretable, as the mean random Euclidean RDM is dominated by extreme magnitudes (~10²–10¹¹) from unstable models whose exploding activations create structured variance that incidentally correlates with the CC pattern. This is a numerical artifact, not a fidelity signal.
+Euclidean RDM correlation: **Spearman r = 0.051, p = 0.400 | Kendall τ = 0.034, p = 0.398; p_perm = 0.164 | p_perm = 0.163** (full Shiu-style shuffle, n=10) — not significant by any inference method; **Spearman r = 0.313, p < 0.0001 | Kendall τ = 0.229, p < 0.0001** (synapse-only shuffle, n=50) — nominally significant but not scientifically interpretable, as the mean random Euclidean RDM is dominated by extreme magnitudes (~10²–10¹¹) from unstable models whose exploding activations create structured variance that incidentally correlates with the CC pattern. This is a numerical artifact, not a fidelity signal.
 
-**Interpretive note:** The n=10 full Shiu-style cosine result (r = 0.862, τ = 0.660) is the primary fidelity result for Experiment 2. Together with the Experiment 1 n=10 result (r = 0.757, τ = 0.562), it confirms that connectome-constrained representational geometry is significantly and reproducibly distinct from random baselines across both ON-only and ON+OFF stimuli.
+**Interpretive note:** The cosine RDM correlation result is significant by analytical p-values, Kendall τ, and permutation test — three independent inference methods converging on the same conclusion, consistent with Experiment 1. The Euclidean result is non-significant by all methods including permutation, confirming cosine distance as the appropriate primary metric.
 
 #### Within-Ensemble Consistency
 At n=10, mean pairwise RDM correlation: **r = 0.850 ± 0.057**. At n=50, mean pairwise RDM correlation: **r = 0.838 ± 0.059**. Both are notably higher and tighter than the n=50 ON-only result (r = 0.721 ± 0.150), suggesting that the ON+OFF stimulus set produces a more consistent representational geometry — likely because 24 conditions provide a richer constraint on the population code than 12. The n=10 ON+OFF result (r = 0.850) also slightly exceeds the n=10 ON-only result (r = 0.838 ± 0.078), consistent with polarity being a stronger organizer of representational geometry than direction alone.
@@ -170,10 +182,10 @@ At n=10, mean pairwise RDM correlation: **r = 0.850 ± 0.057**. At n=50, mean pa
 ---
 
 ## Discussion
-- The n=10 full Shiu-style cosine results across both experiments (Experiment 1: r = 0.757, τ = 0.562; Experiment 2: r = 0.862, τ = 0.660) confirm that representational geometry is a general fidelity signal across both ON and OFF edges — the primary finding for the SfN abstract
+- Across both experiments, the cosine RDM correlation is significant by analytical p-values, Kendall τ, and stimulus-label permutation test — three independent inference methods converging on the same conclusion (Experiment 1: r = 0.757, τ = 0.562; Experiment 2: r = 0.862, τ = 0.660; p_perm < 0.0001 in both cases)
+- The Euclidean result is non-significant by all methods including permutation in both experiments, confirming cosine distance as the appropriate primary metric
 - The within-ensemble consistency improvement from ON-only (r = 0.721 at n=50) to ON+OFF (r = 0.838 at n=50, r = 0.850 at n=10) supports polarity as a stronger organizer of representational geometry than direction alone
 - Dynamic instability persists across all tested randomization strategies and ensemble sizes (66–80%), indicating that the trained parameter configuration as a whole determines dynamic stability; a fully stable random baseline may require adversarial stability-constrained sampling
-- Euclidean metric is not suitable when random baselines are dynamically unstable; cosine distance is the appropriate primary metric
 - Within-CC consistency could be reported separately per cluster if UMAP reveals substructure in the ensemble geometry (planned)
 
 ---
@@ -197,7 +209,7 @@ This experiment runs on Google Colab with a T4 GPU runtime. Local installation r
 ```python
 # Experiment 1: ON edges
 
-### Primary fidelity result
+### Primary fidelity result (includes permutation test)
 results = run_experiment(n_models=10, randomization_strategy="full_shiu")
 
 ### Instability documentation
@@ -205,7 +217,7 @@ results = run_experiment(n_models=50, randomization_strategy="synapse_only")
 
 # Experiment 2: ON + OFF edges
 
-### Primary fidelity result
+### Primary fidelity result (includes permutation test)
 results = run_experiment(n_models=10, randomization_strategy="full_shiu")
 
 ### Instability documentation
@@ -214,6 +226,7 @@ results = run_experiment(n_models=50, randomization_strategy="synapse_only")
 
 Set `n_models=1` for a quick debug run before committing to a full experiment.
 The n=10 runs take approximately 15–20 minutes on a T4 GPU; n=50 runs take 60–90 minutes.
+Permutation testing (10,000 permutations) adds ~2–3 minutes per run. Set `n_permutations=0` to skip.
 
 Colab-ready notebooks are in `notebooks/`. Standalone scripts are in `experiments/`.
 
@@ -231,10 +244,12 @@ connectome-fidelity/
 │   ├── moving_edge_on.ipynb        ← Colab-ready notebook, ON edges results
 │   └── moving_edge_on_off.ipynb    ← Colab-ready notebook, ON+OFF edges results
 └── figures/
-    ├── moving_edge_on_rdms_10models_full_shiu.png           ← ON edges RDM figure (n=10, full Shiu-style shuffle — primary fidelity result)
-    ├── moving_edge_on_rdms_50models_synapse_only.png        ← ON edges RDM figure (n=50, synapse-only shuffle)
-    ├── moving_edge_on_off_rdms_10models_full_shiu.png       ← ON+OFF edges RDM figure (n=10, full Shiu-style shuffle — primary fidelity result)
-    └── moving_edge_on_off_rdms_50models_synapse_only.png    ← ON+OFF edges RDM figure (n=50, synapse-only shuffle)
+    ├── moving_edge_on_rdms_10models_full_shiu.png           ← ON edges RDM figure (n=10, full Shiu-style — primary fidelity result)
+    ├── moving_edge_on_permtest_10models_full_shiu.png       ← ON edges permutation test null distributions (n=10)
+    ├── moving_edge_on_rdms_50models_synapse_only.png        ← ON edges RDM figure (n=50, synapse-only)
+    ├── moving_edge_on_off_rdms_10models_full_shiu.png       ← ON+OFF edges RDM figure (n=10, full Shiu-style — primary fidelity result)
+    ├── moving_edge_on_off_permtest_10models_full_shiu.png   ← ON+OFF edges permutation test null distributions (n=10)
+    └── moving_edge_on_off_rdms_50models_synapse_only.png    ← ON+OFF edges RDM figure (n=50, synapse-only)
 ```
 
 ---
