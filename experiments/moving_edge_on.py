@@ -12,6 +12,13 @@ Experiment:
 - Population vectors: peak central-cell response per cell type (65-dim)
 - Metrics: Euclidean distance, cosine distance, RSA (RDM correlation)
 
+Canonical runs:
+    # Primary fidelity result (n=10, full Shiu-style shuffle)
+    results = run_experiment(n_models=10, randomization_strategy="full_shiu")
+
+    # Instability documentation (n=50, synapse-only shuffle)
+    results = run_experiment(n_models=50, randomization_strategy="synapse_only")
+
 Run on Google Colab with GPU runtime after installing flyvis:
     !git clone https://github.com/TuragaLab/flyvis.git
     %cd /content/flyvis
@@ -162,15 +169,33 @@ def rdm_similarity(rdm1, rdm2):
 
 # ── 6. HELPER: RANDOM BASELINE NETWORK ───────────────────────────────────────
 
-def randomize_weights(network):
+def randomize_weights(network, strategy="full_shiu"):
     """
-    Full Shiu-style shuffle: randomize all free parameters (resting potentials,
-    time constants, and synapse scaling factors), preserving E/I sign structure.
-    This was the strategy used in the original n=10 run that produced r = 0.757.
+    Randomize network weights using the specified strategy, preserving E/I
+    sign structure throughout.
+
+    Args:
+        network: Flyvis network instance
+        strategy: "full_shiu"    — shuffle all 734 free parameters (resting
+                                   potentials, time constants, synapse scaling
+                                   factors). Used for n=10 primary fidelity runs.
+                                   Produces r = 0.757, τ = 0.562 (p < 0.0001).
+                  "synapse_only" — shuffle only the 604 unitary synapse scaling
+                                   factors (edges_syn_strength), preserving
+                                   trained time constants and resting potentials.
+                                   Per Lappalainen et al. (2024) Methods, time
+                                   constants are clamped during training to prevent
+                                   instability. Used for n=50 instability runs.
+
+    Returns:
+        network with randomized weights
     """
     with torch.no_grad():
         for name, param in network.named_parameters():
             if param.requires_grad:
+                if strategy == "synapse_only":
+                    if "time_const" in name or "nodes_bias" in name:
+                        continue
                 signs = torch.sign(param.data)
                 abs_vals = param.data.abs()
                 flat = abs_vals.flatten()
@@ -180,47 +205,21 @@ def randomize_weights(network):
     return network
 
 
-# def randomize_weights(network):
-#     """
-#     Randomize only the unitary synapse scaling factors (604 parameters),
-#     preserving trained time constants and resting potentials.
-
-#     Per Lappalainen et al. (2024) Methods, time constants are clamped during
-#     training to prevent dynamic instability. Shuffling them produces unstable
-#     dynamics. This control isolates the effect of synaptic weight structure
-#     by randomizing only synapse strengths while preserving the trained
-#     dynamical parameters.
-#     """
-#     with torch.no_grad():
-#         for name, param in network.named_parameters():
-#             if param.requires_grad:
-#                 # Skip time constants and resting potentials
-#                 if "time_const" in name or "nodes_bias" in name:
-#                     continue
-
-#                 # Randomize only the unitary synapse scaling factors
-#                 signs = torch.sign(param.data)
-#                 abs_vals = param.data.abs()
-#                 flat = abs_vals.flatten()
-#                 perm = torch.randperm(flat.shape[0])
-#                 shuffled = flat[perm].reshape(abs_vals.shape)
-#                 param.data = signs * shuffled
-#     return network
-
-
 # ── 7. MAIN EXPERIMENT ────────────────────────────────────────────────────────
 
-def run_experiment(n_models=50):
+def run_experiment(n_models=50, randomization_strategy="full_shiu"):
     """
     Run the ON edges RSA experiment.
 
     Args:
         n_models: number of models to use (set to 1 for debugging, 50 for full run)
+        randomization_strategy: "full_shiu" or "synapse_only" (see randomize_weights)
     """
     print("\n" + "="*60)
     print("FLYVIS RSA — ON EDGES")
     print("="*60)
     print(f"Random seed: {SEED}")
+    print(f"Randomization strategy: {randomization_strategy}")
 
     # ── 7a. Load ensemble ─────────────────────────────────────────────────────
     print("\nLoading ensemble...")
@@ -274,7 +273,7 @@ def run_experiment(n_models=50):
         model_path = results_dir / f"flow/0000/{model_idx:03d}"
         nv = NetworkView(model_path)
         network = nv.init_network()
-        network = randomize_weights(network)
+        network = randomize_weights(network, strategy=randomization_strategy)
         print(f"  Random model {rank+1}/{n_models}...", end=" ")
 
         pop_vecs = []
@@ -376,7 +375,8 @@ def run_experiment(n_models=50):
     fig, axes = plt.subplots(1, 4, figsize=(14, 3.5))
     fig.suptitle(
         "Representational Geometry: Connectome-Constrained vs Random\n"
-        "Moving edge stimuli (12 directions, 30° increments), ON edges",
+        f"Moving edge stimuli (12 directions, 30° increments), ON edges "
+        f"[{randomization_strategy}, n={n_models}]",
         fontsize=10
     )
 
@@ -387,26 +387,32 @@ def run_experiment(n_models=50):
         ["CC — Cosine RDM", "Random — Cosine RDM",
          "CC — Euclidean RDM", "Random — Euclidean RDM"]
     ):
-        im = ax.imshow(rdm, cmap="viridis", vmin=0)
-        ax.set_title(title, fontsize=8)
-        ax.set_xticks(range(n_stim))
-        ax.set_xticklabels(angle_labels, fontsize=6, rotation=90)
-        ax.set_yticks(range(n_stim))
-        ax.set_yticklabels(angle_labels, fontsize=6)
-        plt.colorbar(im, ax=ax, fraction=0.046, pad=0.04)
+        if np.ndim(rdm) < 2 or not np.any(np.isfinite(rdm)):
+            ax.set_title(f"{title}\n(not renderable)", fontsize=7)
+            ax.axis("off")
+        else:
+            im = ax.imshow(rdm, cmap="viridis", vmin=0)
+            ax.set_title(title, fontsize=8)
+            ax.set_xticks(range(n_stim))
+            ax.set_xticklabels(angle_labels, fontsize=6, rotation=90)
+            ax.set_yticks(range(n_stim))
+            ax.set_yticklabels(angle_labels, fontsize=6)
+            plt.colorbar(im, ax=ax, fraction=0.046, pad=0.04)
 
     plt.tight_layout()
-    fig.savefig(f"../moving_edge_on_rdms_{n_models}models.png", dpi=150, bbox_inches="tight")
-    print(f"  Saved: ../moving_edge_on_rdms_{n_models}models.png")
+    fname = f"moving_edge_on_rdms_{n_models}models_{randomization_strategy}.png"
+    fig.savefig("../" + fname, dpi=150, bbox_inches="tight")
+    print(f"  Saved: ../{fname}")
     plt.show()
 
     # ── 7i. Summary ───────────────────────────────────────────────────────────
     print("\n" + "="*60)
     print("SUMMARY")
     print("="*60)
-    print(f"  N stimuli:          {n_stim} (ON edges, 12 directions)")
-    print(f"  N models:           {n_models}")
-    print(f"  Population vec dim: {cc_pop_matrices[0].shape[1]} (cell types)")
+    print(f"  N stimuli:              {n_stim} (ON edges, 12 directions)")
+    print(f"  N models:               {n_models}")
+    print(f"  Randomization strategy: {randomization_strategy}")
+    print(f"  Population vec dim:     {cc_pop_matrices[0].shape[1]} (cell types)")
     print(f"  Cosine RDM corr (CC vs random):    Spearman r = {r_cosine:.3f} | Kendall τ = {rk_cosine:.3f}")
     print(f"  Euclidean RDM corr (CC vs random): Spearman r = {r_eucl:.3f} | Kendall τ = {rk_eucl:.3f}")
     if within_corrs:
@@ -423,7 +429,9 @@ def run_experiment(n_models=50):
         "rk_eucl":  rk_eucl,  "pk_eucl":  pk_eucl,
         "within_corrs": within_corrs,
         "cell_types": cell_types,
+        "randomization_strategy": randomization_strategy,
     }
+
 
 # ── 8. ENTRY POINT ────────────────────────────────────────────────────────────
 
@@ -432,4 +440,3 @@ if __name__ == "__main__":
     # n_models=10 for primary fidelity result (top 10 models)
     # n_models=50 for full run
     results = run_experiment(n_models=50)
-
