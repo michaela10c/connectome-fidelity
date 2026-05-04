@@ -458,8 +458,8 @@ def run_experiment(n_models=50, randomization_strategy="full_shiu",
         plt.tight_layout()
         fname_perm = (f"moving_edge_on_off_permtest_{n_models}models"
                       f"_{randomization_strategy}.png")
-        fig_perm.savefig(fname_perm, dpi=150, bbox_inches="tight")
-        print(f"  Saved: {fname_perm}")
+        fig_perm.savefig("../figures/"+fname_perm, dpi=150, bbox_inches="tight")
+        print(f"  Saved: ../figures/{fname_perm}")
         plt.show()
 
     elif n_permutations > 0:
@@ -519,8 +519,8 @@ def run_experiment(n_models=50, randomization_strategy="full_shiu",
 
     plt.tight_layout()
     fname = f"moving_edge_on_off_rdms_{n_models}models_{randomization_strategy}.png"
-    fig.savefig("../"+fname, dpi=150, bbox_inches="tight")
-    print(f"  Saved: ../{fname}")
+    fig.savefig("../figures/"+fname, dpi=150, bbox_inches="tight")
+    print(f"  Saved: ../figures/{fname}")
     plt.show()
 
     # ── 7i. Summary ───────────────────────────────────────────────────────────
