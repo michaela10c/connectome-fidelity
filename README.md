@@ -195,14 +195,21 @@ This experiment runs on Google Colab with a T4 GPU runtime. Local installation r
 ## Usage
 
 ```python
-# Experiment 1: ON edges (n_models=1 for debugging, n_models=50 for full run)
-results = run_experiment(n_models=50)
+# Experiment 1: ON edges
+# Primary fidelity result
+results = run_experiment(n_models=10, randomization_strategy="full_shiu")
+# Instability documentation
+results = run_experiment(n_models=50, randomization_strategy="synapse_only")
 
 # Experiment 2: ON + OFF edges
-results = run_experiment(n_models=50)
+# Primary fidelity result
+results = run_experiment(n_models=10, randomization_strategy="full_shiu")
+# Instability documentation
+results = run_experiment(n_models=50, randomization_strategy="synapse_only")
 ```
 
-Each full experiment takes approximately 60–90 minutes on a T4 GPU.
+Set `n_models=1` for a quick debug run before committing to a full experiment.
+The n=10 runs take approximately 15–20 minutes on a T4 GPU; n=50 runs take 60–90 minutes.
 
 Colab-ready notebooks are in `notebooks/`. Standalone scripts are in `experiments/`.
 
