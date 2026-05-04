@@ -34,7 +34,6 @@ import torch
 import matplotlib.pyplot as plt
 from scipy.spatial.distance import cosine, euclidean
 from scipy.stats import spearmanr, kendalltau
-from google.colab import files
 
 # ── 1. IMPORTS ────────────────────────────────────────────────────────────────
 
