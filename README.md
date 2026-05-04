@@ -231,9 +231,9 @@ connectome-fidelity/
 │   ├── moving_edge_on.ipynb        ← Colab-ready notebook, ON edges results
 │   └── moving_edge_on_off.ipynb    ← Colab-ready notebook, ON+OFF edges results
 └── figures/
-    ├── moving_edge_on_rdms_10models_full_shiu.png        ← ON edges RDM figure (n=10, full Shiu-style shuffle — primary fidelity result)
+    ├── moving_edge_on_rdms_10models_full_shiu.png           ← ON edges RDM figure (n=10, full Shiu-style shuffle — primary fidelity result)
     ├── moving_edge_on_rdms_50models_synapse_only.png        ← ON edges RDM figure (n=50, synapse-only shuffle)
-    ├── moving_edge_on_off_rdms_10models_full_shiu.png    ← ON+OFF edges RDM figure (n=10, full Shiu-style shuffle — primary fidelity result)
+    ├── moving_edge_on_off_rdms_10models_full_shiu.png       ← ON+OFF edges RDM figure (n=10, full Shiu-style shuffle — primary fidelity result)
     └── moving_edge_on_off_rdms_50models_synapse_only.png    ← ON+OFF edges RDM figure (n=50, synapse-only shuffle)
 ```
 
