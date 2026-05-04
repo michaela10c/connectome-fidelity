@@ -195,14 +195,16 @@ This experiment runs on Google Colab with a T4 GPU runtime. Local installation r
 ## Usage
 
 ```python
-# Experiment 1: ON edges
+## Experiment 1: ON edges
+
 # Primary fidelity result
 results = run_experiment(n_models=10, randomization_strategy="full_shiu")
 
 # Instability documentation
 results = run_experiment(n_models=50, randomization_strategy="synapse_only")
 
-# Experiment 2: ON + OFF edges
+## Experiment 2: ON + OFF edges
+
 # Primary fidelity result
 results = run_experiment(n_models=10, randomization_strategy="full_shiu")
 
