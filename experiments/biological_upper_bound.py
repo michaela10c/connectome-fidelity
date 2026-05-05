@@ -247,20 +247,24 @@ def run_biological_upper_bound(results_exp1, results_exp2=None,
         fontsize=9
     )
     angles_closed = np.append(ANGLES_RAD, ANGLES_RAD[0])
-    for ax, name, curve in zip(axes_tc.flatten(), BIO_CELL_TYPES,
-                                BIO_TUNING_MATRIX):
+    
+    for ax, name, curve in zip(axes_tc.flatten(), BIO_CELL_TYPES, BIO_TUNING_MATRIX):
         vals = np.append(curve, curve[0])
         color = "steelblue" if name.startswith("T4") else "coral"
         ax.plot(angles_closed, vals, color=color, linewidth=1.5)
         ax.fill(angles_closed, vals, alpha=0.25, color=color)
         ax.set_title(
-            f"{name}\n(PD={SUBTYPE_PREFERRED_DIRS[name]} deg)", fontsize=8, pad=2
+            f"{name}\nPD={SUBTYPE_PREFERRED_DIRS[name]} deg",
+            fontsize=8,
+            pad=20              # increased from 12 to clear the 90-deg label
         )
         ax.set_xticks(np.deg2rad([0, 90, 180, 270]))
         ax.set_xticklabels(["0", "90", "180", "270"], fontsize=6)
+        ax.tick_params(axis='x', pad=2)   # pull angular labels closer to the ring
         ax.set_ylim(0, 1.1)
-        ax.tick_params(axis='y', labelsize=5)
-    plt.tight_layout()
+        ax.set_yticks([])
+
+    plt.tight_layout(rect=[0, 0, 1, 0.88])   # leave headroom for suptitle
     plt.savefig("../figures/maisak2013_t4t5_von_mises_tuning.png", dpi=150,
                 bbox_inches="tight")
     print("  Saved: ../figures/maisak2013_t4t5_von_mises_tuning.png")
