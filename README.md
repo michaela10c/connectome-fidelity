@@ -320,7 +320,8 @@ connectome-fidelity/
 │   └── biological_upper_bound.py      ← Biological upper bound (Maisak et al. 2013)
 ├── notebooks/
 │   ├── moving_edge_on.ipynb           ← Colab-ready notebook, ON edges results
-│   └── moving_edge_on_off.ipynb       ← Colab-ready notebook, ON+OFF edges results
+│   ├── moving_edge_on_off.ipynb       ← Colab-ready notebook, ON+OFF edges results
+│   └── biological_upper_bound.ipynb   ← Colab-ready notebook, biological upper bound results
 ├── results/
 │   ├── results_exp1.npz               ← Saved RDMs and statistics from Experiment 1
 │   └── results_exp2.npz               ← Saved RDMs and statistics from Experiment 2
