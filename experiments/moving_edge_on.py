@@ -31,6 +31,7 @@ import torch
 import matplotlib.pyplot as plt
 from scipy.spatial.distance import cosine, euclidean
 from scipy.stats import spearmanr, kendalltau
+from google.colab import files
 
 # ── 1. IMPORTS ────────────────────────────────────────────────────────────────
 
@@ -112,6 +113,8 @@ def get_population_vector(network_view, stimulus, dt, use_fade_in=True):
         layer_act.central[ct].squeeze().numpy().max()
         for ct in cell_types
     ])
+    pop_vec = np.clip(pop_vec, -1e6, 1e6)  # guard against near-overflow values
+    # that pass finiteness check but cause scipy cosine distance to overflow
 
     # Free GPU memory after each model to avoid OOM on T4 (14.56 GiB)
     del network, responses, layer_act
@@ -133,12 +136,22 @@ def build_rdm(pop_matrix, metric="cosine"):
     Returns:
         rdm: numpy array of shape (n_stimuli, n_stimuli)
     """
-    # Replace any inf/nan with large finite value before computing distances.
-    # Random baseline networks with unstable dynamics may produce exploding
-    # activations; clamping preserves the comparison (an exploding network is
-    # maximally different from a well-behaved biological one) while avoiding
-    # downstream crashes.
+    # Clamp any residual inf/nan to large finite values as a defensive measure.
+    # Under stability-constrained sampling, non-finite activations should not
+    # reach this point; clamping is retained as a safeguard.
     pop_matrix = np.nan_to_num(pop_matrix, nan=0.0, posinf=1e3, neginf=-1e3)
+
+    # Add small epsilon before cosine distance computation to prevent NaN from
+    # zero-norm population vectors. A stable network can still produce an
+    # all-zero response vector for a given stimulus (e.g. if the network is
+    # unresponsive to that direction), which makes cosine distance undefined.
+    if metric == "cosine":
+        norms = np.linalg.norm(pop_matrix, axis=1, keepdims=True)
+        zero_norm_rows = (norms < 1e-10).flatten()
+        if np.any(zero_norm_rows):
+            print(f"    WARNING: {zero_norm_rows.sum()} zero-norm population "
+                  f"vectors detected — adding epsilon")
+        pop_matrix = pop_matrix + 1e-10
 
     n = pop_matrix.shape[0]
     rdm = np.zeros((n, n))
@@ -233,7 +246,8 @@ def randomize_weights(network, strategy="full_shiu"):
         strategy: "full_shiu"    — shuffle all 734 free parameters (resting
                                    potentials, time constants, synapse scaling
                                    factors). Used for n=10 primary fidelity runs.
-                                   Produces r = 0.757, τ = 0.562 (p < 0.0001).
+                                   Stability-constrained: r = 0.749, τ = 0.552 (p < 0.0001).
+                                   Matched-instability:   r = 0.757, τ = 0.562 (p < 0.0001).
                   "synapse_only" — shuffle only the 604 unitary synapse scaling
                                    factors (edges_syn_strength), preserving
                                    trained time constants and resting potentials.
@@ -257,6 +271,74 @@ def randomize_weights(network, strategy="full_shiu"):
                 shuffled = flat[perm].reshape(abs_vals.shape)
                 param.data = signs * shuffled
     return network
+
+
+def randomize_weights_stable(network_view, strategy="full_shiu",
+                              max_attempts=50, stimulus=None, dt=None):
+    """
+    Repeatedly randomize network weights until a stable configuration is found.
+
+    On each attempt, reloads the network from checkpoint (ensuring a clean
+    trained starting point), randomizes weights via randomize_weights(), and
+    runs a single forward pass to check for finite outputs. The first
+    configuration that produces all-finite activations is returned.
+
+    This is the stability-constrained alternative to the matched-instability
+    baseline (which accepts unstable configurations and clamps them in
+    build_rdm). Using this function ensures every random baseline RDM entry
+    reflects a genuine population response rather than a numerical artifact.
+
+    Args:
+        network_view: flyvis NetworkView instance — used to reload the network
+                      from checkpoint on each attempt via init_network()
+        strategy:     weight randomization strategy passed to randomize_weights()
+                      ("full_shiu" or "synapse_only")
+        max_attempts: maximum number of randomization attempts before giving up
+                      (default: 50). If all attempts fail, returns (None, max_attempts).
+        stimulus:     torch.Tensor of shape (n_frames, 721) or (n_frames, 1, 721)
+                      used for the stability check forward pass. Should be a
+                      representative stimulus — typically the first stimulus in
+                      the experimental set.
+        dt:           temporal resolution of the simulation (e.g. dataset.dt)
+
+    Returns:
+        network:         flyvis network instance with stable randomized weights,
+                         or None if all attempts failed
+        attempts_needed: number of attempts required (1-indexed), or max_attempts
+                         if all attempts failed. Log this across models to estimate
+                         the acceptance rate of stable configurations in weight space.
+
+    Notes:
+        - GPU memory is cleared after each failed attempt via torch.cuda.empty_cache()
+        - E/I sign structure is preserved throughout (inherited from randomize_weights)
+        - A single forward pass on one stimulus is used for the stability check as a
+          necessary but not sufficient condition; the pop_vec clip (±1e6) in the
+          collection loop guards against near-overflow on stimuli not covered by the
+          check stimulus
+    """
+    for attempt in range(max_attempts):
+        network = network_view.init_network()
+        network = randomize_weights(network, strategy)
+        with torch.no_grad():
+            if stimulus.dim() == 2:
+                stim = stimulus.unsqueeze(1)
+            else:
+                stim = stimulus
+            try:
+                initial_state = network.fade_in_state(1.0, dt, stim[[0]])
+                out = network.simulate(stim[None], dt, initial_state=initial_state)
+                out_np = out.cpu().numpy()
+                if torch.all(torch.isfinite(out)) and np.all(np.abs(out_np) < 1e6):
+                    # isfinite alone is insufficient: very large but technically finite values
+                    # (e.g. 1e38) pass the finiteness check but overflow scipy's float64
+                    # cosine computation (uv / sqrt(uu * vv)). The 1e6 threshold is
+                    # conservative — legitimate LIF voltages are O(mV), so anything above
+                    # 1e3 is already pathological.
+                    return network, attempt + 1  # attempts_needed is 1-indexed
+            except Exception:
+                pass
+        torch.cuda.empty_cache()
+    return None, max_attempts  # all attempts exhausted
 
 
 # ── 7. MAIN EXPERIMENT ────────────────────────────────────────────────────────
@@ -321,16 +403,37 @@ def run_experiment(n_models=50, randomization_strategy="full_shiu",
 
     print(f"\n  Cell types ({len(cell_types)}): {cell_types[:5]}...")
 
-    # ── 7d. Random baseline: same architecture, shuffled weights ─────────────
-    print("\n--- RANDOM BASELINE NETWORKS ---")
+    # ── 7d. Random baseline: stability-constrained sampling ──────────────────
+    print("\n--- RANDOM BASELINE NETWORKS (stability-constrained) ---")
     rand_pop_matrices = []
+    attempts_log = []  # initialized outside the loop
+
+    # Use first ON-edge stimulus for stability check
+    _check_stim = dataset[on_edge_indices[0]]
+    if not isinstance(_check_stim, torch.Tensor):
+        _check_stim = torch.tensor(_check_stim, dtype=torch.float32)
+
+    MAX_ATTEMPTS = 100
 
     for rank, model_idx in enumerate(best_indices):
         model_path = results_dir / f"flow/0000/{model_idx:03d}"
         nv = NetworkView(model_path)
-        network = nv.init_network()
-        network = randomize_weights(network, strategy=randomization_strategy)
-        print(f"  Random model {rank+1}/{n_models}...", end=" ")
+
+        network, attempts_needed = randomize_weights_stable(
+            nv, strategy=randomization_strategy,
+            max_attempts=MAX_ATTEMPTS, stimulus=_check_stim, dt=dataset.dt
+        )
+
+        if network is None:
+            print(f"  WARNING: model {rank+1} failed all {MAX_ATTEMPTS} attempts — skipping")
+            attempts_log.append(MAX_ATTEMPTS)
+            del nv
+            torch.cuda.empty_cache()
+            continue
+
+        attempts_log.append(attempts_needed)
+        print(f"  Random model {rank+1}/{n_models}: accepted on attempt "
+              f"{attempts_needed}/{MAX_ATTEMPTS}...", end=" ")
 
         pop_vecs = []
         for stim_idx in on_edge_indices:
@@ -350,23 +453,26 @@ def run_experiment(n_models=50, randomization_strategy="full_shiu",
                 layer_act.central[ct].squeeze().numpy().max()
                 for ct in cell_types
             ])
+            pop_vec = np.clip(pop_vec, -1e6, 1e6)  # guard against near-overflow on
+            # stimuli not covered by the stability check forward pass
             pop_vecs.append(pop_vec)
 
             del responses, layer_act
             torch.cuda.empty_cache()
 
         pop_matrix = np.stack(pop_vecs, axis=0)
-
-        n_bad = np.sum(~np.isfinite(pop_matrix))
-        if n_bad > 0:
-            print(f"\n  WARNING: {n_bad} non-finite values in random model {rank+1} "
-                  f"(unstable dynamics — will be clamped in build_rdm)")
-
         rand_pop_matrices.append(pop_matrix)
         print(f"done. Pop vec shape: {pop_matrix.shape}")
 
         del network, nv
         torch.cuda.empty_cache()
+
+    # Attempts summary
+    print(f"\n--- STABILITY-CONSTRAINED SAMPLING SUMMARY ---")
+    print(f"  Attempts per model: {attempts_log}")
+    print(f"  Mean attempts: {np.mean(attempts_log):.1f} ± {np.std(attempts_log):.1f}")
+    print(f"  Accepted: {sum(a < MAX_ATTEMPTS for a in attempts_log)}/{len(attempts_log)}")
+    print(f"  First-try acceptance: {sum(a == 1 for a in attempts_log)}/{len(attempts_log)}")
 
     # ── 7e. Compute RDMs ──────────────────────────────────────────────────────
     print("\n--- COMPUTING RDMs ---")
