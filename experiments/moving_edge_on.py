@@ -13,8 +13,11 @@ Experiment:
 - Metrics: Euclidean distance, cosine distance, RSA (RDM correlation)
 
 Canonical runs:
-    # Primary fidelity result (n=10, full Shiu-style shuffle)
+    # Primary fidelity result (n=10, full Shiu-style shuffle, stability-constrained)
     results = run_experiment(n_models=10, randomization_strategy="full_shiu")
+
+    # Extended fidelity result (n=50, full Shiu-style shuffle, stability-constrained)
+    results = run_experiment(n_models=50, randomization_strategy="full_shiu")
 
     # Instability documentation (n=50, synapse-only shuffle)
     results = run_experiment(n_models=50, randomization_strategy="synapse_only")
@@ -245,9 +248,10 @@ def randomize_weights(network, strategy="full_shiu"):
         network: Flyvis network instance
         strategy: "full_shiu"    — shuffle all 734 free parameters (resting
                                    potentials, time constants, synapse scaling
-                                   factors). Used for n=10 primary fidelity runs.
-                                   Stability-constrained: r = 0.749, τ = 0.552 (p < 0.0001).
-                                   Matched-instability:   r = 0.757, τ = 0.562 (p < 0.0001).
+                                   factors). Used for primary fidelity runs (n=10
+                                   and n=50, stability-constrained).
+                                   Stability-constrained: r = 0.749 (n=10), r = 0.686 (n=50).
+                                   Matched-instability:   r = 0.757 (n=10).
                   "synapse_only" — shuffle only the 604 unitary synapse scaling
                                    factors (edges_syn_strength), preserving
                                    trained time constants and resting potentials.
@@ -666,15 +670,15 @@ def run_experiment(n_models=50, randomization_strategy="full_shiu",
 if __name__ == "__main__":
     # n_models=1 for debugging (confirms pop vec shape is (12, 65))
     # n_models=10 for primary fidelity result (top 10 models)
-    # n_models=50 for full run
-    results = run_experiment(n_models=10, randomization_strategy="full_shiu")
+    # n_models=50 for extended fidelity result (all 50 models)
+    results = run_experiment(n_models=50, randomization_strategy="full_shiu")
 
     # Save results to .npz file
-    np.savez("../results/results_exp1.npz",
+    np.savez("../results/results_exp1_50models_full_shiu.npz",
         cc_rdm_cosine=results["cc_rdm_cosine"],
         rand_rdm_cosine=results["rand_rdm_cosine"],
         cc_rdm_eucl=results["cc_rdm_eucl"],
         rand_rdm_eucl=results["rand_rdm_eucl"],
         cell_types=results["cell_types"],
     )
-    print("Saved ../results/results_exp1.npz")
+    print("Saved ../results/results_exp1_50models_full_shiu.npz")
