@@ -652,7 +652,8 @@ connectome-fidelity/
 ├── results/
 │   ├── results_exp1_10models_full_shiu.npz   ← Exp 1, n=10, stability-constrained
 │   ├── results_exp1_50models_full_shiu.npz   ← Exp 1, n=50, stability-constrained
-│   └── results_exp2_10models_full_shiu.npz   ← Exp 2, n=10, stability-constrained
+│   ├── results_exp2_10models_full_shiu.npz   ← Exp 2, n=10, stability-constrained
+│   └── results_exp2_50models_full_shiu.npz   ← Exp 2, n=50, stability-constrained
 └── figures/
     ├── moving_edge_on_rdms_10models_full_shiu.png
     ├── moving_edge_on_permtest_10models_full_shiu.png
@@ -661,6 +662,8 @@ connectome-fidelity/
     ├── moving_edge_on_rdms_50models_synapse_only.png
     ├── moving_edge_on_off_rdms_10models_full_shiu.png
     ├── moving_edge_on_off_permtest_10models_full_shiu.png
+    ├── moving_edge_on_off_rdms_50models_full_shiu.png
+    ├── moving_edge_on_off_permtest_50models_full_shiu.png
     ├── moving_edge_on_off_rdms_50models_synapse_only.png
     ├── maisak2013_t4t5_von_mises_tuning.png
     ├── biological_upper_bound_exp1.png
