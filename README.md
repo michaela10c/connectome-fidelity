@@ -618,6 +618,9 @@ results = run_experiment(n_models=50, randomization_strategy="synapse_only")
 ### Primary fidelity result — n=10 (stability-constrained)
 results = run_experiment(n_models=10, randomization_strategy="full_shiu")
 
+### Extended fidelity result — n=50 (stability-constrained)
+results = run_experiment(n_models=50, randomization_strategy="full_shiu")
+
 ### Instability documentation — n=50 (synapse-only)
 results = run_experiment(n_models=50, randomization_strategy="synapse_only")
 
