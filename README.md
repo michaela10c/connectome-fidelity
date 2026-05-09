@@ -35,20 +35,20 @@ extends the comparison to a biological reference derived from T4/T5 direction tu
 **Stimuli:** 12 ON moving edges at 30° increments (0° through 330°)
 
 **Networks:**
-- *Connectome-constrained (CC):* 10 models from the pretrained Flyvis ensemble
-  (indices `000–009` within `flow/0000`, pre-sorted by task error), trained to perform
+- *Connectome-constrained (CC):* 10–50 models from the pretrained Flyvis ensemble
+  (indices `000–049` within `flow/0000`, pre-sorted by task error), trained to perform
   optic flow estimation on naturalistic video with connectome-fixed architecture
   (734 free parameters)
-- *Random baseline:* Same 10 model architectures with sign-preserving weight shuffles.
+- *Random baseline:* Same model architectures with sign-preserving weight shuffles.
   Three strategies were evaluated:
   1. **Full Shiu-style shuffle (primary):** all 734 free parameters shuffled;
      stability-constrained sampling rejects configurations with non-finite or near-overflow
-     activations (sub-1e6) and resamples up to MAX_ATTEMPTS=100 per model. This is the
-     canonical baseline.
+     activations (sub-1e6) and resamples up to MAX_ATTEMPTS=100 per model. Run at both
+     n=10 and n=50.
   2. Synapse-only shuffle: only the 604 unitary synapse scaling factors
      (`edges_syn_strength`) shuffled, preserving trained time constants and resting
      potentials — per Lappalainen et al. (2024) Methods, time constants are clamped
-     during training to prevent instability. Used for n=50 instability documentation runs.
+     during training to prevent instability. Used for n=50 instability documentation.
   3. Matched-instability baseline: full Shiu-style shuffle without stability filtering;
      non-finite activations clamped to ±1e3 in RDM construction. Retained for comparison
      against the stability-constrained result.
@@ -143,11 +143,23 @@ baseline from Experiments 1 and 2 (full Shiu-style shuffle, n=10, MAX_ATTEMPTS=1
 | Random models with unstable dynamics | 5/10 (matched-instability); 0/10 (stability-constrained) |
 | CC models with unstable dynamics | 0/10 |
 
+### Experiment 1: ON Edges — n=50 (stability-constrained, full Shiu-style shuffle)
+
+| Metric | Value |
+|--------|-------|
+| CC cosine RDM off-diagonal range | 0.001–0.012 (same circular gradient, tighter range) |
+| Stability-constrained acceptance | 50/50 models accepted; mean 7.9 ± 8.1 attempts (range: 1–42); 5/50 first-try |
+| CC vs random RDM correlation (cosine) | Spearman r = 0.686, p < 0.0001 \| Kendall τ = 0.515, p < 0.0001 |
+| Permutation test (cosine, 10,000 permutations) | p_perm < 0.0001 (Spearman) \| p_perm < 0.0001 (Kendall τ) |
+| Within-CC ensemble consistency | r = 0.721 ± 0.150 |
+| Random models with unstable dynamics | 0/50 (stability-constrained) |
+| CC models with unstable dynamics | 0/50 |
+
 ### Experiment 1: ON Edges — n=50 (instability documentation, synapse-only shuffle)
 
 | Randomization strategy | Unstable random models | CC unstable | Cosine RDM correlation |
 |------------------------|------------------------|-------------|------------------------|
-| Full Shiu-style shuffle | 33/50 (66%) | 0/50 | NaN |
+| Full Shiu-style shuffle (matched-instability) | 33/50 (66%) | 0/50 | NaN |
 | Matched-normal resampling | 38/50 (76%) | 0/50 | NaN |
 | Synapse-only shuffle (`edges_syn_strength`) | 34/50 (68%) | 0/50 | NaN |
 
@@ -210,7 +222,9 @@ polarity block, while ON and OFF edges occupy geometrically distinct population-
 regions (~0.099–0.103 cross-polarity dissimilarity), consistent with the known T4/T5
 ON/OFF pathway segregation. Zero trained CC models exhibited instability under any
 condition across either experiment. The primary fidelity result is robust to baseline
-construction choice: stability-constrained and matched-instability baselines converge
+construction choice and ensemble size: stability-constrained results converge across n=10
+and n=50 (Experiment 1: r = 0.749 and r = 0.686 respectively, both p_perm < 0.0001),
+and stability-constrained and matched-instability baselines converge at n=10
 (Experiment 1: r = 0.749 vs 0.757; Experiment 2: r = 0.783 vs 0.862).
 
 ![Experiment 1 RDM figure — n=10](figures/moving_edge_on_rdms_10models_full_shiu.png)
@@ -225,7 +239,7 @@ Spearman r = 0.749, p < 0.0001 | Kendall τ = 0.552, p < 0.0001; p_perm < 0.0001
 (10,000 permutations). Stimuli: 12 ON moving edges at 30° increments. Top 10 pretrained
 Flyvis models, seed=42.*
 
-![Experiment 1 permutation test](figures/moving_edge_on_permtest_10models_full_shiu.png)
+![Experiment 1 permutation test — n=10](figures/moving_edge_on_permtest_10models_full_shiu.png)
 
 *Experiment 1 permutation test (n=10, stability-constrained full Shiu-style shuffle,
 10,000 stimulus-label permutations, Nili et al. 2014). Left: null distribution of
@@ -233,14 +247,23 @@ Spearman r with observed r = 0.749 (red line) falling far outside the null. Righ
 distribution of Kendall τ with observed τ = 0.552 (red line). Both p_perm < 0.0001 —
 zero of 10,000 permutations exceeded the observed correlation.*
 
-![Experiment 1 RDM figure — n=50](figures/moving_edge_on_rdms_50models_synapse_only.png)
+![Experiment 1 RDM figure — n=50](figures/moving_edge_on_rdms_50models_full_shiu.png)
 
-*Experiment 1 (n=50, synapse-only shuffle of `edges_syn_strength`) — left to right:
+*Experiment 1 (n=50, stability-constrained full Shiu-style shuffle) — left to right:
 connectome-constrained cosine RDM, random baseline cosine RDM, connectome-constrained
 Euclidean RDM, random baseline Euclidean RDM. The CC cosine RDM shows the same circular
-gradient at reduced range (0.001–0.012). The random cosine RDM is entirely NaN due to
-numerical overflow from unstable models (34/50) and is not renderable. Stimuli: 12 ON
-moving edges at 30° increments. All 50 pretrained Flyvis models, seed=42.*
+gradient at reduced range (0.001–0.012). The random cosine RDM is block-structured,
+averaged across 50 independently accepted stable configurations. Cosine RDM correlation:
+Spearman r = 0.686, p < 0.0001 | Kendall τ = 0.515, p < 0.0001; p_perm < 0.0001
+(10,000 permutations). All 50 pretrained Flyvis models, seed=42.*
+
+![Experiment 1 permutation test — n=50](figures/moving_edge_on_permtest_50models_full_shiu.png)
+
+*Experiment 1 permutation test (n=50, stability-constrained full Shiu-style shuffle,
+10,000 stimulus-label permutations, Nili et al. 2014). Left: null distribution of
+Spearman r with observed r = 0.686 (red line) falling far outside the null. Right: null
+distribution of Kendall τ with observed τ = 0.515 (red line). Both p_perm < 0.0001 —
+zero of 10,000 permutations exceeded the observed correlation.*
 
 ![Experiment 2 RDM figure — n=10](figures/moving_edge_on_off_rdms_10models_full_shiu.png)
 
@@ -261,14 +284,6 @@ OFF). Top 10 pretrained Flyvis models, seed=42.*
 Spearman r with observed r = 0.783 (red line) falling far outside the null — further
 than Experiment 1, consistent with the richer 24-condition stimulus set. Right: null
 distribution of Kendall τ with observed τ = 0.562 (red line). Both p_perm < 0.0001.*
-
-![Experiment 2 RDM figure — n=50](figures/moving_edge_on_off_rdms_50models_synapse_only.png)
-
-*Experiment 2 (n=50, synapse-only shuffle of `edges_syn_strength`) — left to right:
-connectome-constrained cosine RDM, random baseline cosine RDM, connectome-constrained
-Euclidean RDM, random baseline Euclidean RDM. The CC cosine RDM shows the same 24×24
-block structure. The random cosine RDM is entirely NaN (35/50 unstable). Stimuli: 24
-conditions (12 directions × ON + OFF). All 50 pretrained Flyvis models, seed=42.*
 
 ![Experiment 3 T4/T5 tuning curves](figures/maisak2013_t4t5_von_mises_tuning.png)
 
@@ -339,24 +354,28 @@ training, reliably occupies a dynamically stable region of parameter space that 
 weight configurations consistently leave.
 
 #### Stability-Constrained Random Baseline
-To address the instability problem without clamping non-finite values, a rejection-sampling
-procedure was implemented: candidate random configurations are accepted only if a forward
-pass produces all-finite, sub-1e6 activations, with up to MAX_ATTEMPTS=100 resampling
-attempts per model. Under full Shiu-style shuffling (n=10), all 10 models were accepted.
-Acceptance required on average 11.1 ± 9.9 attempts per model (range: 1–36), with only
-1/10 models accepted on the first attempt. This low first-try acceptance rate confirms
-that dynamically stable configurations occupy a small fraction of the full Shiu weight
-space — the trained connectome-constrained parameters are atypical from a dynamical
-stability standpoint, independent of the representational geometry result.
 
-The accepted random baseline produces a cosine RDM with a clear block structure:
-directions 0°–90° form one cluster of low mutual dissimilarity, directions 120°–300° form
-another, and cross-cluster dissimilarities are uniformly large (~0.099–0.101). This block
-structure is qualitatively different from the smooth circular gradient of the CC RDM.
+**n=10:** Candidate random configurations are accepted only if a forward pass produces
+all-finite, sub-1e6 activations, with up to MAX_ATTEMPTS=100 resampling attempts per
+model. All 10 models were accepted. Acceptance required on average 11.1 ± 9.9 attempts
+per model (range: 1–36), with only 1/10 models accepted on the first attempt.
+
+**n=50:** All 50 models were accepted under the same procedure. Acceptance required on
+average 7.9 ± 8.1 attempts per model (range: 1–42), with 5/50 models accepted on the
+first attempt. The worst-case model required 42 attempts, well within the MAX_ATTEMPTS=100
+ceiling. The low first-try acceptance rate (5/50, 10%) confirms that dynamically stable
+configurations occupy a small fraction of the full Shiu weight space across the full
+ensemble — not just the top 10 models.
+
+The n=10 stability-constrained random baseline produces a cosine RDM with a clear block
+structure: directions 0°–90° form one cluster of low mutual dissimilarity, directions
+120°–300° form another, and cross-cluster dissimilarities are uniformly large
+(~0.099–0.101). The n=50 mean random cosine RDM reflects a similar but averaged-out
+structure across 50 independently accepted configurations.
 
 #### CC vs Random RDM Correlation
 
-**Stability-constrained baseline (primary result):**
+**Stability-constrained baseline, n=10 (primary result):**
 Cosine RDM correlation: **Spearman r = 0.749, p < 0.0001 | Kendall τ = 0.552, p < 0.0001**
 (analytical); **p_perm < 0.0001 for both measures** (stimulus-label randomization test,
 10,000 permutations, Nili et al. 2014) — zero of 10,000 permutations exceeded the observed
@@ -367,6 +386,19 @@ p < 0.0001** (analytical); **p_perm = 0.001 | p_perm = 0.0009** (permutation). S
 but interpreted with caution: the random Euclidean RDM contains values on the order of
 1e4–1e5, indicating near-overflow activations on stimuli not covered by the single-stimulus
 stability check. Cosine RDM correlation remains the primary reported metric.
+
+**Stability-constrained baseline, n=50:**
+Cosine RDM correlation: **Spearman r = 0.686, p < 0.0001 | Kendall τ = 0.515, p < 0.0001**
+(analytical); **p_perm < 0.0001 for both measures** — zero of 10,000 permutations exceeded
+the observed correlation. The result is highly significant by all three independent
+inference methods. The modest decrease from n=10 (r = 0.749) to n=50 (r = 0.686) reflects
+the inclusion of lower-performing CC models implementing more varied representational
+solutions, consistent with the within-ensemble consistency decrease (r = 0.838 ± 0.078 at
+n=10 vs 0.721 ± 0.150 at n=50), rather than any weakening of the fidelity signal.
+
+Euclidean RDM correlation: **Spearman r = 0.588, p < 0.0001 | Kendall τ = 0.418,
+p < 0.0001** (analytical); **p_perm = 0.0005 | p_perm = 0.0003** (permutation). Significant
+but interpreted with caution for the same scale distortion reasons as n=10.
 
 **Matched-instability baseline (historical comparison):**
 Under the matched-instability approach (full Shiu-style shuffle, n=10, 5/10 stable random
@@ -519,8 +551,11 @@ Experiment 2 biological comparison is therefore not reported as a meaningful res
 ## Discussion
 - Across Experiments 1 and 2, the cosine RDM correlation is significant by analytical
   p-values, Kendall τ, and stimulus-label permutation test — three independent inference
-  methods converging on the same conclusion (Experiment 1: r = 0.749, τ = 0.552;
-  Experiment 2: r = 0.783, τ = 0.562; p_perm < 0.0001 in both cases)
+  methods converging on the same conclusion (Experiment 1: r = 0.749 at n=10, r = 0.686
+  at n=50; Experiment 2: r = 0.783; all p_perm < 0.0001)
+- The fidelity result holds across ensemble sizes: stability-constrained sampling succeeds
+  at both n=10 and n=50 with all models accepted and no ceiling failures, confirming the
+  null model problem is resolved
 - Stability-constrained and matched-instability baselines converge in Experiment 1
   (r = 0.749 vs 0.757), demonstrating robustness to baseline construction choice; the
   larger gap in Experiment 2 (r = 0.783 vs 0.862) suggests clamped instability may
@@ -533,10 +568,11 @@ Experiment 2 biological comparison is therefore not reported as a meaningful res
   experiments (stability-constrained baseline), confirming cosine distance as the
   appropriate primary metric; Euclidean significance under matched-instability is a
   numerical artifact of scale distortion from near-overflow activations
-- Low first-try acceptance rates (1/10 in Experiment 1; 3/10 in Experiment 2) and mean
-  attempts of ~11 per model confirm that dynamically stable configurations are rare in
-  full Shiu weight space — the trained connectome occupies an atypical region of parameter
-  space from a stability standpoint, independent of representational geometry
+- Low first-try acceptance rates (1/10 at n=10 and 5/50 at n=50 in Experiment 1; 3/10
+  in Experiment 2) confirm that dynamically stable configurations are rare in full Shiu
+  weight space across the full ensemble — the trained connectome occupies an atypical
+  region of parameter space from a stability standpoint, independent of representational
+  geometry
 - Within-CC consistency improves from ON-only (r = 0.721 at n=50) to ON+OFF
   (r = 0.838 at n=50, r = 0.850 at n=10), supporting polarity as a stronger organizer
   of representational geometry than direction alone
@@ -568,18 +604,21 @@ Python ≥ 3.9, < 3.13.
 ```python
 # Experiment 1: ON edges
 
-### Primary fidelity result (stability-constrained, includes permutation test)
+### Primary fidelity result — n=10 (stability-constrained)
 results = run_experiment(n_models=10, randomization_strategy="full_shiu")
 
-### Instability documentation
+### Extended fidelity result — n=50 (stability-constrained)
+results = run_experiment(n_models=50, randomization_strategy="full_shiu")
+
+### Instability documentation — n=50 (synapse-only)
 results = run_experiment(n_models=50, randomization_strategy="synapse_only")
 
 # Experiment 2: ON + OFF edges
 
-### Primary fidelity result (stability-constrained, includes permutation test)
+### Primary fidelity result — n=10 (stability-constrained)
 results = run_experiment(n_models=10, randomization_strategy="full_shiu")
 
-### Instability documentation
+### Instability documentation — n=50 (synapse-only)
 results = run_experiment(n_models=50, randomization_strategy="synapse_only")
 
 # Experiment 3: Biological upper bound
@@ -611,11 +650,14 @@ connectome-fidelity/
 │   ├── moving_edge_on_off.ipynb       ← Colab-ready notebook, ON+OFF edges results
 │   └── biological_upper_bound.ipynb   ← Colab-ready notebook, biological upper bound results
 ├── results/
-│   ├── results_exp1.npz               ← Saved RDMs and statistics from Experiment 1
-│   └── results_exp2.npz               ← Saved RDMs and statistics from Experiment 2
+│   ├── results_exp1_10models_full_shiu.npz   ← Exp 1, n=10, stability-constrained
+│   ├── results_exp1_50models_full_shiu.npz   ← Exp 1, n=50, stability-constrained
+│   └── results_exp2_10models_full_shiu.npz   ← Exp 2, n=10, stability-constrained
 └── figures/
     ├── moving_edge_on_rdms_10models_full_shiu.png
     ├── moving_edge_on_permtest_10models_full_shiu.png
+    ├── moving_edge_on_rdms_50models_full_shiu.png
+    ├── moving_edge_on_permtest_50models_full_shiu.png
     ├── moving_edge_on_rdms_50models_synapse_only.png
     ├── moving_edge_on_off_rdms_10models_full_shiu.png
     ├── moving_edge_on_off_permtest_10models_full_shiu.png
