@@ -683,17 +683,17 @@ results = run_experiment(n_models=10, randomization_strategy="full_shiu")
 ### Instability documentation — n=50 (synapse-only)
 results = run_experiment(n_models=50, randomization_strategy="synapse_only")
 
-# Experiment 3: Biological upper bound
-
-### Load n=50 stability-constrained results from Experiments 1 and 2, then run
-bio_results = run_biological_upper_bound(results_exp1, results_exp2)
-
 # Within-polarity analysis (Experiment 2 post-hoc)
 
 ### Run after the n=50 Experiment 2 canonical run.
 ### Requires results_exp2_50models_full_shiu.npz.
 ### Executes visualization, circular structure test, Fisher z-transform, and
 ### model-level bootstrap — all analyses load from the saved .npz file.
+
+# Experiment 3: Biological upper bound
+
+### Load n=50 stability-constrained results from Experiments 1 and 2, then run
+bio_results = run_biological_upper_bound(results_exp1, results_exp2)
 ```
 
 Set `n_models=1` for a quick debug run before committing to a full experiment.
@@ -736,14 +736,14 @@ connectome-fidelity/
     ├── moving_edge_on_off_rdms_50models_full_shiu.png
     ├── moving_edge_on_off_permtest_50models_full_shiu.png
     ├── moving_edge_on_off_rdms_50models_synapse_only.png
+    ├── cc_rdm_within_polarity_blocks_50models_full_shiu.png
+    ├── within_polarity_circular_test_50models_full_shiu.png
+    ├── bootstrap_on_off_asymmetry_50models_full_shiu.png
     ├── maisak2013_t4t5_von_mises_tuning.png
     ├── biological_upper_bound_exp1.png
     ├── bio_upper_bound_exp1_permtest.png
     ├── biological_upper_bound_exp2.png
-    ├── bio_upper_bound_exp2_permtest.png
-    ├── cc_rdm_within_polarity_blocks_50models_full_shiu.png
-    ├── within_polarity_circular_test_50models_full_shiu.png
-    └── bootstrap_on_off_asymmetry_50models_full_shiu.png
+    └── bio_upper_bound_exp2_permtest.png
 ```
 
 ---
