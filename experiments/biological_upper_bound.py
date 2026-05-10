@@ -310,6 +310,14 @@ def run_biological_upper_bound(results_exp1, results_exp2=None,
         fname="bio_upper_bound_exp1_permtest.png"
     )
 
+    print(f"\n  Permutation test: Random vs Biology ({n_permutations} permutations):")
+    obs_r1_rand, p_r1_rand, obs_tau1_rand, p_tau1_rand, _, _ = permutation_test_rdm(
+        rand_rdm1, bio_rdm_12, n_permutations=n_permutations)
+    print(f"  r={obs_r1_rand:.3f}, p_perm={p_r1_rand:.4f}"
+          f" | tau={obs_tau1_rand:.3f}, p_perm={p_tau1_rand:.4f}  [permutation]")
+    print(f"  {int(p_r1_rand*n_permutations)}/{n_permutations} permutations "
+          f"exceeded observed Spearman r")
+
     angle_labels = [f"{a}" for a in ANGLES_DEG]
     fig1, axes1 = plt.subplots(1, 3, figsize=(13, 4))
     fig1.suptitle(
@@ -443,7 +451,10 @@ def run_biological_upper_bound(results_exp1, results_exp2=None,
     print(f"                  p_perm(r)={p_r1:.4f}, p_perm(tau)={p_tau1:.4f}  "
           f"[{n_permutations} perms]")
     print(f"    Rand vs Bio:  r={r_rand_bio1:.3f}, tau={rk_rand_bio1:.3f}  [analytical]")
+    print(f"                  p_perm(r)={p_r1_rand:.4f}, p_perm(tau)={p_tau1_rand:.4f}  "
+          f"[{n_permutations} perms]")
     print(f"    CC vs Random: r={r_cc_rand1:.3f}, tau={rk_cc_rand1:.3f}  [analytical]")
+    
     if results_exp2 is not None:
         print()
         print("  Experiment 2 (ON+OFF edges, 24 conditions):")
@@ -472,6 +483,8 @@ def run_biological_upper_bound(results_exp1, results_exp2=None,
             "perm": dict(obs_r=obs_r1, p_r=p_r1,
                          obs_tau=obs_tau1, p_tau=p_tau1,
                          null_r=null_r1, null_tau=null_tau1),
+            "perm_rand_bio": dict(obs_r=obs_r1_rand, p_r=p_r1_rand,
+                          obs_tau=obs_tau1_rand, p_tau=p_tau1_rand),
         },
         "exp2": exp2_out,
     }
