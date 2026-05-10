@@ -313,6 +313,15 @@ p_perm < 0.0001 (10,000 permutations).*
 *Experiment 1 permutation test (n=10, comparison result, 10,000 permutations). Both
 p_perm < 0.0001 — zero of 10,000 permutations exceeded the observed correlation.*
 
+![Experiment 1 UMAP — CC ensemble](figures/umap_cc_ensemble_exp1.png)
+
+*Experiment 1 UMAP of CC ensemble representational geometry (n=50, full Shiu-style
+shuffle). Features: upper triangle of per-model cosine RDM (66 pairs). Color encodes
+model rank (0 = best task performance). No discrete cluster structure is visible — the
+50 models form a continuous cloud, confirming that within-CC consistency (r = 0.721 ±
+0.150) reflects a continuous gradient in representational fidelity rather than averaging
+across qualitatively distinct solutions.*
+
 ![Experiment 2 RDM figure — n=50](figures/moving_edge_on_off_rdms_50models_full_shiu.png)
 
 *Experiment 2 (n=50, canonical result, stability-constrained full Shiu-style shuffle) —
@@ -400,15 +409,6 @@ the connectome constraint beyond circular stimulus structure.*
 stability-constrained baseline, 10,000 permutations). Observed r = 0.930 and τ = 0.783
 both fall far outside the null distribution; p_perm < 0.0001 for both measures — zero
 of 10,000 permutations exceeded the observed correlation.*
-
-![Experiment 1 UMAP — CC ensemble](figures/umap_cc_ensemble_exp1.png)
-
-*Experiment 1 UMAP of CC ensemble representational geometry (n=50, full Shiu-style
-shuffle). Features: upper triangle of per-model cosine RDM (66 pairs). Color encodes
-model rank (0 = best task performance). No discrete cluster structure is visible — the
-50 models form a continuous cloud, confirming that within-CC consistency (r = 0.721 ±
-0.150) reflects a continuous gradient in representational fidelity rather than averaging
-across qualitatively distinct solutions.*
 
 ---
 
