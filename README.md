@@ -704,7 +704,7 @@ bio_results = run_biological_upper_bound(results_exp1, results_exp2)
 Set `n_models=1` for a quick debug run before committing to a full experiment.
 Experiment 1 (ON edges, 12 conditions): n=10 runs take approximately 15–20 minutes
 on a T4 GPU; n=50 runs take 60–90 minutes. Experiment 2 (ON+OFF edges, 24 conditions)
-takes approximately twice as long at each scale: n=10 takes ~30–40 minutes; n=50 takes
+takes approximately twice as long at each scale: n=10 takes ~1–2 hours; n=50 takes
 ~3-4 hours. Permutation testing (10,000 permutations) adds ~2–3 minutes per run. Set
 `n_permutations=0` to skip.
 
