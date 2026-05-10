@@ -668,7 +668,7 @@ def run_experiment(n_models=50, randomization_strategy="full_shiu",
 # ── 8. ENTRY POINT ────────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
-    # n_models=1  for debugging (confirms pop vec shape is (24, 65))
+    # n_models=1  for debugging (confirms pop vec shape is (12, 65))
     # n_models=10 for comparison fidelity result (top 10 models)
     # n_models=50 for canonical fidelity result (all 50 models)
     results = run_experiment(n_models=50, randomization_strategy="full_shiu")
