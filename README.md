@@ -674,7 +674,6 @@ results = run_experiment(n_models=50, randomization_strategy="synapse_only")
 # Experiment 2: ON + OFF edges
 
 ### Canonical fidelity result — n=50 (stability-constrained)
-### Note: include cc_rdms_cosine in np.savez to enable within-polarity bootstrap
 results = run_experiment(n_models=50, randomization_strategy="full_shiu")
 
 ### Comparison result — n=10 (stability-constrained)
