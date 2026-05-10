@@ -677,22 +677,32 @@ def run_experiment(n_models=50, randomization_strategy="full_shiu",
 # ── 8. ENTRY POINT ────────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
-    # n_models=1  for debugging (confirms pop vec shape is (24, 65))
-    # n_models=10 for comparison fidelity result (top 10 models)
-    # n_models=50 for canonical fidelity result (all 50 models)
-    results = run_experiment(n_models=50, randomization_strategy="full_shiu")
+    import os
 
-    # Save results to .npz file
-    np.savez("../results/results_exp2_50models_full_shiu.npz",
-        cc_rdm_cosine=results["cc_rdm_cosine"],
-        rand_rdm_cosine=results["rand_rdm_cosine"],
-        cc_rdm_eucl=results["cc_rdm_eucl"],
-        rand_rdm_eucl=results["rand_rdm_eucl"],
-        cell_types=results["cell_types"],
-        stim_labels=results["stim_labels"],
-        cc_rdms_cosine=np.array(results["cc_rdms_cosine"]), # added for model-level bootstrap
-    )
-    print("Saved ../results/results_exp2_50models_full_shiu.npz")
+    RESULTS_FILE = "../results/results_exp2_50models_full_shiu.npz"
+
+    if os.path.exists(RESULTS_FILE):
+        print(f"Results file found: {RESULTS_FILE}")
+        print("Skipping experiment — loading saved results and running post-hoc analyses.")
+    else:
+        print(f"Results file not found: {RESULTS_FILE}")
+        print("Running experiment...")
+        # n_models=1  for debugging (confirms pop vec shape is (24, 65))
+        # n_models=10 for comparison fidelity result (top 10 models)
+        # n_models=50 for canonical fidelity result (all 50 models)
+        results = run_experiment(n_models=50, randomization_strategy="full_shiu")
+
+        # Save results to .npz file
+        np.savez(RESULTS_FILE,
+            cc_rdm_cosine=results["cc_rdm_cosine"],
+            rand_rdm_cosine=results["rand_rdm_cosine"],
+            cc_rdm_eucl=results["cc_rdm_eucl"],
+            rand_rdm_eucl=results["rand_rdm_eucl"],
+            cell_types=results["cell_types"],
+            stim_labels=results["stim_labels"],
+            cc_rdms_cosine=np.array(results["cc_rdms_cosine"]),  # for model-level bootstrap
+        )
+        print(f"Saved {RESULTS_FILE}")
 
 
     # ── WITHIN-POLARITY DIRECTION STRUCTURE, CIRCULAR STRUCTURE TEST,
@@ -974,3 +984,107 @@ if __name__ == "__main__":
     plt.savefig("../figures/bootstrap_on_off_asymmetry_50models_full_shiu.png",
                 dpi=150, bbox_inches="tight")
     plt.show()
+
+    # ── 10. UMAP OF CC ENSEMBLE GEOMETRY ──────────────────────────────────────
+    #
+    # Post-hoc analysis: projects individual CC cosine RDMs into 2D via UMAP
+    # to check for cluster structure in the ensemble geometry. If discrete
+    # clusters are visible, within-ensemble consistency can be recomputed per
+    # cluster using within_consistency_per_cluster() below.
+    #
+    # Loads from: ../results/results_exp2_50models_full_shiu.npz
+    # Saves to:   ../figures/umap_cc_ensemble_exp2.png
+    #
+    # Result (n=50, full Shiu-style shuffle, seed=42):
+    #   No discrete cluster structure — 50 models form a continuous cloud.
+    #   Within-CC consistency r = 0.838 ± 0.059 reflects a genuinely coherent
+    #   representational geometry, not averaging across qualitatively distinct
+    #   solutions.
+
+    # Install umap-learn if not already available
+    try:
+        import umap as umap_lib
+    except ImportError:
+        import subprocess
+        subprocess.run(["pip", "install", "umap-learn"], check=True)
+        import umap as umap_lib
+
+    print("\n" + "="*60)
+    print("UMAP — CC ENSEMBLE GEOMETRY (Experiment 2)")
+    print("="*60)
+
+    # Load from saved results file (always exists at this point).
+    # The results file must contain cc_rdms_cosine.
+    if os.path.exists(RESULTS_FILE):
+        d_umap = np.load(RESULTS_FILE, allow_pickle=True)
+        if "cc_rdms_cosine" not in d_umap:
+            print("  WARNING: cc_rdms_cosine not in results file — skipping UMAP.")
+            print("  Re-run run_experiment() and resave to include cc_rdms_cosine.")
+        else:
+            umap_rdms = list(d_umap["cc_rdms_cosine"])
+            n_umap = len(umap_rdms)
+            print(f"  Loaded {n_umap} individual CC cosine RDMs from {RESULTS_FILE}")
+
+            # ── Overall within-consistency sanity check ────────────────────────
+            def _rdm_sim_spearman(r1, r2):
+                idx = np.triu_indices(r1.shape[0], k=1)
+                s, _ = spearmanr(r1[idx], r2[idx])
+                return s
+
+            overall = [
+                _rdm_sim_spearman(umap_rdms[i], umap_rdms[j])
+                for i in range(n_umap) for j in range(i + 1, n_umap)
+            ]
+            print(f"  Overall within-CC consistency: "
+                  f"r = {np.mean(overall):.3f} ± {np.std(overall):.3f}")
+            print(f"  (Canonical reference: r = 0.838 ± 0.059)")
+
+            # ── Build feature matrix ───────────────────────────────────────────
+            # Each row: upper triangle of one model's 24×24 RDM → 276 features
+            def _rdm_to_vec(rdm):
+                idx = np.triu_indices(rdm.shape[0], k=1)
+                return rdm[idx]
+
+            X_umap = np.stack([_rdm_to_vec(r) for r in umap_rdms], axis=0)
+            print(f"  Feature matrix shape: {X_umap.shape}  "
+                  f"(24*(24-1)/2 = 276 pairs per model)")
+
+            # ── Run UMAP ──────────────────────────────────────────────────────
+            reducer = umap_lib.UMAP(
+                n_components=2,
+                n_neighbors=10,        # small n_neighbors appropriate for n=50
+                min_dist=0.1,
+                metric="correlation",
+                random_state=SEED
+            )
+            embedding = reducer.fit_transform(X_umap)
+            print(f"  Embedding shape: {embedding.shape}")
+
+            # ── Plot ──────────────────────────────────────────────────────────
+            fig_umap, ax_umap = plt.subplots(figsize=(7, 6))
+            sc = ax_umap.scatter(
+                embedding[:, 0], embedding[:, 1],
+                c=np.arange(n_umap), cmap="viridis_r",
+                s=70, alpha=0.85, edgecolors="white", linewidths=0.5
+            )
+            plt.colorbar(sc, ax=ax_umap,
+                         label="Model index (0 = best task performance)")
+            for i, (x, y) in enumerate(embedding):
+                ax_umap.annotate(str(i), (x, y), fontsize=6,
+                                 ha="center", va="bottom",
+                                 xytext=(0, 4), textcoords="offset points",
+                                 alpha=0.7)
+            ax_umap.set_xlabel("UMAP 1")
+            ax_umap.set_ylabel("UMAP 2")
+            ax_umap.set_title(
+                "UMAP of CC Ensemble Representational Geometry\n"
+                "Experiment 2 — ON+OFF edges (24 conditions), n=50\n"
+                "Features: upper triangle of per-model cosine RDM  |  "
+                "Color: model rank (0 = best)",
+                fontsize=9
+            )
+            plt.tight_layout()
+            plt.savefig("../figures/umap_cc_ensemble_exp2.png",
+                        dpi=150, bbox_inches="tight")
+            print("  Saved: ../figures/umap_cc_ensemble_exp2.png")
+            plt.show()
