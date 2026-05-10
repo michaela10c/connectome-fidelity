@@ -677,6 +677,7 @@ results = run_experiment(n_models=50, randomization_strategy="synapse_only")
 results = run_experiment(n_models=10, randomization_strategy="full_shiu")
 
 ### Extended fidelity result — n=50 (stability-constrained)
+### Note: include cc_rdms_cosine in np.savez to enable within-polarity bootstrap
 results = run_experiment(n_models=50, randomization_strategy="full_shiu")
 
 ### Instability documentation — n=50 (synapse-only)
@@ -686,6 +687,13 @@ results = run_experiment(n_models=50, randomization_strategy="synapse_only")
 
 ### Load n=50 stability-constrained results from Experiments 1 and 2, then run
 bio_results = run_biological_upper_bound(results_exp1, results_exp2)
+
+# Within-polarity analysis (Experiment 2 post-hoc)
+
+### Run after the n=50 Experiment 2 canonical run.
+### Requires results_exp2_50models_full_shiu.npz with cc_rdms_cosine saved.
+### Executes visualization, circular structure test, Fisher z-transform, and
+### model-level bootstrap — all analyses load from the saved .npz file.
 ```
 
 Set `n_models=1` for a quick debug run before committing to a full experiment.
@@ -730,7 +738,10 @@ connectome-fidelity/
     ├── biological_upper_bound_exp1.png
     ├── bio_upper_bound_exp1_permtest.png
     ├── biological_upper_bound_exp2.png
-    └── bio_upper_bound_exp2_permtest.png
+    ├── bio_upper_bound_exp2_permtest.png
+    ├── cc_rdm_within_polarity_blocks_50models_full_shiu.png
+    ├── within_polarity_circular_test_50models_full_shiu.png
+    └── bootstrap_on_off_asymmetry_50models_full_shiu.png
 ```
 
 ---
