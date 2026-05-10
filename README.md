@@ -636,7 +636,7 @@ biological comparison is not reported as a meaningful result.
   configurations are rare in full Shiu weight space — the trained connectome occupies an
   atypical region of parameter space from a stability standpoint
 - Within-CC consistency at n=50 (r = 0.838 ± 0.059) is substantially higher and tighter
-  than Experiment 1 n=50 (r = 0.721 ± 0.150), supporting polarity as a stronger organizer
+  than Experiment 1 at n=50 (r = 0.721 ± 0.150), supporting polarity as a stronger organizer
   of representational geometry than direction alone; UMAP of individual model RDMs in both
   experiments reveals no discrete cluster structure, confirming that consistency in both
   cases reflects genuinely coherent representational geometry rather than averaging across
