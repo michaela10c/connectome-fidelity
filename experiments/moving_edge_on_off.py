@@ -657,6 +657,7 @@ def run_experiment(n_models=50, randomization_strategy="full_shiu",
 
     return {
         "cc_rdm_cosine":    cc_rdm_cosine_mean,
+        "cc_rdms_cosine":   cc_rdms_cosine, 
         "rand_rdm_cosine":  rand_rdm_cosine_mean,
         "cc_rdm_eucl":      cc_rdm_eucl_mean,
         "rand_rdm_eucl":    rand_rdm_eucl_mean,
@@ -689,7 +690,242 @@ if __name__ == "__main__":
         rand_rdm_eucl=results["rand_rdm_eucl"],
         cell_types=results["cell_types"],
         stim_labels=results["stim_labels"],
+        cc_rdms_cosine=np.array(results["cc_rdms_cosine"]),
     )
     print("Saved ../results/results_exp2_50models_full_shiu.npz")
 
 
+    # ── 9. WITHIN-POLARITY DIRECTION STRUCTURE, CIRCULAR STRUCTURE TEST, ──────
+    #       FISHER Z-TRANSFORM, AND BOOTSTRAP
+    # Runs all within-polarity post-hoc analyses in sequence:
+    #   1. Visualize OFF-OFF and ON-ON submatrices with shared colormap
+    #   2. Formally test circular direction structure in each block
+    #   3. Fisher z-transform test for ON/OFF asymmetry (analytical cross-check)
+    #   4. Bootstrap test for ON/OFF asymmetry (model-level resampling, primary)
+    #
+    # Loads from: ../results/results_exp2_50models_full_shiu.npz
+    # Saves to:   ../figures/cc_rdm_within_polarity_blocks_50models_full_shiu.png
+    #             ../figures/within_polarity_circular_test_50models_full_shiu.png
+    #             ../figures/bootstrap_on_off_asymmetry_50models_full_shiu.png
+
+    # ── Load results ──────────────────────────────────────────────────────────
+    d = np.load("../results/results_exp2_50models_full_shiu.npz", allow_pickle=True)
+    cc_rdm = d["cc_rdm_cosine"]               # shape (24, 24) — mean CC cosine RDM
+    cc_rdms_cosine = list(d["cc_rdms_cosine"]) # list of 50 individual 24×24 RDMs
+    n_cc = len(cc_rdms_cosine)
+
+    angles = [0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330]
+    angle_labels = [f"{a}°" for a in angles]
+
+    # Stimulus ordering is interleaved by direction:
+    # (OFF 0°, ON 0°, OFF 30°, ON 30°, ...) — OFF at even indices, ON at odd indices.
+    # np.ix_ indexes non-contiguous rows and columns simultaneously.
+    off_idx = list(range(0, 24, 2))   # OFF: indices 0, 2, 4, ..., 22
+    on_idx  = list(range(1, 24, 2))   # ON:  indices 1, 3, 5, ..., 23
+
+    off_off = cc_rdm[np.ix_(off_idx, off_idx)]  # 12×12 OFF-OFF submatrix
+    on_on   = cc_rdm[np.ix_(on_idx,  on_idx)]   # 12×12 ON-ON submatrix
+
+    # ── 9a. Visualization: shared colormap ───────────────────────────────────
+    # Shared scale makes the ON/OFF magnitude asymmetry directly visible.
+    # ON-ON range (~0.001–0.012) vs OFF-OFF range (~0.0002–0.002) — ~5× difference.
+    vmax = max(off_off.max(), on_on.max())
+
+    fig, axes = plt.subplots(1, 2, figsize=(10, 4))
+    fig.suptitle("CC Cosine RDM — Within-Polarity Blocks\n"
+                 "ON+OFF edges, n=50, full Shiu-style shuffle", fontsize=10)
+
+    for ax, block, title in zip(axes, [off_off, on_on], ["OFF-OFF", "ON-ON"]):
+        im = ax.imshow(block, cmap="viridis", vmin=0, vmax=vmax)
+        ax.set_title(f"{title} block", fontsize=9)
+        ax.set_xticks(range(12))
+        ax.set_xticklabels(angle_labels, fontsize=7, rotation=90)
+        ax.set_yticks(range(12))
+        ax.set_yticklabels(angle_labels, fontsize=7)
+        plt.colorbar(im, ax=ax, fraction=0.046, pad=0.04)
+
+    plt.tight_layout()
+    plt.savefig("../figures/cc_rdm_within_polarity_blocks_50models_full_shiu.png",
+                dpi=150, bbox_inches="tight")
+    plt.show()
+
+    # ── 9b. Circular distance reference matrix ───────────────────────────────
+    # For 12 directions at 30° increments, circular distance between directions
+    # i and j is min(|i-j|, 12-|i-j|), ranging from 0 (same) to 6 (opposite).
+    # This is the expected ordinal dissimilarity under pure direction tuning.
+    n_dirs = 12
+    circ_ref = np.zeros((n_dirs, n_dirs))
+    for i in range(n_dirs):
+        for j in range(n_dirs):
+            circ_ref[i, j] = min(abs(i - j), n_dirs - abs(i - j))
+
+    print("Circular distance reference matrix:")
+    print(circ_ref)
+
+    def test_circular_structure(submatrix, label, circ_ref, n_permutations=10000,
+                                seed=SEED):
+        """
+        Test whether a 12×12 within-polarity submatrix has circular direction
+        structure by correlating its upper triangle with the circular distance
+        reference. Reports Spearman r, analytical p, and permutation p-value.
+        Permutation test: rows and columns of submatrix permuted simultaneously
+        to preserve RDM symmetry (Nili et al. 2014).
+        """
+        n = submatrix.shape[0]
+        idx = np.triu_indices(n, k=1)
+        obs_r, obs_p = spearmanr(submatrix[idx], circ_ref[idx])
+
+        rng = np.random.default_rng(seed)
+        null_r = np.zeros(n_permutations)
+        for i in range(n_permutations):
+            perm = rng.permutation(n)
+            submatrix_p = submatrix[np.ix_(perm, perm)]
+            null_r[i], _ = spearmanr(submatrix_p[idx], circ_ref[idx])
+        p_perm = np.mean(null_r >= obs_r)
+
+        print(f"\n  {label}:")
+        print(f"    Spearman r = {obs_r:.3f}, p = {obs_p:.4f}  [analytical]")
+        print(f"    p_perm = {p_perm:.4f}  [{n_permutations} permutations]")
+        print(f"    {int(p_perm * n_permutations)}/{n_permutations} permutations "
+              f"exceeded observed r")
+        return obs_r, obs_p, p_perm, null_r
+
+    print("\n" + "="*60)
+    print("WITHIN-POLARITY CIRCULAR DIRECTION STRUCTURE TEST")
+    print("Reference: circular distance matrix (min angular separation)")
+    print("="*60)
+
+    r_on,  p_on,  p_perm_on,  null_on  = test_circular_structure(
+        on_on,  "ON-ON  block", circ_ref)
+    r_off, p_off, p_perm_off, null_off = test_circular_structure(
+        off_off, "OFF-OFF block", circ_ref)
+
+    print(f"\n  ON-ON r = {r_on:.3f}  vs  OFF-OFF r = {r_off:.3f}")
+    print(f"  Difference: {r_on - r_off:.3f} — ON pathway shows "
+          f"{'stronger' if r_on > r_off else 'weaker'} directional geometry")
+
+    # Plot permutation null distributions
+    fig, axes = plt.subplots(1, 2, figsize=(10, 3.5))
+    fig.suptitle("Within-Polarity Circular Structure Test — Permutation Null\n"
+                 "ON+OFF edges, n=50, full Shiu-style shuffle", fontsize=10)
+
+    for ax, null, obs, label in zip(
+        axes,
+        [null_on,  null_off],
+        [r_on,     r_off],
+        ["ON-ON vs circular reference", "OFF-OFF vs circular reference"]
+    ):
+        ax.hist(null, bins=50, color="steelblue", alpha=0.7, label="Null distribution")
+        ax.axvline(obs, color="firebrick", linewidth=2, label=f"Observed r = {obs:.3f}")
+        ax.set_xlabel(f"Spearman r ({label})")
+        ax.set_ylabel("Count")
+        ax.legend(fontsize=8)
+
+    plt.tight_layout()
+    plt.savefig("../figures/within_polarity_circular_test_50models_full_shiu.png",
+                dpi=150, bbox_inches="tight")
+    plt.show()
+
+    # ── 9c. Fisher z-transform test (analytical cross-check) ─────────────────
+    # Analytical corroboration of the bootstrap result. Tests whether Δr is
+    # statistically significant using a closed-form z-test. Approximate because
+    # the two correlations share the same circular reference and are not fully
+    # independent; reported as a secondary check alongside the bootstrap.
+    #
+    # n_pairs = upper triangle of 12×12 matrix = 12*(12-1)/2 = 66
+
+    n_pairs = 66
+
+    def fisher_z(r):
+        """Fisher z-transform of a correlation coefficient."""
+        return 0.5 * np.log((1 + r) / (1 - r))
+
+    def fisher_z_test(r1, r2, n1, n2):
+        """Two-sample Fisher z-transform test. Returns z-statistic and two-sided p-value."""
+        z1 = fisher_z(r1)
+        z2 = fisher_z(r2)
+        se = np.sqrt(1 / (n1 - 3) + 1 / (n2 - 3))
+        z_stat = (z1 - z2) / se
+        p_two_sided = 2 * (1 - norm.cdf(abs(z_stat)))
+        return z_stat, p_two_sided
+
+    z_stat, p_val = fisher_z_test(r_on, r_off, n_pairs, n_pairs)
+
+    print("\n" + "="*60)
+    print("FISHER Z-TRANSFORM TEST: ON/OFF CIRCULAR STRUCTURE ASYMMETRY")
+    print("="*60)
+    print(f"  ON-ON  r = {r_on:.3f}  (Fisher z = {fisher_z(r_on):.3f})")
+    print(f"  OFF-OFF r = {r_off:.3f}  (Fisher z = {fisher_z(r_off):.3f})")
+    print(f"  Difference Δr = {r_on - r_off:.3f}")
+    print(f"  z-statistic = {z_stat:.3f}")
+    print(f"  p (two-sided) = {p_val:.4f}")
+    print(f"\n  Interpretation: the ON-ON block shows "
+          f"{'significantly' if p_val < 0.05 else 'non-significantly'} "
+          f"stronger circular direction structure than the OFF-OFF block "
+          f"(p {'< 0.05' if p_val < 0.05 else '>= 0.05'}, two-sided Fisher z-test).")
+    print(f"  Caveat: correlations share the same circular reference — approximate test.")
+
+    # ── 9d. Bootstrap test (model-level resampling, primary inference) ────────
+    # Resamples the 50 CC models with replacement, recomputes the mean RDM for
+    # each bootstrap sample, extracts the ON-ON and OFF-OFF submatrices, and
+    # correlates each with the circular reference. The distribution of Δr across
+    # 10,000 bootstrap samples gives a 95% CI on the ON/OFF asymmetry that
+    # correctly accounts for model-level variability. This is the primary
+    # inference test for the asymmetry; the Fisher z-transform above serves
+    # as an analytical cross-check.
+
+    N_BOOTSTRAP = 10000
+    rng_boot = np.random.default_rng(SEED)
+    delta_r_boot = np.zeros(N_BOOTSTRAP)
+    idx_upper = np.triu_indices(12, k=1)
+
+    print("\n" + "="*60)
+    print("BOOTSTRAP TEST: ON/OFF CIRCULAR STRUCTURE ASYMMETRY")
+    print(f"  {N_BOOTSTRAP} bootstrap samples (model-level resampling, n={n_cc} models)")
+    print("="*60)
+
+    for b in range(N_BOOTSTRAP):
+        # Resample model indices with replacement
+        boot_idx = rng_boot.integers(0, n_cc, size=n_cc)
+        # Compute mean RDM across bootstrap sample
+        boot_mean = np.mean([cc_rdms_cosine[i] for i in boot_idx], axis=0)
+        # Extract within-polarity submatrices
+        boot_on_on   = boot_mean[np.ix_(on_idx,  on_idx)]
+        boot_off_off = boot_mean[np.ix_(off_idx, off_idx)]
+        # Correlate each with circular reference
+        r_on_b,  _ = spearmanr(boot_on_on[idx_upper],  circ_ref[idx_upper])
+        r_off_b, _ = spearmanr(boot_off_off[idx_upper], circ_ref[idx_upper])
+        delta_r_boot[b] = r_on_b - r_off_b
+
+    ci_95 = np.percentile(delta_r_boot, [2.5, 97.5])
+    ci_99 = np.percentile(delta_r_boot, [0.5, 99.5])
+    p_boot = np.mean(delta_r_boot <= 0)  # one-sided: proportion where ON <= OFF
+
+    print(f"\n  Observed Δr = {r_on - r_off:.3f}")
+    print(f"  Bootstrap mean Δr = {delta_r_boot.mean():.3f} ± {delta_r_boot.std():.3f}")
+    print(f"  95% CI: [{ci_95[0]:.3f}, {ci_95[1]:.3f}]")
+    print(f"  99% CI: [{ci_99[0]:.3f}, {ci_99[1]:.3f}]")
+    print(f"  p (one-sided, ON <= OFF): {p_boot:.4f}")
+    print(f"\n  Interpretation: "
+          f"{'CI excludes zero — ON/OFF asymmetry is significant at 95% level' if ci_95[0] > 0 else 'CI includes zero — asymmetry not significant at 95% level'}")
+
+    # Plot bootstrap distribution
+    fig, ax = plt.subplots(figsize=(7, 4))
+    ax.hist(delta_r_boot, bins=60, color="steelblue", alpha=0.7,
+            label="Bootstrap Δr distribution")
+    ax.axvline(r_on - r_off, color="firebrick", linewidth=2,
+               label=f"Observed Δr = {r_on - r_off:.3f}")
+    ax.axvline(ci_95[0], color="darkorange", linewidth=1.5, linestyle="--",
+               label=f"95% CI [{ci_95[0]:.3f}, {ci_95[1]:.3f}]")
+    ax.axvline(ci_95[1], color="darkorange", linewidth=1.5, linestyle="--")
+    ax.axvline(0, color="black", linewidth=1, linestyle=":",
+               label="Δr = 0 (no difference)")
+    ax.set_xlabel("Δr (ON-ON minus OFF-OFF circular structure)")
+    ax.set_ylabel("Count")
+    ax.set_title("Bootstrap Distribution of ON/OFF Circular Structure Asymmetry\n"
+                 "ON+OFF edges, n=50 models, full Shiu-style shuffle", fontsize=10)
+    ax.legend(fontsize=8)
+    plt.tight_layout()
+    plt.savefig("../figures/bootstrap_on_off_asymmetry_50models_full_shiu.png",
+                dpi=150, bbox_inches="tight")
+    plt.show()
