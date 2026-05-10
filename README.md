@@ -677,7 +677,6 @@ results = run_experiment(n_models=50, randomization_strategy="synapse_only")
 results = run_experiment(n_models=10, randomization_strategy="full_shiu")
 
 ### Extended fidelity result — n=50 (stability-constrained)
-### Note: include cc_rdms_cosine in np.savez to enable within-polarity bootstrap
 results = run_experiment(n_models=50, randomization_strategy="full_shiu")
 
 ### Instability documentation — n=50 (synapse-only)
