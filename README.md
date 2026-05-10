@@ -582,7 +582,7 @@ both share the same circular ordinal structure — directions that are angularly
 more similar than directions that are angularly distant. This is a consequence of the
 circular stimulus geometry, not a fidelity signal.
 
-The key comparison is CC vs Random (r = 0.686, τ = 0.515). The gap r(CC vs Bio) −
+The key comparison is CC vs Random (r = 0.686, τ = 0.515). The **gap** r(CC vs Bio) −
 r(Rand vs Bio) = **0.327** represents the additional fidelity attributable to the
 connectome constraint beyond what circular stimulus structure alone provides.
 
