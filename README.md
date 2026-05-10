@@ -662,22 +662,23 @@ Python ≥ 3.9, < 3.13.
 ```python
 # Experiment 1: ON edges
 
-### Primary fidelity result — n=10 (stability-constrained)
-results = run_experiment(n_models=10, randomization_strategy="full_shiu")
-
-### Extended fidelity result — n=50 (stability-constrained)
+### Canonical fidelity result — n=50 (stability-constrained)
 results = run_experiment(n_models=50, randomization_strategy="full_shiu")
+
+### Comparison result — n=10 (stability-constrained)
+results = run_experiment(n_models=10, randomization_strategy="full_shiu")
 
 ### Instability documentation — n=50 (synapse-only)
 results = run_experiment(n_models=50, randomization_strategy="synapse_only")
 
 # Experiment 2: ON + OFF edges
 
-### Primary fidelity result — n=10 (stability-constrained)
-results = run_experiment(n_models=10, randomization_strategy="full_shiu")
-
-### Extended fidelity result — n=50 (stability-constrained)
+### Canonical fidelity result — n=50 (stability-constrained)
+### Note: include cc_rdms_cosine in np.savez to enable within-polarity bootstrap
 results = run_experiment(n_models=50, randomization_strategy="full_shiu")
+
+### Comparison result — n=10 (stability-constrained)
+results = run_experiment(n_models=10, randomization_strategy="full_shiu")
 
 ### Instability documentation — n=50 (synapse-only)
 results = run_experiment(n_models=50, randomization_strategy="synapse_only")
@@ -690,13 +691,15 @@ bio_results = run_biological_upper_bound(results_exp1, results_exp2)
 # Within-polarity analysis (Experiment 2 post-hoc)
 
 ### Run after the n=50 Experiment 2 canonical run.
-### Requires results_exp2_50models_full_shiu.npz with cc_rdms_cosine saved.
+### Requires results_exp2_50models_full_shiu.npz.
 ### Executes visualization, circular structure test, Fisher z-transform, and
 ### model-level bootstrap — all analyses load from the saved .npz file.
 ```
 
 Set `n_models=1` for a quick debug run before committing to a full experiment.
-The n=10 runs take approximately 15–20 minutes on a T4 GPU; n=50 runs take 60–90 minutes.
+Experiment 1 (ON edges, 12 conditions): n=10 runs take approximately 15–20 minutes
+on a T4 GPU; n=50 runs take 60–90 minutes. Experiment 2 (ON+OFF edges, 24 conditions)
+takes approximately twice as long at each scale: n=10 ~30–40 minutes; n=50 ~2–3 hours.
 Permutation testing (10,000 permutations) adds ~2–3 minutes per run. Set
 `n_permutations=0` to skip.
 
