@@ -735,7 +735,7 @@ connectome-fidelity/
     ├── moving_edge_on_off_rdms_50models_full_shiu.png
     ├── moving_edge_on_off_permtest_50models_full_shiu.png
     ├── moving_edge_on_off_rdms_50models_synapse_only.png
-    ├── cc_rdm_within_polarity_blocks_50models_full_shiu.png
+    ├── within_polarity_blocks_cc_vs_random_50models_full_shiu.png
     ├── within_polarity_circular_test_50models_full_shiu.png
     ├── bootstrap_on_off_asymmetry_50models_full_shiu.png
     ├── maisak2013_t4t5_von_mises_tuning.png
