@@ -224,6 +224,14 @@ configurations.
 | OFF-OFF block | 0.799 | < 0.0001 |
 | ON/OFF asymmetry Δr | 0.138 (bootstrap 95% CI [0.091, 0.236], p < 0.0001) | — |
 
+### Experiment 1: UMAP of CC Ensemble — n=50 (canonical result)
+
+| Metric | Value |
+|--------|-------|
+| Within-CC consistency | r = 0.721 ± 0.150 (uniform across ensemble) |
+| Cluster structure | None — 50 models form a continuous cloud |
+| Interpretation | Higher variance reflects a smooth spread in representational fidelity, not the presence of distinct subpopulations |
+
 ### Experiment 2: UMAP of CC Ensemble — n=50 (canonical result)
 
 | Metric | Value |
@@ -397,8 +405,10 @@ of 10,000 permutations exceeded the observed correlation.*
 
 *Experiment 1 UMAP of CC ensemble representational geometry (n=50, full Shiu-style
 shuffle). Features: upper triangle of per-model cosine RDM (66 pairs). Color encodes
-model rank (0 = best task performance). To be generated after Experiment 1 re-run with
-cc_rdms_cosine key added to results file.*
+model rank (0 = best task performance). No discrete cluster structure is visible — the
+50 models form a continuous cloud, confirming that within-CC consistency (r = 0.721 ±
+0.150) reflects a continuous gradient in representational fidelity rather than averaging
+across qualitatively distinct solutions.*
 
 ---
 
@@ -467,7 +477,15 @@ genuinely coherent representational geometry or averaging across qualitatively d
 solutions, the 50 individual CC cosine RDMs were projected into 2D via UMAP. Each
 model's upper-triangular RDM entries (66 pairs for a 12×12 RDM) were used as features,
 with correlation distance as the UMAP metric (n_neighbors=10, min_dist=0.1, seed=42).
-Results pending re-run of Experiment 1 with cc_rdms_cosine key added to results file.
+
+The embedding reveals no discrete cluster structure — the 50 models form a continuous,
+roughly uniform cloud with no visible groupings or gaps. Model rank shows a weak gradient
+across the embedding but no discrete separation between high- and low-performing models.
+The higher variance at n=50 (± 0.150 vs ± 0.078 at n=10) reflects a smooth spread in
+representational fidelity across the ensemble, not the presence of distinct subpopulations.
+This mirrors the Experiment 2 result; taken together, both experiments confirm that the
+CC ensemble implements a single coherent representational strategy across all 50 trained
+solutions.
 
 ---
 
@@ -627,10 +645,10 @@ biological comparison is not reported as a meaningful result.
   with known T4/T5 differences in direction selectivity strength
 - Within-CC consistency at n=50 (r = 0.838 ± 0.059) is substantially higher and tighter
   than Experiment 1 n=50 (r = 0.721 ± 0.150), supporting polarity as a stronger organizer
-  of representational geometry than direction alone; UMAP of individual model RDMs reveals
-  no discrete cluster structure, confirming that this consistency reflects a genuinely
-  coherent representational geometry rather than averaging across qualitatively distinct
-  solutions
+  of representational geometry than direction alone; UMAP of individual model RDMs in both
+  experiments reveals no discrete cluster structure, confirming that consistency in both
+  cases reflects genuinely coherent representational geometry rather than averaging across
+  qualitatively distinct solutions
 - The Experiment 2 biological comparison is uninterpretable due to a structural mismatch
   in the biological RDM construction; a matched-stimulus biological reference would be
   required to extend the upper bound analysis to the 24-condition case
@@ -732,7 +750,7 @@ connectome-fidelity/
     ├── maisak2013_t4t5_von_mises_tuning.png
     ├── biological_upper_bound_exp1.png
     ├── bio_upper_bound_exp1_permtest.png
-    ├── umap_cc_ensemble_exp1.png       ← pending Experiment 1 re-run
+    ├── umap_cc_ensemble_exp1.png
     └── umap_cc_ensemble_exp2.png
 ```
 
