@@ -355,7 +355,7 @@ def run_biological_upper_bound(results_exp1, results_exp2=None,
         bio_on  = np.zeros((N_DIRS, 8))
         bio_on[:, 0:4]  = BIO_TUNING_MATRIX[0:4, :].T   # T4a-T4d for ON
 
-        bio_pop_24x8 = np.vstack([bio_off, bio_on])      # (24, 8)
+        bio_pop_24x8 = np.vstack([bio_off, bio_on])  # OFF first, then ON, (24, 8)
         bio_rdm_24   = build_rdm_from_pop_matrix(bio_pop_24x8)
 
         print(f"  Bio 24x24 RDM range: "
