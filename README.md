@@ -638,17 +638,17 @@ biological comparison is not reported as a meaningful result.
 - Within-CC consistency improves from ON-only (r = 0.721 at n=50) to ON+OFF
   (r = 0.838 at n=50, r = 0.850 at n=10), supporting polarity as a stronger organizer
   of representational geometry than direction alone
-- The OFF-OFF within-polarity block shows significantly weaker circular direction
-  structure than the ON-ON block (r = 0.799 vs r = 0.937, both p_perm < 0.0001,
-  Δr = 0.138); the asymmetry is confirmed by both Fisher z-transform (z = 3.454,
-  p = 0.0006) and model-level bootstrap (95% CI [0.091, 0.236], p < 0.0001), consistent
-  with known T4/T5 differences in direction selectivity strength
 - Within-CC consistency at n=50 (r = 0.838 ± 0.059) is substantially higher and tighter
   than Experiment 1 n=50 (r = 0.721 ± 0.150), supporting polarity as a stronger organizer
   of representational geometry than direction alone; UMAP of individual model RDMs in both
   experiments reveals no discrete cluster structure, confirming that consistency in both
   cases reflects genuinely coherent representational geometry rather than averaging across
   qualitatively distinct solutions
+- The OFF-OFF within-polarity block shows significantly weaker circular direction
+  structure than the ON-ON block (r = 0.799 vs r = 0.937, both p_perm < 0.0001,
+  Δr = 0.138); the asymmetry is confirmed by both Fisher z-transform (z = 3.454,
+  p = 0.0006) and model-level bootstrap (95% CI [0.091, 0.236], p < 0.0001), consistent
+  with known T4/T5 differences in direction selectivity strength
 - The Experiment 2 biological comparison is uninterpretable due to a structural mismatch
   in the biological RDM construction; a matched-stimulus biological reference would be
   required to extend the upper bound analysis to the 24-condition case
