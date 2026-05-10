@@ -738,7 +738,8 @@ if __name__ == "__main__":
     # circular direction gradient to be visible in the top row while preserving
     # the ability to compare OFF-OFF vs ON-ON structure within each network type.
     # The magnitude difference between CC and random is communicated by the
-    # different colorbar ranges: CC row peaks at ~0.012, Random row at ~0.040.
+    # different colorbar ranges: a single shared colorbar is shown per row —
+    # CC row range 0–0.012, Random row range 0–0.040.
 
     rand_rdm     = d["rand_rdm_cosine"]
     rand_off_off = rand_rdm[np.ix_(off_idx, off_idx)]
@@ -748,25 +749,38 @@ if __name__ == "__main__":
     vmax_cc   = max(off_off.max(),      on_on.max())
     vmax_rand = max(rand_off_off.max(), rand_on_on.max())
 
-    fig, axes = plt.subplots(2, 2, figsize=(10, 8))
+    fig, axes = plt.subplots(2, 2, figsize=(8, 9))
+    fig.subplots_adjust(right=0.91, wspace=0.05)  # reserve space on the right for colorbars
+
     fig.suptitle("Within-Polarity Blocks: CC vs Random\n"
                  "ON+OFF edges, n=50, full Shiu-style shuffle", fontsize=10)
 
-    for ax, block, title, vmax_row in zip(
-        axes.flat,
-        [off_off, on_on, rand_off_off, rand_on_on],
-        ["CC — OFF-OFF", "CC — ON-ON", "Random — OFF-OFF", "Random — ON-ON"],
-        [vmax_cc, vmax_cc, vmax_rand, vmax_rand]
-    ):
+    panels = [
+        (axes[0, 0], off_off,      "CC — OFF-OFF",      vmax_cc),
+        (axes[0, 1], on_on,        "CC — ON-ON",         vmax_cc),
+        (axes[1, 0], rand_off_off, "Random — OFF-OFF",   vmax_rand),
+        (axes[1, 1], rand_on_on,   "Random — ON-ON",     vmax_rand),
+    ]
+
+    ims = []
+    for ax, block, title, vmax_row in panels:
         im = ax.imshow(block, cmap="viridis", vmin=0, vmax=vmax_row)
         ax.set_title(title, fontsize=9)
         ax.set_xticks(range(12))
         ax.set_xticklabels(angle_labels, fontsize=7, rotation=90)
         ax.set_yticks(range(12))
         ax.set_yticklabels(angle_labels, fontsize=7)
-        plt.colorbar(im, ax=ax, fraction=0.046, pad=0.04)
+        ims.append(im)
 
-    plt.tight_layout()
+    for ax in [axes[0, 1], axes[1, 1]]:
+        ax.set_yticks([])
+
+    # Add colorbars in dedicated axes outside the plot area
+    cax1 = fig.add_axes([0.93, 0.53, 0.02, 0.35])  # top row colorbar
+    cax2 = fig.add_axes([0.93, 0.10, 0.02, 0.35])  # bottom row colorbar
+    fig.colorbar(ims[0], cax=cax1)
+    fig.colorbar(ims[2], cax=cax2)
+
     plt.savefig("../figures/within_polarity_blocks_cc_vs_random_50models_full_shiu.png",
                 dpi=150, bbox_inches="tight")
     plt.show()
