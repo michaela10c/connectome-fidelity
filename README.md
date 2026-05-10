@@ -743,8 +743,12 @@ connectome-fidelity/
 │   ├── results_exp2_10models_full_shiu.npz   ← Exp 2, n=10, stability-constrained
 │   └── results_exp2_50models_full_shiu.npz   ← Exp 2, n=50, stability-constrained
 └── figures/
+    ├── moving_edge_on_rdms_10models_full_shiu.png
+    ├── moving_edge_on_permtest_10models_full_shiu.png
     ├── moving_edge_on_rdms_50models_full_shiu.png
     ├── moving_edge_on_permtest_50models_full_shiu.png
+    ├── moving_edge_on_off_rdms_10models_full_shiu.png
+    ├── moving_edge_on_off_permtest_10models_full_shiu.png
     ├── moving_edge_on_off_rdms_50models_full_shiu.png
     ├── moving_edge_on_off_permtest_50models_full_shiu.png
     ├── within_polarity_blocks_cc_vs_random_50models_full_shiu.png
