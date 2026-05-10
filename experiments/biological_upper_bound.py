@@ -40,11 +40,11 @@ IMPORTANT CAVEATS (must be stated in any presentation/paper):
     4. Interpret as qualitative upper bound, not quantitative validation.
 
 USAGE:
-    # After running Experiment 1:
-    results_exp1 = run_experiment(n_models=10, randomization_strategy="full_shiu")
+    # After running Experiment 1 (n=50, stability-constrained):
+    results_exp1 = run_experiment(n_models=50, randomization_strategy="full_shiu")
 
-    # After running Experiment 2 (optional):
-    results_exp2 = run_experiment(n_models=10, randomization_strategy="full_shiu")
+    # After running Experiment 2 (n=50, stability-constrained):
+    results_exp2 = run_experiment(n_models=50, randomization_strategy="full_shiu")
 
     # Run biological upper bound:
     bio_results = run_biological_upper_bound(results_exp1, results_exp2)
@@ -59,6 +59,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.spatial.distance import cosine
 from scipy.stats import spearmanr, kendalltau
+from google.colab import files
 
 # ── REPRODUCIBILITY ───────────────────────────────────────────────────────────
 SEED = 42
@@ -212,9 +213,11 @@ def run_biological_upper_bound(results_exp1, results_exp2=None,
 
     Args:
         results_exp1: dict from Experiment 1 run_experiment()
-                      (ON edges, 12 conditions, n=10, full_shiu)
+                      (ON edges, 12 conditions, n=50, full_shiu,
+                      stability-constrained)
         results_exp2: dict from Experiment 2 run_experiment(), optional
-                      (ON+OFF edges, 24 conditions, n=10, full_shiu)
+                      (ON+OFF edges, 24 conditions, n=50, full_shiu,
+                      stability-constrained)
         n_permutations: permutations for Nili et al. 2014 test
 
     Returns:
@@ -247,7 +250,7 @@ def run_biological_upper_bound(results_exp1, results_exp2=None,
         fontsize=9
     )
     angles_closed = np.append(ANGLES_RAD, ANGLES_RAD[0])
-    
+
     for ax, name, curve in zip(axes_tc.flatten(), BIO_CELL_TYPES, BIO_TUNING_MATRIX):
         vals = np.append(curve, curve[0])
         color = "steelblue" if name.startswith("T4") else "coral"
@@ -310,7 +313,7 @@ def run_biological_upper_bound(results_exp1, results_exp2=None,
     angle_labels = [f"{a}" for a in ANGLES_DEG]
     fig1, axes1 = plt.subplots(1, 3, figsize=(13, 4))
     fig1.suptitle(
-        "Biological Upper Bound — Experiment 1 (ON edges, n=10)\n"
+        "Biological Upper Bound — Experiment 1 (ON edges, n=50)\n"
         "Maisak et al. 2013 T4/T5 direction tuning as reference RDM",
         fontsize=9
     )
@@ -389,7 +392,7 @@ def run_biological_upper_bound(results_exp1, results_exp2=None,
         )
         fig2, axes2 = plt.subplots(1, 3, figsize=(16, 5))
         fig2.suptitle(
-            "Biological Upper Bound — Experiment 2 (ON+OFF edges, n=10)\n"
+            "Biological Upper Bound — Experiment 2 (ON+OFF edges, n=50)\n"
             "Maisak 2013: T4 selective for ON, T5 for OFF (Fig. 3c/3d)",
             fontsize=9
         )
@@ -473,7 +476,6 @@ def run_biological_upper_bound(results_exp1, results_exp2=None,
         "exp2": exp2_out,
     }
 
-
 # ── 6. Load Results ────────────────────────────────────────────────────────────
 
 def load_results(path):
@@ -492,8 +494,8 @@ def load_results(path):
 
 if __name__ == "__main__":
     # Load results from experiments 1 and 2
-    results_exp1 = load_results("../results/results_exp1.npz")
-    results_exp2 = load_results("../results/results_exp2.npz")
+    results_exp1 = load_results("../results/results_exp1_50models_full_shiu.npz")
+    results_exp2 = load_results("../results/results_exp2_50models_full_shiu.npz")
 
     # Run Experiment
     bio_results = run_biological_upper_bound(results_exp1, results_exp2)    
