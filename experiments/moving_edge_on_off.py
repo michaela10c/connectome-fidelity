@@ -16,10 +16,10 @@ Experiment:
 - Metrics: Euclidean distance, cosine distance, RSA (RDM correlation)
 
 Canonical runs:
-    # Primary fidelity result (n=10, full Shiu-style shuffle, stability-constrained)
+    # Comparison result (n=10, full Shiu-style shuffle, stability-constrained)
     results = run_experiment(n_models=10, randomization_strategy="full_shiu")
 
-    # Extended fidelity result (n=50, full Shiu-style shuffle, stability-constrained)
+    # Canonical fidelity result (n=50, full Shiu-style shuffle, stability-constrained)
     results = run_experiment(n_models=50, randomization_strategy="full_shiu")
 
     # Instability documentation (n=50, synapse-only shuffle)
@@ -252,7 +252,7 @@ def randomize_weights(network, strategy="full_shiu"):
         network: Flyvis network instance
         strategy: "full_shiu"    — shuffle all 734 free parameters (resting
                                    potentials, time constants, synapse scaling
-                                   factors). Used for primary fidelity runs (n=10
+                                   factors). Used for canonical fidelity runs (n=10
                                    and n=50, stability-constrained).
                                    Stability-constrained: r = 0.783 (n=10), r = 0.846 (n=50).
                                    Matched-instability:   r = 0.862 (n=10).
@@ -595,10 +595,10 @@ def run_experiment(n_models=50, randomization_strategy="full_shiu",
     # ── 7h. Plot RDMs ─────────────────────────────────────────────────────────
     print("\n--- GENERATING FIGURE ---")
 
-    stim_labels = (
-        [f"OFF {a}°" for a in ANGLES] +
-        [f"ON {a}°"  for a in ANGLES]
-    )
+    stim_labels = [
+        f"{'OFF' if i % 2 == 0 else 'ON'} {ANGLES[i // 2]}°"
+        for i in range(24)
+    ]
 
     fig, axes = plt.subplots(1, 4, figsize=(18, 4.5))
     fig.suptitle(
@@ -699,11 +699,12 @@ if __name__ == "__main__":
     #    FISHER Z-TRANSFORM, AND BOOTSTRAP ────────────────────────────────────────
     #
     # This cell runs all within-polarity analyses in sequence:
-    #   1. Visualize OFF-OFF and ON-ON submatrices with shared colormap
+    #   1. Visualize CC vs Random within-polarity blocks (2×2, row-level colormaps)
     #   2. Formally test circular direction structure in each block (permutation test)
     #   3. Fisher z-transform test for ON/OFF asymmetry (approximate)
     #   4. Bootstrap test for ON/OFF asymmetry (model-level resampling)
     #
+    # Standalone — loads all required data from saved .npz file.
     # Loads from: ../results/results_exp2_50models_full_shiu.npz
     # Saves to:   ../figures/within_polarity_blocks_cc_vs_random_50models_full_shiu.png
     #             ../figures/within_polarity_circular_test_50models_full_shiu.png
@@ -727,18 +728,38 @@ if __name__ == "__main__":
     off_off = cc_rdm[np.ix_(off_idx, off_idx)]  # 12×12 OFF-OFF submatrix
     on_on   = cc_rdm[np.ix_(on_idx,  on_idx)]   # 12×12 ON-ON submatrix
 
-    # ── 9a. Visualization: shared colormap ───────────────────────────────────
-    # Shared scale makes the ON/OFF magnitude asymmetry directly visible.
-    # ON-ON range (~0.001–0.012) vs OFF-OFF range (~0.0002–0.002) — ~5× difference.
-    vmax = max(off_off.max(), on_on.max())
+    # ── 9a. Visualization: CC vs Random within-polarity blocks ───────────────
+    # OFF-OFF and ON-ON submatrices extracted from both the CC and random mean
+    # cosine RDMs and plotted together in a 2×2 grid (CC top row, Random bottom
+    # row). Row-level shared colormaps: CC row and Random row scaled independently.
+    # A single shared colormap across all four panels would be dominated by the
+    # Random ON-ON block (range ~0–0.040), compressing the CC gradient into the
+    # near-zero end and making it invisible. Row-level scaling allows the CC
+    # circular direction gradient to be visible in the top row while preserving
+    # the ability to compare OFF-OFF vs ON-ON structure within each network type.
+    # The magnitude difference between CC and random is communicated by the
+    # different colorbar ranges: CC row peaks at ~0.012, Random row at ~0.040.
 
-    fig, axes = plt.subplots(1, 2, figsize=(10, 4))
-    fig.suptitle("CC Cosine RDM — Within-Polarity Blocks\n"
+    rand_rdm     = d["rand_rdm_cosine"]
+    rand_off_off = rand_rdm[np.ix_(off_idx, off_idx)]
+    rand_on_on   = rand_rdm[np.ix_(on_idx,  on_idx)]
+
+    # Row-level shared colormaps
+    vmax_cc   = max(off_off.max(),      on_on.max())
+    vmax_rand = max(rand_off_off.max(), rand_on_on.max())
+
+    fig, axes = plt.subplots(2, 2, figsize=(10, 8))
+    fig.suptitle("Within-Polarity Blocks: CC vs Random\n"
                  "ON+OFF edges, n=50, full Shiu-style shuffle", fontsize=10)
 
-    for ax, block, title in zip(axes, [off_off, on_on], ["OFF-OFF", "ON-ON"]):
-        im = ax.imshow(block, cmap="viridis", vmin=0, vmax=vmax)
-        ax.set_title(f"{title} block", fontsize=9)
+    for ax, block, title, vmax_row in zip(
+        axes.flat,
+        [off_off, on_on, rand_off_off, rand_on_on],
+        ["CC — OFF-OFF", "CC — ON-ON", "Random — OFF-OFF", "Random — ON-ON"],
+        [vmax_cc, vmax_cc, vmax_rand, vmax_rand]
+    ):
+        im = ax.imshow(block, cmap="viridis", vmin=0, vmax=vmax_row)
+        ax.set_title(title, fontsize=9)
         ax.set_xticks(range(12))
         ax.set_xticklabels(angle_labels, fontsize=7, rotation=90)
         ax.set_yticks(range(12))
@@ -746,7 +767,7 @@ if __name__ == "__main__":
         plt.colorbar(im, ax=ax, fraction=0.046, pad=0.04)
 
     plt.tight_layout()
-    plt.savefig("../figures/cc_rdm_within_polarity_blocks_50models_full_shiu.png",
+    plt.savefig("../figures/within_polarity_blocks_cc_vs_random_50models_full_shiu.png",
                 dpi=150, bbox_inches="tight")
     plt.show()
 
