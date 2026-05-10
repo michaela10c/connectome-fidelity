@@ -208,13 +208,17 @@ configurations.
 | Comparison | Spearman r | Kendall τ | p_perm (r) |
 |------------|-----------|-----------|------------|
 | CC vs Biology | 0.930 | 0.783 | < 0.0001 |
-| Random vs Biology | 0.603 | 0.449 | — |
+| Random vs Biology | 0.603 | 0.449 | < 0.0001 |
 | CC vs Random | 0.686 | 0.515 | < 0.0001 |
 
 The CC geometry (r = 0.930 vs biology) substantially exceeds the random geometry
 (r = 0.603 vs biology). The gap r(CC vs Bio) − r(Rand vs Bio) = 0.327 represents the
 additional fidelity attributable to the connectome constraint beyond what circular
 stimulus structure alone provides.
+
+Both CC and Random vs Biology are significant — the circular stimulus geometry
+produces ordinal structure in any distance-preserving space. The key quantity
+is the gap (Δr = 0.327), not significance alone.
 
 ### Experiment 3: Biological Upper Bound — Experiment 2 comparison (ON+OFF edges, 24 conditions, n=50 baseline)
 
