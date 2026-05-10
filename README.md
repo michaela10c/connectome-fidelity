@@ -74,12 +74,13 @@ each stimulus direction
 330°) × 2 polarities (ON and OFF edges)
 
 **Networks:**
-- *Connectome-constrained (CC):* 10 models from the pretrained Flyvis ensemble
-  (indices `000–009` within `flow/0000`, pre-sorted by task error)
-- *Random baseline:* Same 10 model architectures with sign-preserving weight shuffles.
+- *Connectome-constrained (CC):* 10–50 models from the pretrained Flyvis ensemble
+  (indices `000–049` within `flow/0000`, pre-sorted by task error)
+- *Random baseline:* Same model architectures with sign-preserving weight shuffles.
   Three strategies were evaluated:
   1. **Full Shiu-style shuffle (primary):** all 734 free parameters shuffled;
      stability-constrained sampling (sub-1e6, MAX_ATTEMPTS=100), mirroring Experiment 1.
+     Run at both n=10 and n=50.
   2. Synapse-only shuffle: `edges_syn_strength` only, preserving trained time constants
      and resting potentials. Used for n=50 instability documentation runs.
   3. Matched-instability baseline: full Shiu-style shuffle without stability filtering;
@@ -114,7 +115,9 @@ construct a 12×12 biological stimulus RDM, directly comparable to the CC and ra
 from Experiment 1. A three-way comparison — CC vs Biology, Random vs Biology, CC vs
 Random — quantifies how much of the gap between CC and random geometry is accounted for
 by T4/T5 direction tuning structure. All comparisons use the stability-constrained random
-baseline from Experiments 1 and 2 (full Shiu-style shuffle, n=10, MAX_ATTEMPTS=100).
+baseline from the n=50 full Shiu-style runs (Experiments 1 and 2, MAX_ATTEMPTS=100),
+providing a more stable mean random RDM estimate across 50 independently accepted
+configurations.
 
 **Caveats:**
 - Biological stimulus: moving square-wave gratings (Maisak et al. Fig. 3g/3h); model
@@ -177,6 +180,18 @@ baseline from Experiments 1 and 2 (full Shiu-style shuffle, n=10, MAX_ATTEMPTS=1
 | Random models with unstable dynamics | 5/10 (matched-instability); 0/10 (stability-constrained) |
 | CC models with unstable dynamics | 0/10 |
 
+### Experiment 2: ON + OFF Edges — n=50 (stability-constrained, full Shiu-style shuffle)
+
+| Metric | Value |
+|--------|-------|
+| CC cosine RDM structure | 24×24 with polarity block organization; circular direction gradient within each polarity block |
+| Stability-constrained acceptance | 50/50 models accepted; mean 7.9 ± 8.5 attempts (range: 1–42); 6/50 first-try |
+| CC vs random RDM correlation (cosine) | Spearman r = 0.846, p < 0.0001 \| Kendall τ = 0.651, p < 0.0001 |
+| Permutation test (cosine, 10,000 permutations) | p_perm < 0.0001 (Spearman) \| p_perm < 0.0001 (Kendall τ) |
+| Within-CC ensemble consistency | r = 0.838 ± 0.059 |
+| Random models with unstable dynamics | 0/50 (stability-constrained) |
+| CC models with unstable dynamics | 0/50 |
+
 ### Experiment 2: ON + OFF Edges — n=50 (instability documentation, synapse-only shuffle)
 
 | Metric | Value |
@@ -188,25 +203,25 @@ baseline from Experiments 1 and 2 (full Shiu-style shuffle, n=10, MAX_ATTEMPTS=1
 | Random models with unstable dynamics | 35/50 (70%) |
 | CC models with unstable dynamics | 0/50 |
 
-### Experiment 3: Biological Upper Bound — Experiment 1 comparison (ON edges, 12 conditions)
+### Experiment 3: Biological Upper Bound — Experiment 1 comparison (ON edges, 12 conditions, n=50 baseline)
 
 | Comparison | Spearman r | Kendall τ | p_perm (r) |
 |------------|-----------|-----------|------------|
-| CC vs Biology | 0.910 | 0.742 | < 0.0001 |
-| Random vs Biology | 0.687 | 0.507 | — |
-| CC vs Random | 0.749 | 0.552 | < 0.0001 |
+| CC vs Biology | 0.930 | 0.783 | < 0.0001 |
+| Random vs Biology | 0.603 | 0.449 | — |
+| CC vs Random | 0.686 | 0.515 | < 0.0001 |
 
-The CC geometry (r = 0.910 vs biology) substantially exceeds the random geometry
-(r = 0.687 vs biology). The gap r(CC vs Bio) − r(Rand vs Bio) = 0.223 represents the
+The CC geometry (r = 0.930 vs biology) substantially exceeds the random geometry
+(r = 0.603 vs biology). The gap r(CC vs Bio) − r(Rand vs Bio) = 0.327 represents the
 additional fidelity attributable to the connectome constraint beyond what circular
 stimulus structure alone provides.
 
-### Experiment 3: Biological Upper Bound — Experiment 2 comparison (ON+OFF edges, 24 conditions)
+### Experiment 3: Biological Upper Bound — Experiment 2 comparison (ON+OFF edges, 24 conditions, n=50 baseline)
 
 | Comparison | Spearman r | Kendall τ | p_perm (r) | Interpretable |
 |------------|-----------|-----------|------------|---------------|
-| CC vs Biology | 0.103 | 0.079 | 0.055 | No — see Results |
-| Random vs Biology | -0.042 | -0.028 | — | No |
+| CC vs Biology | 0.049 | 0.040 | 0.159 | No — see Results |
+| Random vs Biology | -0.038 | -0.028 | — | No |
 
 The near-null result reflects a structural mismatch between the biological RDM
 construction and the CC network's representational geometry — not a failure of the CC
@@ -277,13 +292,30 @@ RDM correlation: Spearman r = 0.783, p < 0.0001 | Kendall τ = 0.562, p < 0.0001
 p_perm < 0.0001 (10,000 permutations). Stimuli: 24 conditions (12 directions × ON +
 OFF). Top 10 pretrained Flyvis models, seed=42.*
 
-![Experiment 2 permutation test](figures/moving_edge_on_off_permtest_10models_full_shiu.png)
+![Experiment 2 permutation test — n=10](figures/moving_edge_on_off_permtest_10models_full_shiu.png)
 
 *Experiment 2 permutation test (n=10, stability-constrained full Shiu-style shuffle,
 10,000 stimulus-label permutations, Nili et al. 2014). Left: null distribution of
 Spearman r with observed r = 0.783 (red line) falling far outside the null — further
 than Experiment 1, consistent with the richer 24-condition stimulus set. Right: null
 distribution of Kendall τ with observed τ = 0.562 (red line). Both p_perm < 0.0001.*
+
+![Experiment 2 RDM figure — n=50](figures/moving_edge_on_off_rdms_50models_full_shiu.png)
+
+*Experiment 2 (n=50, stability-constrained full Shiu-style shuffle) — left to right:
+connectome-constrained cosine RDM, random baseline cosine RDM, connectome-constrained
+Euclidean RDM, random baseline Euclidean RDM. The CC cosine RDM shows the same 24×24
+block structure. The random cosine RDM is block-structured, averaged across 50
+independently accepted stable configurations. Cosine RDM correlation:
+Spearman r = 0.846, p < 0.0001 | Kendall τ = 0.651, p < 0.0001; p_perm < 0.0001
+(10,000 permutations). All 50 pretrained Flyvis models, seed=42.*
+
+![Experiment 2 permutation test — n=50](figures/moving_edge_on_off_permtest_50models_full_shiu.png)
+
+*Experiment 2 permutation test (n=50, stability-constrained full Shiu-style shuffle,
+10,000 stimulus-label permutations, Nili et al. 2014). Left: null distribution of
+Spearman r with observed r = 0.846 (red line) falling far outside the null. Right: null
+distribution of Kendall τ with observed τ = 0.651 (red line). Both p_perm < 0.0001.*
 
 ![Experiment 3 T4/T5 tuning curves](figures/maisak2013_t4t5_von_mises_tuning.png)
 
@@ -295,34 +327,35 @@ the anti-preferred direction.*
 
 ![Experiment 3 biological upper bound — Experiment 1](figures/biological_upper_bound_exp1.png)
 
-*Experiment 3 three-way RDM comparison for Experiment 1 (ON edges, 12 conditions). Left:
-biological reference RDM (Maisak 2013 T4/T5 direction tuning, off-diagonal range
-0.046–0.989). Center: CC mean cosine RDM (r vs bio = 0.910, τ = 0.742). Right: random
-mean cosine RDM (r vs bio = 0.687, τ = 0.507). The gap r(CC vs Bio) − r(Rand vs Bio) =
-0.223 quantifies the fidelity attributable to the connectome constraint beyond circular
-stimulus structure.*
+*Experiment 3 three-way RDM comparison for Experiment 1 (ON edges, 12 conditions, n=50
+stability-constrained baseline). Left: biological reference RDM (Maisak 2013 T4/T5
+direction tuning, off-diagonal range 0.046–0.989). Center: CC mean cosine RDM (r vs
+bio = 0.930, τ = 0.783). Right: random mean cosine RDM (r vs bio = 0.603, τ = 0.449).
+The gap r(CC vs Bio) − r(Rand vs Bio) = 0.327 quantifies the fidelity attributable to
+the connectome constraint beyond circular stimulus structure.*
 
 ![Experiment 3 permutation test — Experiment 1](figures/bio_upper_bound_exp1_permtest.png)
 
-*Experiment 3 permutation test for CC vs Biology comparison (Experiment 1, 10,000
-permutations). Observed r = 0.910 and τ = 0.742 both fall far outside the null
-distribution; p_perm < 0.0001 for both measures — zero of 10,000 permutations exceeded
-the observed correlation.*
+*Experiment 3 permutation test for CC vs Biology comparison (Experiment 1, n=50
+stability-constrained baseline, 10,000 permutations). Observed r = 0.930 and τ = 0.783
+both fall far outside the null distribution; p_perm < 0.0001 for both measures — zero
+of 10,000 permutations exceeded the observed correlation.*
 
 ![Experiment 3 biological upper bound — Experiment 2](figures/biological_upper_bound_exp2.png)
 
-*Experiment 3 three-way RDM comparison for Experiment 2 (ON+OFF edges, 24 conditions).
-Left: biological reference RDM (T4/T5 ON/OFF segregated, range 0.046–1.000). Center: CC
-mean cosine RDM (r vs bio = 0.103). Right: random mean cosine RDM (r vs bio = -0.042).
-The near-null result reflects a structural mismatch between the biological RDM
-construction and the CC network's representational geometry — not a failure of the CC
-network (see Results).*
+*Experiment 3 three-way RDM comparison for Experiment 2 (ON+OFF edges, 24 conditions,
+n=50 stability-constrained baseline). Left: biological reference RDM (T4/T5 ON/OFF
+segregated, range 0.046–1.000). Center: CC mean cosine RDM (r vs bio = 0.049). Right:
+random mean cosine RDM (r vs bio = −0.038). The near-null result reflects a structural
+mismatch between the biological RDM construction and the CC network's representational
+geometry — not a failure of the CC network (see Results).*
 
 ![Experiment 3 permutation test — Experiment 2](figures/bio_upper_bound_exp2_permtest.png)
 
-*Experiment 3 permutation test for CC vs Biology comparison (Experiment 2, 10,000
-permutations). Observed r = 0.103, p_perm = 0.055; τ = 0.079, p_perm = 0.051 — not
-significant at α = 0.05, consistent with the structural mismatch interpretation.*
+*Experiment 3 permutation test for CC vs Biology comparison (Experiment 2, n=50
+stability-constrained baseline, 10,000 permutations). Observed r = 0.049,
+p_perm = 0.159; τ = 0.040, p_perm = 0.142 — not significant at α = 0.05, consistent
+with the structural mismatch interpretation.*
 
 ---
 
@@ -429,10 +462,10 @@ adjacent directions are most similar and opposite directions most dissimilar. Ac
 polarity (ON vs OFF pairs), dissimilarities are large and nearly uniform at ~0.099–0.103
 — the network represents ON and OFF edges as geometrically distinct populations regardless
 of direction. This block structure is consistent with the known segregation of the fly
-visual system into ON (T4) and OFF (T5) pathways. Within-ensemble consistency is high:
-mean pairwise RDM correlation = 0.850 ± 0.057, slightly exceeding the Experiment 1
-ON-only result (0.838 ± 0.078), consistent with polarity being a stronger organizer of
-representational geometry than direction alone.
+visual system into ON (T4) and OFF (T5) pathways. Within-ensemble consistency is high
+at both n=10 (r = 0.850 ± 0.057) and n=50 (r = 0.838 ± 0.059), notably higher and
+tighter than the n=50 ON-only result (r = 0.721 ± 0.150), consistent with polarity being
+a stronger organizer of representational geometry than direction alone.
 
 #### Dynamic Instability
 Under the full Shiu-style shuffle at n=10 (matched-instability approach), 5 of 10 random
@@ -443,11 +476,18 @@ synapse-only shuffle at n=50, 35 of 50 random models (70%) were unstable. Zero o
 models showed any instability under any condition.
 
 #### Stability-Constrained Random Baseline
-Under stability-constrained full Shiu-style shuffling (n=10, MAX_ATTEMPTS=100), all 10
-models were accepted. Acceptance required on average 11.1 ± 11.5 attempts per model
+
+**n=10:** Under stability-constrained full Shiu-style shuffling (MAX_ATTEMPTS=100), all
+10 models were accepted. Acceptance required on average 11.1 ± 11.5 attempts per model
 (range: 1–33), with only 3/10 models accepted on the first attempt — consistent with
 Experiment 1 (mean 11.1 ± 9.9, 1/10 first-try), confirming that the stable volume of
 full Shiu weight space is similarly small across both stimulus sets.
+
+**n=50:** All 50 models were accepted under the same procedure. Acceptance required on
+average 7.9 ± 8.5 attempts per model (range: 1–42), with 6/50 models accepted on the
+first attempt. The acceptance rate profile is nearly identical to Experiment 1 n=50
+(mean 7.9 ± 8.1, 5/50 first-try), confirming that stability constraints on the full
+Shiu weight space are stimulus-set independent.
 
 The accepted random baseline produces a cosine RDM with a checkerboard-like organization
 driven by polarity: OFF-condition pairs and ON-condition pairs each form clusters of
@@ -459,7 +499,7 @@ circular gradient within each polarity block in the CC RDM.
 
 #### CC vs Random RDM Correlation
 
-**Stability-constrained baseline (primary result):**
+**Stability-constrained baseline, n=10 (primary result):**
 Cosine RDM correlation: **Spearman r = 0.783, p < 0.0001 | Kendall τ = 0.562, p < 0.0001**
 (analytical); **p_perm < 0.0001 for both measures** (stimulus-label randomization test,
 10,000 permutations, Nili et al. 2014) — zero of 10,000 permutations exceeded the observed
@@ -474,12 +514,27 @@ but interpreted with caution: the random Euclidean RDM contains values on the or
 covered by the single-stimulus stability check. Cosine RDM correlation remains the primary
 reported metric.
 
+**Stability-constrained baseline, n=50:**
+Cosine RDM correlation: **Spearman r = 0.846, p < 0.0001 | Kendall τ = 0.651, p < 0.0001**
+(analytical); **p_perm < 0.0001 for both measures** — zero of 10,000 permutations exceeded
+the observed correlation. The result is highly significant by all three independent
+inference methods. Notably, the n=50 result (r = 0.846) is higher than the n=10 result
+(r = 0.783), the opposite of the Experiment 1 pattern (r = 0.686 at n=50 vs r = 0.749
+at n=10). This likely reflects the averaging effect of 50 independently accepted random
+configurations: the mean random cosine RDM at n=50 is a smoother estimate of the stable
+random weight distribution, which happens to be more discriminable from the CC geometry
+than the single-configuration n=10 baseline.
+
+Euclidean RDM correlation: **Spearman r = 0.509, p < 0.0001 | Kendall τ = 0.342,
+p < 0.0001** (analytical); **p_perm = 0.0001 | p_perm = 0.0002** (permutation). Significant
+but interpreted with caution for the same scale distortion reasons as n=10.
+
 **Matched-instability baseline (historical comparison):**
 Under the matched-instability approach (full Shiu-style shuffle, n=10, 5/10 stable random
 models): cosine RDM correlation **Spearman r = 0.862, p < 0.0001 | Kendall τ = 0.660,
 p < 0.0001** (analytical); **p_perm < 0.0001** (permutation). The stability-constrained
-result (r = 0.783) is modestly lower than the matched-instability result (r = 0.862), a
-larger gap than observed in Experiment 1 (0.749 vs 0.757), suggesting that clamped
+n=10 result (r = 0.783) is modestly lower than the matched-instability result (r = 0.862),
+a larger gap than observed in Experiment 1 (0.749 vs 0.757), suggesting that clamped
 instability may modestly inflate the matched-instability result in the 24-condition case.
 Nonetheless, both results are highly significant and the primary conclusion holds under
 both baseline constructions.
@@ -493,9 +548,10 @@ unstable models. This is a numerical artifact, not a fidelity signal.
 At n=10, mean pairwise RDM correlation: **r = 0.850 ± 0.057** (range: 0.706–0.954). At
 n=50, mean pairwise RDM correlation: **r = 0.838 ± 0.059**. Both are notably higher and
 tighter than the n=50 ON-only result (r = 0.721 ± 0.150), suggesting that the ON+OFF
-stimulus set produces a more consistent representational geometry. The n=10 ON+OFF result
-(r = 0.850) also slightly exceeds the n=10 ON-only result (r = 0.838 ± 0.078), consistent
-with polarity being a stronger organizer of representational geometry than direction alone.
+stimulus set produces a more consistent representational geometry across the full ensemble.
+The n=10 ON+OFF result (r = 0.850) also slightly exceeds the n=10 ON-only result
+(r = 0.838 ± 0.078), consistent with polarity being a stronger organizer of
+representational geometry than direction alone.
 
 ---
 
@@ -505,34 +561,35 @@ with polarity being a stronger organizer of representational geometry than direc
 The von Mises tuning model (kappa=2.5, HWHM ≈ 67°, rectified) produces a 12×12
 biological stimulus RDM with off-diagonal values ranging from 0.046 to 0.989 — a much
 wider dynamic range than either the CC RDM (0.001–0.022) or the stability-constrained
-random RDM (block-structured, ~0.001–0.276 within cluster). This reflects the sharpness
-of T4/T5 direction tuning: directions near a subtype's preferred direction are represented
-as highly similar, while directions near the null direction approach maximum dissimilarity.
-All comparisons use the stability-constrained random baseline from Experiments 1 and 2
-(full Shiu-style shuffle, n=10, MAX_ATTEMPTS=100).
+random RDM. This reflects the sharpness of T4/T5 direction tuning: directions near a
+subtype's preferred direction are represented as highly similar, while directions near
+the null direction approach maximum dissimilarity. All Experiment 3 comparisons use the
+stability-constrained random baseline from the n=50 full Shiu-style runs (Experiments 1
+and 2, MAX_ATTEMPTS=100), providing a more stable mean random RDM estimate across 50
+independently accepted configurations than the n=10 primary baseline.
 
 #### Experiment 1 Comparison (ON edges, 12 conditions)
-CC vs Biology: **Spearman r = 0.910, p < 0.0001 | Kendall τ = 0.742, p < 0.0001**
+CC vs Biology: **Spearman r = 0.930, p < 0.0001 | Kendall τ = 0.783, p < 0.0001**
 (analytical); **p_perm < 0.0001 for both measures** (10,000 permutations, Nili et al.
 2014) — zero of 10,000 permutations exceeded the observed correlation. The CC
 representational geometry is highly consistent with the biological T4/T5 direction tuning
 structure, recovering the circular ordinal organization of directions in a way that closely
 mirrors the known preferred-direction map.
 
-Random vs Biology: **Spearman r = 0.687, p < 0.0001 | Kendall τ = 0.507, p < 0.0001**
+Random vs Biology: **Spearman r = 0.603, p < 0.0001 | Kendall τ = 0.449, p < 0.0001**
 (analytical). The random baseline also correlates with the biological RDM, reflecting that
 both share the same circular ordinal structure — directions that are angularly close are
 more similar than directions that are angularly distant. This is a consequence of the
 circular stimulus geometry, not a fidelity signal.
 
-The key comparison is CC vs Random (r = 0.749, τ = 0.552). The gap r(CC vs Bio) −
-r(Rand vs Bio) = **0.223** represents the additional fidelity attributable to the
+The key comparison is CC vs Random (r = 0.686, τ = 0.515). The gap r(CC vs Bio) −
+r(Rand vs Bio) = **0.327** represents the additional fidelity attributable to the
 connectome constraint beyond what circular stimulus structure alone provides.
 
 #### Experiment 2 Comparison (ON+OFF edges, 24 conditions)
-CC vs Biology: **Spearman r = 0.103, p = 0.087 | Kendall τ = 0.079, p = 0.072**
-(analytical); **p_perm = 0.055 | p_perm = 0.051** (permutation) — not significant at
-α = 0.05. Random vs Biology: **r = -0.042, τ = -0.028** — effectively zero and slightly
+CC vs Biology: **Spearman r = 0.049, p = 0.422 | Kendall τ = 0.040, p = 0.368**
+(analytical); **p_perm = 0.159 | p_perm = 0.142** (permutation) — not significant at
+α = 0.05. Random vs Biology: **r = −0.038, τ = −0.028** — effectively zero and slightly
 negative.
 
 The near-null result is expected and interpretable. The biological 24×24 RDM encodes
@@ -552,7 +609,7 @@ Experiment 2 biological comparison is therefore not reported as a meaningful res
 - Across Experiments 1 and 2, the cosine RDM correlation is significant by analytical
   p-values, Kendall τ, and stimulus-label permutation test — three independent inference
   methods converging on the same conclusion (Experiment 1: r = 0.749 at n=10, r = 0.686
-  at n=50; Experiment 2: r = 0.783; all p_perm < 0.0001)
+  at n=50; Experiment 2: r = 0.783 at n=10, r = 0.846 at n=50; all p_perm < 0.0001)
 - The fidelity result holds across ensemble sizes: stability-constrained sampling succeeds
   at both n=10 and n=50 with all models accepted and no ceiling failures, confirming the
   null model problem is resolved
@@ -560,19 +617,20 @@ Experiment 2 biological comparison is therefore not reported as a meaningful res
   (r = 0.749 vs 0.757), demonstrating robustness to baseline construction choice; the
   larger gap in Experiment 2 (r = 0.783 vs 0.862) suggests clamped instability may
   modestly inflate the matched-instability result in the 24-condition case
-- The biological upper bound (Experiment 3) provides strong additional support for the
-  Experiment 1 result: CC geometry (r = 0.910 vs T4/T5 biology) substantially exceeds
-  random geometry (r = 0.687 vs T4/T5 biology), with the gap (Δr = 0.223) attributable
-  to the connectome constraint above and beyond circular stimulus structure
+- The biological upper bound (Experiment 3, n=50 baseline) provides strong additional
+  support for the Experiment 1 result: CC geometry (r = 0.930 vs T4/T5 biology)
+  substantially exceeds random geometry (r = 0.603 vs T4/T5 biology), with the gap
+  (Δr = 0.327) attributable to the connectome constraint above and beyond circular
+  stimulus structure
 - The Euclidean result is non-significant by all methods including permutation in both
   experiments (stability-constrained baseline), confirming cosine distance as the
   appropriate primary metric; Euclidean significance under matched-instability is a
   numerical artifact of scale distortion from near-overflow activations
 - Low first-try acceptance rates (1/10 at n=10 and 5/50 at n=50 in Experiment 1; 3/10
-  in Experiment 2) confirm that dynamically stable configurations are rare in full Shiu
-  weight space across the full ensemble — the trained connectome occupies an atypical
-  region of parameter space from a stability standpoint, independent of representational
-  geometry
+  at n=10 and 6/50 at n=50 in Experiment 2) confirm that dynamically stable
+  configurations are rare in full Shiu weight space across the full ensemble — the
+  trained connectome occupies an atypical region of parameter space from a stability
+  standpoint, independent of representational geometry
 - Within-CC consistency improves from ON-only (r = 0.721 at n=50) to ON+OFF
   (r = 0.838 at n=50, r = 0.850 at n=10), supporting polarity as a stronger organizer
   of representational geometry than direction alone
@@ -626,7 +684,7 @@ results = run_experiment(n_models=50, randomization_strategy="synapse_only")
 
 # Experiment 3: Biological upper bound
 
-### Load results from Experiments 1 and 2, then run
+### Load n=50 stability-constrained results from Experiments 1 and 2, then run
 bio_results = run_biological_upper_bound(results_exp1, results_exp2)
 ```
 
