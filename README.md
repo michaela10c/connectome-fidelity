@@ -673,20 +673,21 @@ Python ≥ 3.9, < 3.13.
 # Experiment 1: ON edges
 
 ### Canonical fidelity result — n=50 (stability-constrained)
-### Skips experiment if results file already exists
-python experiments/moving_edge_on.py
+results = run_experiment(n_models=50, randomization_strategy="full_shiu")
 
 ### Comparison result — n=10 (stability-constrained)
 results = run_experiment(n_models=10, randomization_strategy="full_shiu")
 
 ### Instability documentation — n=50 (synapse-only)
 results = run_experiment(n_models=50, randomization_strategy="synapse_only")
+
+### UMAP post-hoc analyses run automatically after the n=50 canonical experiment
+### (or when the results file is already present).
 
 # Experiment 2: ON + OFF edges
 
 ### Canonical fidelity result — n=50 (stability-constrained)
-### Skips experiment if results file already exists
-python experiments/moving_edge_on_off.py
+results = run_experiment(n_models=50, randomization_strategy="full_shiu")
 
 ### Comparison result — n=10 (stability-constrained)
 results = run_experiment(n_models=10, randomization_strategy="full_shiu")
@@ -694,8 +695,8 @@ results = run_experiment(n_models=10, randomization_strategy="full_shiu")
 ### Instability documentation — n=50 (synapse-only)
 results = run_experiment(n_models=50, randomization_strategy="synapse_only")
 
-# Within-polarity and UMAP post-hoc analyses run automatically after the
-# n=50 canonical experiment (or when the results file is already present).
+### Within-polarity and UMAP post-hoc analyses run automatically after the
+### n=50 canonical experiment (or when the results file is already present).
 
 # Experiment 3: Biological upper bound
 bio_results = run_biological_upper_bound(results_exp1, results_exp2)
