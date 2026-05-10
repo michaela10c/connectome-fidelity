@@ -333,22 +333,6 @@ stability-constrained baseline, 10,000 permutations). Observed r = 0.930 and τ 
 both fall far outside the null distribution; p_perm < 0.0001 for both measures — zero
 of 10,000 permutations exceeded the observed correlation.*
 
-![Experiment 3 biological upper bound — Experiment 2](figures/biological_upper_bound_exp2.png)
-
-*Experiment 3 three-way RDM comparison for Experiment 2 (ON+OFF edges, 24 conditions,
-n=50 stability-constrained baseline). Left: biological reference RDM (T4/T5 ON/OFF
-segregated, range 0.046–1.000). Center: CC mean cosine RDM (r vs bio = 0.049). Right:
-random mean cosine RDM (r vs bio = −0.038). The near-null result reflects a structural
-mismatch between the biological RDM construction and the CC network's representational
-geometry — not a failure of the CC network (see Results).*
-
-![Experiment 3 permutation test — Experiment 2](figures/bio_upper_bound_exp2_permtest.png)
-
-*Experiment 3 permutation test for CC vs Biology comparison (Experiment 2, n=50
-stability-constrained baseline, 10,000 permutations). Observed r = 0.049,
-p_perm = 0.159; τ = 0.040, p_perm = 0.142 — not significant at α = 0.05, consistent
-with the structural mismatch interpretation.*
-
 ---
 
 ## Results
