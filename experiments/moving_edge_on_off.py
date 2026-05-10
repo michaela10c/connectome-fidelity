@@ -749,8 +749,8 @@ if __name__ == "__main__":
     vmax_cc   = max(off_off.max(),      on_on.max())
     vmax_rand = max(rand_off_off.max(), rand_on_on.max())
 
-    fig, axes = plt.subplots(2, 2, figsize=(8, 9))
-    fig.subplots_adjust(right=0.91, wspace=0.05)  # reserve space on the right for colorbars
+    fig, axes = plt.subplots(2, 2, figsize=(8, 8.5))
+    fig.subplots_adjust(right=0.91, wspace=0.05, top=0.92)  # reserve space on the right for colorbars
 
     fig.suptitle("Within-Polarity Blocks: CC vs Random\n"
                  "ON+OFF edges, n=50, full Shiu-style shuffle", fontsize=10)
