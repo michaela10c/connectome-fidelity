@@ -720,9 +720,7 @@ connectome-fidelity/
 ├── experiments/
 │   ├── moving_edge_on.py              ← ON edges experiment (canonical fidelity result)
 │   ├── moving_edge_on_off.py          ← ON+OFF edges experiment (polarity generalization)
-│   ├── biological_upper_bound.py      ← Biological upper bound (Maisak et al. 2013)
-│   ├── umap_exp1.py                   ← UMAP post-hoc analysis, Experiment 1
-│   └── umap_exp2.py                   ← UMAP post-hoc analysis, Experiment 2
+│   └── biological_upper_bound.py      ← Biological upper bound (Maisak et al. 2013)
 ├── notebooks/
 │   ├── moving_edge_on.ipynb           ← Colab-ready notebook, ON edges results
 │   ├── moving_edge_on_off.ipynb       ← Colab-ready notebook, ON+OFF edges results
