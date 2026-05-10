@@ -657,7 +657,7 @@ def run_experiment(n_models=50, randomization_strategy="full_shiu",
 
     return {
         "cc_rdm_cosine":    cc_rdm_cosine_mean,
-        "cc_rdms_cosine":   cc_rdms_cosine, 
+        "cc_rdms_cosine":   cc_rdms_cosine, # added for model-level bootstrap
         "rand_rdm_cosine":  rand_rdm_cosine_mean,
         "cc_rdm_eucl":      cc_rdm_eucl_mean,
         "rand_rdm_eucl":    rand_rdm_eucl_mean,
@@ -677,9 +677,9 @@ def run_experiment(n_models=50, randomization_strategy="full_shiu",
 # ── 8. ENTRY POINT ────────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
-    # n_models=1 for debugging (confirms pop vec shape is (12, 65))
-    # n_models=10 for primary fidelity result (top 10 models)
-    # n_models=50 for extended fidelity result (all 50 models)
+    # n_models=1  for debugging (confirms pop vec shape is (24, 65))
+    # n_models=10 for comparison fidelity result (top 10 models)
+    # n_models=50 for canonical fidelity result (all 50 models)
     results = run_experiment(n_models=50, randomization_strategy="full_shiu")
 
     # Save results to .npz file
@@ -690,21 +690,22 @@ if __name__ == "__main__":
         rand_rdm_eucl=results["rand_rdm_eucl"],
         cell_types=results["cell_types"],
         stim_labels=results["stim_labels"],
-        cc_rdms_cosine=np.array(results["cc_rdms_cosine"]),
+        cc_rdms_cosine=np.array(results["cc_rdms_cosine"]), # added for model-level bootstrap
     )
     print("Saved ../results/results_exp2_50models_full_shiu.npz")
 
 
-    # ── 9. WITHIN-POLARITY DIRECTION STRUCTURE, CIRCULAR STRUCTURE TEST, ──────
-    #       FISHER Z-TRANSFORM, AND BOOTSTRAP
-    # Runs all within-polarity post-hoc analyses in sequence:
+    # ── WITHIN-POLARITY DIRECTION STRUCTURE, CIRCULAR STRUCTURE TEST,
+    #    FISHER Z-TRANSFORM, AND BOOTSTRAP ────────────────────────────────────────
+    #
+    # This cell runs all within-polarity analyses in sequence:
     #   1. Visualize OFF-OFF and ON-ON submatrices with shared colormap
-    #   2. Formally test circular direction structure in each block
-    #   3. Fisher z-transform test for ON/OFF asymmetry (analytical cross-check)
-    #   4. Bootstrap test for ON/OFF asymmetry (model-level resampling, primary)
+    #   2. Formally test circular direction structure in each block (permutation test)
+    #   3. Fisher z-transform test for ON/OFF asymmetry (approximate)
+    #   4. Bootstrap test for ON/OFF asymmetry (model-level resampling)
     #
     # Loads from: ../results/results_exp2_50models_full_shiu.npz
-    # Saves to:   ../figures/cc_rdm_within_polarity_blocks_50models_full_shiu.png
+    # Saves to:   ../figures/within_polarity_blocks_cc_vs_random_50models_full_shiu.png
     #             ../figures/within_polarity_circular_test_50models_full_shiu.png
     #             ../figures/bootstrap_on_off_asymmetry_50models_full_shiu.png
 
