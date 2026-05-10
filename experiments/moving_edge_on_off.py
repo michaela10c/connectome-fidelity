@@ -39,6 +39,14 @@ from scipy.spatial.distance import cosine, euclidean
 from scipy.stats import spearmanr, kendalltau
 from google.colab import files
 
+# Install umap-learn if not already available
+try:
+    import umap
+except ImportError:
+    import subprocess
+    subprocess.run(["pip", "install", "umap-learn"], check=True)
+    import umap
+
 # ── 1. IMPORTS ────────────────────────────────────────────────────────────────
 
 import flyvis
@@ -1000,14 +1008,6 @@ if __name__ == "__main__":
     #   Within-CC consistency r = 0.838 ± 0.059 reflects a genuinely coherent
     #   representational geometry, not averaging across qualitatively distinct
     #   solutions.
-
-    # Install umap-learn if not already available
-    try:
-        import umap as umap_lib
-    except ImportError:
-        import subprocess
-        subprocess.run(["pip", "install", "umap-learn"], check=True)
-        import umap as umap_lib
 
     print("\n" + "="*60)
     print("UMAP — CC ENSEMBLE GEOMETRY (Experiment 2)")

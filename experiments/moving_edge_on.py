@@ -36,6 +36,14 @@ from scipy.spatial.distance import cosine, euclidean
 from scipy.stats import spearmanr, kendalltau
 from google.colab import files
 
+# Install umap-learn if not already available
+try:
+    import umap as umap_lib
+except ImportError:
+     import subprocess
+     subprocess.run(["pip", "install", "umap-learn"], check=True)
+     import umap as umap_lib
+
 # ── 1. IMPORTS ────────────────────────────────────────────────────────────────
 
 import flyvis
@@ -708,14 +716,6 @@ if __name__ == "__main__":
     # NOTE: cc_rdms_cosine was added to the save block above. If your existing
     # results file predates this change, re-run the experiment to regenerate it.
 
-    # Install umap-learn if not already available
-    try:
-        import umap as umap_lib
-    except ImportError:
-        import subprocess
-        subprocess.run(["pip", "install", "umap-learn"], check=True)
-        import umap as umap_lib
-
     print("\n" + "="*60)
     print("UMAP — CC ENSEMBLE GEOMETRY (Experiment 1)")
     print("="*60)
@@ -794,27 +794,3 @@ if __name__ == "__main__":
                     dpi=150, bbox_inches="tight")
         print("  Saved: ../figures/umap_cc_ensemble_exp1.png")
         plt.show()
-
-        # ── Manual cluster assignment (fill in after inspecting the plot) ─────
-        #
-        # Inspect ../figures/umap_cc_ensemble_exp1.png. If distinct clusters
-        # are visible, assign integer labels to each model index below and
-        # uncomment the within_consistency_per_cluster call.
-        #
-        # def within_consistency_per_cluster(rdms, labels, label_names):
-        #     results = {}
-        #     for label, name in label_names.items():
-        #         cluster_rdms = [r for r, l in zip(rdms, labels) if l == label]
-        #         n_c = len(cluster_rdms)
-        #         if n_c < 2:
-        #             results[name] = (float("nan"), float("nan"), n_c)
-        #             continue
-        #         corrs = [_rdm_sim_spearman(cluster_rdms[i], cluster_rdms[j])
-        #                  for i in range(n_c) for j in range(i+1, n_c)]
-        #         results[name] = (np.mean(corrs), np.std(corrs), n_c)
-        #         print(f"  '{name}' (n={n_c}): r = {np.mean(corrs):.3f} ± {np.std(corrs):.3f}")
-        #     return results
-        #
-        # labels = np.array([0]*25 + [1]*25)  # example only — replace with actual labels
-        # label_names = {0: "Cluster A", 1: "Cluster B"}
-        # within_consistency_per_cluster(umap_rdms, labels, label_names)
