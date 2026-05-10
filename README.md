@@ -66,6 +66,8 @@ each stimulus direction
   (Nili et al. 2014, 10,000 permutations)
 - Within-ensemble consistency — measures stability of CC representational geometry
   across trained solutions
+- UMAP of CC ensemble — projects individual model RDMs into 2D to check for cluster
+  structure; within-ensemble consistency reported per cluster if substructure is found
 
 ---
 
@@ -101,6 +103,17 @@ each stimulus condition
   across trained solutions
 - Polarity generalization — whether direction-sensitive geometry observed for ON edges
   in Experiment 1 extends to OFF edges and the combined ON+OFF space
+- Within-polarity direction structure — CC and random OFF-OFF and ON-ON
+  submatrices plotted together in a 2×2 grid with row-level shared colormaps
+  (CC row and Random row scaled independently), making the circular direction
+  gradient visible in the CC row while communicating the magnitude difference
+  between CC (~0.012) and random (~0.040) via different colorbar ranges;
+  circular structure formally tested via permutation test against a circular
+  distance reference; ON/OFF asymmetry tested by Fisher z-transform (analytical
+  cross-check) and model-level bootstrap (primary inference, 10,000 samples,
+  50 CC models resampled with replacement)
+- UMAP of CC ensemble — projects individual model RDMs into 2D to check for cluster
+  structure; within-ensemble consistency reported per cluster if substructure is found
 
 ---
 
@@ -203,6 +216,22 @@ configurations.
 | Random models with unstable dynamics | 35/50 (70%) |
 | CC models with unstable dynamics | 0/50 |
 
+### Experiment 2: Within-Polarity Direction Structure — n=50 (canonical result)
+
+| Comparison | Spearman r vs circular reference | p_perm |
+|------------|----------------------------------|--------|
+| ON-ON block | 0.937 | < 0.0001 |
+| OFF-OFF block | 0.799 | < 0.0001 |
+| ON/OFF asymmetry Δr | 0.138 (bootstrap 95% CI [0.091, 0.236], p < 0.0001) | — |
+
+### Experiment 2: UMAP of CC Ensemble — n=50 (canonical result)
+
+| Metric | Value |
+|--------|-------|
+| Within-CC consistency | r = 0.838 ± 0.059 (uniform across ensemble) |
+| Cluster structure | None — 50 models form a continuous cloud |
+| Interpretation | High consistency reflects genuinely coherent geometry, not averaging across qualitatively distinct solutions |
+
 ### Experiment 3: Biological Upper Bound — Experiment 1 comparison (ON edges, 12 conditions, n=50 baseline)
 
 | Comparison | Spearman r | Kendall τ | p_perm (r) |
@@ -265,6 +294,17 @@ distribution of Spearman r with observed r = 0.686 (red line) falling far outsid
 null. Right: null distribution of Kendall τ with observed τ = 0.515 (red line). Both
 p_perm < 0.0001 — zero of 10,000 permutations exceeded the observed correlation.*
 
+![Experiment 1 RDM figure — n=10](figures/moving_edge_on_rdms_10models_full_shiu.png)
+
+*Experiment 1 (n=10, comparison result, stability-constrained full Shiu-style shuffle).
+Cosine RDM correlation: Spearman r = 0.749, p < 0.0001 | Kendall τ = 0.552, p < 0.0001;
+p_perm < 0.0001 (10,000 permutations).*
+
+![Experiment 1 permutation test — n=10](figures/moving_edge_on_permtest_10models_full_shiu.png)
+
+*Experiment 1 permutation test (n=10, comparison result, 10,000 permutations). Both
+p_perm < 0.0001 — zero of 10,000 permutations exceeded the observed correlation.*
+
 ![Experiment 2 RDM figure — n=50](figures/moving_edge_on_off_rdms_50models_full_shiu.png)
 
 *Experiment 2 (n=50, canonical result, stability-constrained full Shiu-style shuffle) —
@@ -283,15 +323,27 @@ distribution of Spearman r with observed r = 0.846 (red line) falling far outsid
 null. Right: null distribution of Kendall τ with observed τ = 0.651 (red line). Both
 p_perm < 0.0001.*
 
+![Experiment 2 RDM figure — n=10](figures/moving_edge_on_off_rdms_10models_full_shiu.png)
+
+*Experiment 2 (n=10, comparison result, stability-constrained full Shiu-style shuffle).
+Cosine RDM correlation: Spearman r = 0.783, p < 0.0001 | Kendall τ = 0.562, p < 0.0001;
+p_perm < 0.0001 (10,000 permutations).*
+
+![Experiment 2 permutation test — n=10](figures/moving_edge_on_off_permtest_10models_full_shiu.png)
+
+*Experiment 2 permutation test (n=10, comparison result, 10,000 permutations). Both
+p_perm < 0.0001 — zero of 10,000 permutations exceeded the observed correlation.*
+
 ![Experiment 2 within-polarity blocks — CC vs Random](figures/within_polarity_blocks_cc_vs_random_50models_full_shiu.png)
 
 *Experiment 2 within-polarity direction structure (n=50, canonical result). CC OFF-OFF
 and ON-ON submatrices (top row) and random OFF-OFF and ON-ON submatrices (bottom row),
-plotted with row-level shared colormaps — CC row peaks at ~0.012, Random row at ~0.040.
-The CC ON-ON block shows a clear circular direction gradient; the CC OFF-OFF block shows
-the same ordinal structure at a compressed range. The random blocks show no circular
-direction structure. Stimulus conditions are interleaved by direction (OFF 0°, ON 0°,
-OFF 30°, ON 30°, ...), extracted via even/odd index separation.*
+plotted with row-level shared colormaps — a single shared colorbar is shown per row:
+CC row range 0–0.012, Random row range 0–0.040. The CC ON-ON block shows a clear
+circular direction gradient; the CC OFF-OFF block shows the same ordinal structure at
+a compressed range. The random blocks show no circular direction structure. Stimulus
+conditions are interleaved by direction (OFF 0°, ON 0°, OFF 30°, ON 30°, ...),
+extracted via even/odd index separation.*
 
 ![Experiment 2 within-polarity circular structure test](figures/within_polarity_circular_test_50models_full_shiu.png)
 
@@ -308,6 +360,14 @@ p_perm < 0.0001). Both observed values fall far outside the null distribution �
 correlation). Bootstrap mean Δr = 0.153 ± 0.039; 95% CI [0.091, 0.236], p < 0.0001
 (one-sided). The 95% CI excludes zero, confirming that the ON pathway encodes direction
 with significantly stronger geometric separation than the OFF pathway.*
+
+![Experiment 2 UMAP — CC ensemble](figures/umap_cc_ensemble_exp2.png)
+
+*Experiment 2 UMAP of CC ensemble representational geometry (n=50, full Shiu-style
+shuffle). Features: upper triangle of per-model cosine RDM (276 pairs). Color encodes
+model rank (0 = best task performance). No discrete cluster structure is visible — the
+50 models form a continuous cloud, confirming that within-CC consistency (r = 0.838 ±
+0.059) reflects a genuinely coherent representational geometry.*
 
 ![Experiment 3 T4/T5 tuning curves](figures/maisak2013_t4t5_von_mises_tuning.png)
 
@@ -332,6 +392,13 @@ the connectome constraint beyond circular stimulus structure.*
 stability-constrained baseline, 10,000 permutations). Observed r = 0.930 and τ = 0.783
 both fall far outside the null distribution; p_perm < 0.0001 for both measures — zero
 of 10,000 permutations exceeded the observed correlation.*
+
+![Experiment 1 UMAP — CC ensemble](figures/umap_cc_ensemble_exp1.png)
+
+*Experiment 1 UMAP of CC ensemble representational geometry (n=50, full Shiu-style
+shuffle). Features: upper triangle of per-model cosine RDM (66 pairs). Color encodes
+model rank (0 = best task performance). To be generated after Experiment 1 re-run with
+cc_rdms_cosine key added to results file.*
 
 ---
 
@@ -364,23 +431,13 @@ weight configurations consistently leave.
 
 #### Stability-Constrained Random Baseline
 
-**n=10:** Candidate random configurations are accepted only if a forward pass produces
-all-finite, sub-1e6 activations, with up to MAX_ATTEMPTS=100 resampling attempts per
-model. All 10 models were accepted. Acceptance required on average 11.1 ± 9.9 attempts
+**n=10:** All 10 models were accepted. Acceptance required on average 11.1 ± 9.9 attempts
 per model (range: 1–36), with only 1/10 models accepted on the first attempt.
 
-**n=50:** All 50 models were accepted under the same procedure. Acceptance required on
-average 7.9 ± 8.1 attempts per model (range: 1–42), with 5/50 models accepted on the
-first attempt. The worst-case model required 42 attempts, well within the MAX_ATTEMPTS=100
-ceiling. The low first-try acceptance rate (5/50, 10%) confirms that dynamically stable
-configurations occupy a small fraction of the full Shiu weight space across the full
-ensemble — not just the top 10 models.
-
-The n=10 stability-constrained random baseline produces a cosine RDM with a clear block
-structure: directions 0°–90° form one cluster of low mutual dissimilarity, directions
-120°–300° form another, and cross-cluster dissimilarities are uniformly large
-(~0.099–0.101). The n=50 mean random cosine RDM reflects a similar but averaged-out
-structure across 50 independently accepted configurations.
+**n=50:** All 50 models were accepted. Acceptance required on average 7.9 ± 8.1 attempts
+per model (range: 1–42), with 5/50 models accepted on the first attempt. The low
+first-try acceptance rate (5/50, 10%) confirms that dynamically stable configurations
+occupy a small fraction of the full Shiu weight space across the full ensemble.
 
 #### CC vs Random RDM Correlation
 
@@ -388,43 +445,29 @@ structure across 50 independently accepted configurations.
 Cosine RDM correlation: **Spearman r = 0.749, p < 0.0001 | Kendall τ = 0.552, p < 0.0001**
 (analytical); **p_perm < 0.0001 for both measures** (stimulus-label randomization test,
 10,000 permutations, Nili et al. 2014) — zero of 10,000 permutations exceeded the observed
-correlation. The result is highly significant by all three independent inference methods.
-
-Euclidean RDM correlation: **Spearman r = 0.546, p < 0.0001 | Kendall τ = 0.381,
-p < 0.0001** (analytical); **p_perm = 0.001 | p_perm = 0.0009** (permutation). Significant
-but interpreted with caution: the random Euclidean RDM contains values on the order of
-1e4–1e5, indicating near-overflow activations on stimuli not covered by the single-stimulus
-stability check. Cosine RDM correlation remains the primary reported metric.
+correlation.
 
 **Stability-constrained baseline, n=50 (canonical result):**
 Cosine RDM correlation: **Spearman r = 0.686, p < 0.0001 | Kendall τ = 0.515, p < 0.0001**
 (analytical); **p_perm < 0.0001 for both measures** — zero of 10,000 permutations exceeded
-the observed correlation. The result is highly significant by all three independent
-inference methods. The modest decrease from n=10 (r = 0.749) to n=50 (r = 0.686) reflects
-the inclusion of lower-performing CC models implementing more varied representational
+the observed correlation. The modest decrease from n=10 (r = 0.749) to n=50 (r = 0.686)
+reflects the inclusion of lower-performing CC models implementing more varied representational
 solutions, consistent with the within-ensemble consistency decrease (r = 0.838 ± 0.078 at
-n=10 vs 0.721 ± 0.150 at n=50), rather than any weakening of the fidelity signal.
-
-Euclidean RDM correlation: **Spearman r = 0.588, p < 0.0001 | Kendall τ = 0.418,
-p < 0.0001** (analytical); **p_perm = 0.0005 | p_perm = 0.0003** (permutation). Significant
-but interpreted with caution for the same scale distortion reasons as n=10.
-
-**Matched-instability baseline (historical comparison):**
-Under the matched-instability approach (full Shiu-style shuffle, n=10, 5/10 stable random
-models): cosine RDM correlation **Spearman r = 0.757, p < 0.0001 | Kendall τ = 0.562,
-p < 0.0001** (analytical); **p_perm < 0.0001** (permutation). The near-identical result
-(r = 0.749 vs 0.757) confirms robustness to baseline construction choice.
-
-Cosine RDM correlation is NaN under the synapse-only shuffle at both n=10 (8/10 unstable)
-and n=50 (34/50 unstable). Euclidean RDM correlation under synapse-only shuffle at n=10:
-**Spearman r = 0.136, p = 0.278 | Kendall τ = 0.088, p = 0.296** — not significant, not
-interpretable due to extreme magnitudes from exploding activations.
+n=10 vs 0.721 ± 0.150 at n=50).
 
 #### Within-Ensemble Consistency
 At n=10, mean pairwise RDM correlation: **r = 0.838 ± 0.078** (range: 0.601–0.956). At
 n=50, mean pairwise RDM correlation: **r = 0.721 ± 0.150** (range: 0.323–0.983). The
 decrease at n=50 reflects the inclusion of lower-performing models, consistent with the
 known cluster structure of the Flyvis ensemble reported in Lappalainen et al. Fig. 3.
+
+#### UMAP of CC Ensemble Geometry
+To assess whether the within-ensemble consistency (r = 0.721 ± 0.150) reflects a
+genuinely coherent representational geometry or averaging across qualitatively distinct
+solutions, the 50 individual CC cosine RDMs were projected into 2D via UMAP. Each
+model's upper-triangular RDM entries (66 pairs for a 12×12 RDM) were used as features,
+with correlation distance as the UMAP metric (n_neighbors=10, min_dist=0.1, seed=42).
+Results pending re-run of Experiment 1 with cc_rdms_cosine key added to results file.
 
 ---
 
@@ -434,14 +477,16 @@ known cluster structure of the Flyvis ensemble reported in Lappalainen et al. Fi
 The connectome-constrained network produces a structured 24×24 dissimilarity matrix with
 clear polarity-dependent block organization. Within each polarity block (ON-ON and
 OFF-OFF), the same circular direction gradient observed in Experiment 1 is preserved:
-adjacent directions are most similar and opposite directions most dissimilar. Across
-polarity (ON vs OFF pairs), dissimilarities are large and nearly uniform at ~0.099–0.103
-— the network represents ON and OFF edges as geometrically distinct populations regardless
+adjacent directions are most similar and opposite directions most dissimilar — though this
+structure is not visible in the full 24×24 figure due to colormap compression by the
+dominant cross-polarity signal (see Within-Polarity Direction Structure below). Across
+polarity (ON vs OFF pairs), dissimilarities are large and nearly uniform at 0.099–0.103 —
+the network represents ON and OFF edges as geometrically distinct populations regardless
 of direction. This block structure is consistent with the known segregation of the fly
-visual system into ON (T4) and OFF (T5) pathways. Within-ensemble consistency is high
-at both n=10 (r = 0.850 ± 0.057) and n=50 (r = 0.838 ± 0.059), notably higher and
-tighter than the n=50 ON-only result (r = 0.721 ± 0.150), consistent with polarity being
-a stronger organizer of representational geometry than direction alone.
+visual system into ON (T4) and OFF (T5) pathways. Within-ensemble consistency is high at
+both n=10 (r = 0.850 ± 0.057) and n=50 (r = 0.838 ± 0.059), notably higher and tighter
+than the n=50 ON-only result (r = 0.721 ± 0.150), consistent with polarity being a
+stronger organizer of representational geometry than direction alone.
 
 #### Dynamic Instability
 Under the full Shiu-style shuffle at n=10 (matched-instability approach), 5 of 10 random
@@ -453,25 +498,16 @@ models showed any instability under any condition.
 
 #### Stability-Constrained Random Baseline
 
-**n=10:** Under stability-constrained full Shiu-style shuffling (MAX_ATTEMPTS=100), all
-10 models were accepted. Acceptance required on average 11.1 ± 11.5 attempts per model
-(range: 1–33), with only 3/10 models accepted on the first attempt — consistent with
-Experiment 1 (mean 11.1 ± 9.9, 1/10 first-try), confirming that the stable volume of
-full Shiu weight space is similarly small across both stimulus sets.
+**n=10:** All 10 models were accepted. Acceptance required on average 11.1 ± 11.5 attempts
+per model (range: 1–33), with only 3/10 models accepted on the first attempt — consistent
+with Experiment 1 (mean 11.1 ± 9.9, 1/10 first-try), confirming that the stable volume
+of full Shiu weight space is similarly small across both stimulus sets.
 
-**n=50:** All 50 models were accepted under the same procedure. Acceptance required on
-average 7.9 ± 8.5 attempts per model (range: 1–42), with 6/50 models accepted on the
-first attempt. The acceptance rate profile is nearly identical to Experiment 1 n=50
-(mean 7.9 ± 8.1, 5/50 first-try), confirming that stability constraints on the full
-Shiu weight space are stimulus-set independent.
-
-The accepted random baseline produces a cosine RDM with a checkerboard-like organization
-driven by polarity: OFF-condition pairs and ON-condition pairs each form clusters of
-moderate dissimilarity (0.001–0.276), while cross-polarity pairs are uniformly large
-(0.178–0.275). This polarity sensitivity is accidental — it reflects the stable random
-weight configuration's response characteristics rather than biologically organized ON/OFF
-pathway segregation — and is qualitatively different from the tight, direction-resolved
-circular gradient within each polarity block in the CC RDM.
+**n=50:** All 50 models were accepted. Acceptance required on average 7.9 ± 8.5 attempts
+per model (range: 1–42), with 6/50 models accepted on the first attempt. The acceptance
+rate profile is nearly identical to Experiment 1 n=50 (mean 7.9 ± 8.1, 5/50 first-try),
+confirming that stability constraints on the full Shiu weight space are stimulus-set
+independent.
 
 #### CC vs Random RDM Correlation
 
@@ -479,46 +515,16 @@ circular gradient within each polarity block in the CC RDM.
 Cosine RDM correlation: **Spearman r = 0.783, p < 0.0001 | Kendall τ = 0.562, p < 0.0001**
 (analytical); **p_perm < 0.0001 for both measures** (stimulus-label randomization test,
 10,000 permutations, Nili et al. 2014) — zero of 10,000 permutations exceeded the observed
-correlation. The result is highly significant by all three independent inference methods,
-and stronger than the Experiment 1 stability-constrained result (r = 0.749, τ = 0.552),
-consistent with the richer constraint provided by 24 stimulus conditions.
-
-Euclidean RDM correlation: **Spearman r = 0.522, p < 0.0001 | Kendall τ = 0.349,
-p < 0.0001** (analytical); **p_perm < 0.0001 for both measures** (permutation). Significant
-but interpreted with caution: the random Euclidean RDM contains values on the order of
-1e4–1e5 (up to ~5e5 in some cells), indicating near-overflow activations on stimuli not
-covered by the single-stimulus stability check. Cosine RDM correlation remains the primary
-reported metric.
+correlation.
 
 **Stability-constrained baseline, n=50 (canonical result):**
 Cosine RDM correlation: **Spearman r = 0.846, p < 0.0001 | Kendall τ = 0.651, p < 0.0001**
 (analytical); **p_perm < 0.0001 for both measures** — zero of 10,000 permutations exceeded
-the observed correlation. The result is highly significant by all three independent
-inference methods. Notably, the n=50 result (r = 0.846) is higher than the n=10 result
-(r = 0.783), the opposite of the Experiment 1 pattern (r = 0.686 at n=50 vs r = 0.749
-at n=10). This likely reflects the averaging effect of 50 independently accepted random
-configurations: the mean random cosine RDM at n=50 is a smoother estimate of the stable
-random weight distribution, which happens to be more discriminable from the CC geometry
-than the single-configuration n=10 baseline.
-
-Euclidean RDM correlation: **Spearman r = 0.509, p < 0.0001 | Kendall τ = 0.342,
-p < 0.0001** (analytical); **p_perm = 0.0001 | p_perm = 0.0002** (permutation). Significant
-but interpreted with caution for the same scale distortion reasons as n=10.
-
-**Matched-instability baseline (historical comparison):**
-Under the matched-instability approach (full Shiu-style shuffle, n=10, 5/10 stable random
-models): cosine RDM correlation **Spearman r = 0.862, p < 0.0001 | Kendall τ = 0.660,
-p < 0.0001** (analytical); **p_perm < 0.0001** (permutation). The stability-constrained
-n=10 result (r = 0.783) is modestly lower than the matched-instability result (r = 0.862),
-a larger gap than observed in Experiment 1 (0.749 vs 0.757), suggesting that clamped
-instability may modestly inflate the matched-instability result in the 24-condition case.
-Nonetheless, both results are highly significant and the primary conclusion holds under
-both baseline constructions.
-
-Cosine RDM correlation is NaN under the synapse-only shuffle at n=50 (35/50 unstable).
-Euclidean RDM correlation under synapse-only shuffle at n=50: **Spearman r = 0.313,
-p < 0.0001** — nominally significant but not interpretable due to extreme magnitudes from
-unstable models. This is a numerical artifact, not a fidelity signal.
+the observed correlation. Notably, the n=50 result (r = 0.846) is higher than the n=10
+result (r = 0.783), the opposite of the Experiment 1 pattern (r = 0.686 at n=50 vs
+r = 0.749 at n=10). This likely reflects the averaging effect of 50 independently accepted
+random configurations producing a smoother mean random RDM that is more discriminable from
+the CC geometry.
 
 #### Within-Polarity Direction Structure
 To visualize the within-polarity circular gradient obscured by the dominant cross-polarity
@@ -526,32 +532,36 @@ contrast in the full 24×24 RDM, the OFF-OFF and ON-ON submatrices were extracte
 both the CC and random mean cosine RDMs (OFF conditions at interleaved even indices
 0,2,...,22; ON conditions at odd indices 1,3,...,23) and plotted together in a 2×2 grid
 (CC top row, Random bottom row) with row-level shared colormaps — CC row and Random row
-scaled independently. The CC ON-ON block shows a clear circular direction gradient;
-the CC OFF-OFF block shows the same ordinal structure at a compressed range. The random
-blocks show no circular direction structure. The magnitude difference between CC and
-random is communicated by the different colorbar ranges: CC row peaks at ~0.012,
-Random row at ~0.040.
+scaled independently.
 
 Both CC polarity blocks show highly significant circular structure. ON-ON: **Spearman
-r = 0.937, p_perm < 0.0001** (10,000 permutations) — zero of 10,000 permutations
-exceeded the observed correlation. OFF-OFF: **Spearman r = 0.799, p_perm < 0.0001** —
-zero of 10,000 permutations exceeded the observed correlation. The ON-ON block shows
-substantially stronger circular structure than the OFF-OFF block (Δr = 0.138), confirmed
-by Fisher z-transform (z = 3.454, p = 0.0006, two-sided) and model-level bootstrap
-(10,000 samples, 50 CC models resampled with replacement): bootstrap mean
-Δr = 0.153 ± 0.039, 95% CI [0.091, 0.236], p < 0.0001 (one-sided). The 95% CI excludes
-zero, confirming that the ON pathway encodes direction with significantly stronger
-geometric separation than the OFF pathway, consistent with known T4/T5 differences in
-direction selectivity strength.
+r = 0.937, p_perm < 0.0001** (10,000 permutations). OFF-OFF: **Spearman r = 0.799,
+p_perm < 0.0001**. The ON-ON block shows substantially stronger circular structure than
+the OFF-OFF block (Δr = 0.138), confirmed by Fisher z-transform (z = 3.454, p = 0.0006,
+two-sided) and model-level bootstrap (10,000 samples, 50 CC models resampled with
+replacement): bootstrap mean Δr = 0.153 ± 0.039, 95% CI [0.091, 0.236], p < 0.0001
+(one-sided). The 95% CI excludes zero, confirming that the ON pathway encodes direction
+with significantly stronger geometric separation than the OFF pathway, consistent with
+known T4/T5 differences in direction selectivity strength.
 
 #### Within-Ensemble Consistency
 At n=10, mean pairwise RDM correlation: **r = 0.850 ± 0.057** (range: 0.706–0.954). At
 n=50, mean pairwise RDM correlation: **r = 0.838 ± 0.059**. Both are notably higher and
 tighter than the n=50 ON-only result (r = 0.721 ± 0.150), suggesting that the ON+OFF
 stimulus set produces a more consistent representational geometry across the full ensemble.
-The n=10 ON+OFF result (r = 0.850) also slightly exceeds the n=10 ON-only result
-(r = 0.838 ± 0.078), consistent with polarity being a stronger organizer of
-representational geometry than direction alone.
+
+#### UMAP of CC Ensemble Geometry
+To assess whether the within-ensemble consistency (r = 0.838 ± 0.059) reflects a
+genuinely coherent representational geometry or averaging across qualitatively distinct
+solutions, the 50 individual CC cosine RDMs were projected into 2D via UMAP. Each
+model's upper-triangular RDM entries (276 pairs for a 24×24 RDM) were used as features,
+with correlation distance as the UMAP metric (n_neighbors=10, min_dist=0.1, seed=42).
+
+The embedding reveals no discrete cluster structure — the 50 models form a continuous,
+roughly uniform cloud with no visible groupings or gaps. Model rank shows a weak gradient
+across the embedding but no discrete separation. This confirms that the CC ensemble
+implements a single coherent representational strategy across all 50 trained solutions,
+rather than a mixture of qualitatively distinct geometries.
 
 ---
 
@@ -561,47 +571,29 @@ representational geometry than direction alone.
 The von Mises tuning model (kappa=2.5, HWHM ≈ 67°, rectified) produces a 12×12
 biological stimulus RDM with off-diagonal values ranging from 0.0460 to 0.9886 — a much
 wider dynamic range than either the CC RDM (0.001–0.022) or the stability-constrained
-random RDM. This reflects the sharpness of T4/T5 direction tuning: directions near a
-subtype's preferred direction are represented as highly similar, while directions near
-the null direction approach maximum dissimilarity. All Experiment 3 comparisons use the
-stability-constrained random baseline from the n=50 full Shiu-style runs (Experiments 1
-and 2, MAX_ATTEMPTS=100), providing a more stable mean random RDM estimate across 50
-independently accepted configurations than the n=10 comparison baseline.
+random RDM.
 
 #### Experiment 1 Comparison (ON edges, 12 conditions)
 CC vs Biology: **Spearman r = 0.930, p < 0.0001 | Kendall τ = 0.783, p < 0.0001**
-(analytical); **p_perm < 0.0001 for both measures** (10,000 permutations, Nili et al.
-2014) — zero of 10,000 permutations exceeded the observed correlation. The CC
-representational geometry is highly consistent with the biological T4/T5 direction tuning
-structure, recovering the circular ordinal organization of directions in a way that closely
-mirrors the known preferred-direction map.
+(analytical); **p_perm < 0.0001 for both measures** (10,000 permutations) — zero of
+10,000 permutations exceeded the observed correlation.
 
 Random vs Biology: **Spearman r = 0.603, p < 0.0001 | Kendall τ = 0.449, p < 0.0001**
-(analytical). The random baseline also correlates with the biological RDM, reflecting that
-both share the same circular ordinal structure — directions that are angularly close are
-more similar than directions that are angularly distant. This is a consequence of the
-circular stimulus geometry, not a fidelity signal.
+(analytical). The random baseline also correlates with the biological RDM, reflecting
+shared circular ordinal structure — not a fidelity signal.
 
-The key comparison is CC vs Random (r = 0.686, τ = 0.515). The gap r(CC vs Bio) −
-r(Rand vs Bio) = **0.327** represents the additional fidelity attributable to the
-connectome constraint beyond what circular stimulus structure alone provides.
+The key quantity is the gap: r(CC vs Bio) − r(Rand vs Bio) = **0.327**, representing the
+additional fidelity attributable to the connectome constraint beyond circular stimulus
+structure alone. Both CC and Random vs Biology p_perm < 0.0001 — the gap, not
+significance, is the meaningful quantity.
 
 #### Experiment 2 Comparison (ON+OFF edges, 24 conditions)
-CC vs Biology: **Spearman r = 0.049, p = 0.422 | Kendall τ = 0.040, p = 0.368**
-(analytical); **p_perm = 0.159 | p_perm = 0.142** (permutation) — not significant at
-α = 0.05. Random vs Biology: **r = −0.038, τ = −0.028** — effectively zero and slightly
-negative.
-
-The near-null result is expected and interpretable. The biological 24×24 RDM encodes
-strict ON/OFF pathway segregation — T4 subtypes contribute only to ON conditions and T5
-subtypes only to OFF conditions, making same-direction ON/OFF pairs maximally dissimilar
-(cosine distance ≈ 1.0). The CC 24×24 RDM assigns moderate cross-polarity dissimilarity
-(~0.099–0.103) with shared directional ordering — a geometrically different claim. This
-is a mismatch between the biological RDM construction and the CC network's actual
-representational geometry, not a failure of the CC network. A more appropriate biological
-upper bound for Experiment 2 would require T4/T5 direction tuning curves measured with
-moving edges at matched velocities, which are not available from Maisak et al. 2013. The
-Experiment 2 biological comparison is therefore not reported as a meaningful result.
+CC vs Biology: **Spearman r = 0.049, p_perm = 0.159** — not significant at α = 0.05.
+The near-null result reflects a structural mismatch between the biological RDM
+construction and the CC network's representational geometry, not a failure of the CC
+network. A more appropriate biological upper bound for Experiment 2 would require T4/T5
+direction tuning curves measured with moving edges at matched velocities. The Experiment 2
+biological comparison is not reported as a meaningful result.
 
 ---
 
@@ -612,26 +604,19 @@ Experiment 2 biological comparison is therefore not reported as a meaningful res
   r = 0.749 at n=10 comparison; Experiment 2: r = 0.846 at n=50 canonical, r = 0.783
   at n=10 comparison; all p_perm < 0.0001)
 - The fidelity result holds across ensemble sizes: stability-constrained sampling succeeds
-  at both n=10 and n=50 with all models accepted and no ceiling failures, confirming the
-  null model problem is resolved
+  at both n=10 and n=50 with all models accepted and no ceiling failures
 - Stability-constrained and matched-instability baselines converge in Experiment 1
-  (r = 0.749 vs 0.757), demonstrating robustness to baseline construction choice; the
-  larger gap in Experiment 2 (r = 0.783 vs 0.862) suggests clamped instability may
-  modestly inflate the matched-instability result in the 24-condition case
+  (r = 0.749 vs 0.757); the larger gap in Experiment 2 (r = 0.783 vs 0.862) suggests
+  clamped instability may modestly inflate the matched-instability result in the
+  24-condition case
 - The biological upper bound (Experiment 3, n=50 baseline) provides strong additional
-  support for the Experiment 1 result: CC geometry (r = 0.930 vs T4/T5 biology)
-  substantially exceeds random geometry (r = 0.603 vs T4/T5 biology), with the gap
-  (Δr = 0.327) attributable to the connectome constraint above and beyond circular
-  stimulus structure
-- The Euclidean result is non-significant by all methods including permutation in both
-  experiments (stability-constrained baseline), confirming cosine distance as the
-  appropriate primary metric; Euclidean significance under matched-instability is a
-  numerical artifact of scale distortion from near-overflow activations
+  support: CC geometry (r = 0.930 vs T4/T5 biology) substantially exceeds random geometry
+  (r = 0.603 vs T4/T5 biology), with gap Δr = 0.327 attributable to the connectome
+  constraint above and beyond circular stimulus structure
 - Low first-try acceptance rates (1/10 at n=10 and 5/50 at n=50 in Experiment 1; 3/10
   at n=10 and 6/50 at n=50 in Experiment 2) confirm that dynamically stable
-  configurations are rare in full Shiu weight space across the full ensemble — the
-  trained connectome occupies an atypical region of parameter space from a stability
-  standpoint, independent of representational geometry
+  configurations are rare in full Shiu weight space — the trained connectome occupies an
+  atypical region of parameter space from a stability standpoint
 - Within-CC consistency improves from ON-only (r = 0.721 at n=50) to ON+OFF
   (r = 0.838 at n=50, r = 0.850 at n=10), supporting polarity as a stronger organizer
   of representational geometry than direction alone
@@ -640,11 +625,15 @@ Experiment 2 biological comparison is therefore not reported as a meaningful res
   Δr = 0.138); the asymmetry is confirmed by both Fisher z-transform (z = 3.454,
   p = 0.0006) and model-level bootstrap (95% CI [0.091, 0.236], p < 0.0001), consistent
   with known T4/T5 differences in direction selectivity strength
+- Within-CC consistency at n=50 (r = 0.838 ± 0.059) is substantially higher and tighter
+  than Experiment 1 n=50 (r = 0.721 ± 0.150), supporting polarity as a stronger organizer
+  of representational geometry than direction alone; UMAP of individual model RDMs reveals
+  no discrete cluster structure, confirming that this consistency reflects a genuinely
+  coherent representational geometry rather than averaging across qualitatively distinct
+  solutions
 - The Experiment 2 biological comparison is uninterpretable due to a structural mismatch
   in the biological RDM construction; a matched-stimulus biological reference would be
   required to extend the upper bound analysis to the 24-condition case
-- Within-CC consistency should be reported separately per cluster if UMAP reveals
-  substructure in the ensemble geometry (planned)
 
 ---
 
@@ -669,7 +658,8 @@ Python ≥ 3.9, < 3.13.
 # Experiment 1: ON edges
 
 ### Canonical fidelity result — n=50 (stability-constrained)
-results = run_experiment(n_models=50, randomization_strategy="full_shiu")
+### Skips experiment if results file already exists
+python experiments/moving_edge_on.py
 
 ### Comparison result — n=10 (stability-constrained)
 results = run_experiment(n_models=10, randomization_strategy="full_shiu")
@@ -680,7 +670,8 @@ results = run_experiment(n_models=50, randomization_strategy="synapse_only")
 # Experiment 2: ON + OFF edges
 
 ### Canonical fidelity result — n=50 (stability-constrained)
-results = run_experiment(n_models=50, randomization_strategy="full_shiu")
+### Skips experiment if results file already exists
+python experiments/moving_edge_on_off.py
 
 ### Comparison result — n=10 (stability-constrained)
 results = run_experiment(n_models=10, randomization_strategy="full_shiu")
@@ -688,16 +679,10 @@ results = run_experiment(n_models=10, randomization_strategy="full_shiu")
 ### Instability documentation — n=50 (synapse-only)
 results = run_experiment(n_models=50, randomization_strategy="synapse_only")
 
-# Within-polarity analysis (Experiment 2 post-hoc)
-
-### Run after the n=50 Experiment 2 canonical run.
-### Requires results_exp2_50models_full_shiu.npz.
-### Executes visualization, circular structure test, Fisher z-transform, and
-### model-level bootstrap — all analyses load from the saved .npz file.
+# Within-polarity and UMAP post-hoc analyses run automatically after the
+# n=50 canonical experiment (or when the results file is already present).
 
 # Experiment 3: Biological upper bound
-
-### Load n=50 stability-constrained results from Experiments 1 and 2, then run
 bio_results = run_biological_upper_bound(results_exp1, results_exp2)
 ```
 
@@ -705,7 +690,7 @@ Set `n_models=1` for a quick debug run before committing to a full experiment.
 Experiment 1 (ON edges, 12 conditions): n=10 runs take approximately 15–20 minutes
 on a T4 GPU; n=50 runs take 60–90 minutes. Experiment 2 (ON+OFF edges, 24 conditions)
 takes approximately twice as long at each scale: n=10 takes ~1–2 hours; n=50 takes
-~3-4 hours. Permutation testing (10,000 permutations) adds ~2–3 minutes per run. Set
+~3–4 hours. Permutation testing (10,000 permutations) adds ~2–3 minutes per run. Set
 `n_permutations=0` to skip.
 
 Colab-ready notebooks are in `notebooks/`. Standalone scripts are in `experiments/`.
@@ -720,7 +705,9 @@ connectome-fidelity/
 ├── experiments/
 │   ├── moving_edge_on.py              ← ON edges experiment (canonical fidelity result)
 │   ├── moving_edge_on_off.py          ← ON+OFF edges experiment (polarity generalization)
-│   └── biological_upper_bound.py      ← Biological upper bound (Maisak et al. 2013)
+│   ├── biological_upper_bound.py      ← Biological upper bound (Maisak et al. 2013)
+│   ├── umap_exp1.py                   ← UMAP post-hoc analysis, Experiment 1
+│   └── umap_exp2.py                   ← UMAP post-hoc analysis, Experiment 2
 ├── notebooks/
 │   ├── moving_edge_on.ipynb           ← Colab-ready notebook, ON edges results
 │   ├── moving_edge_on_off.ipynb       ← Colab-ready notebook, ON+OFF edges results
@@ -735,7 +722,6 @@ connectome-fidelity/
     ├── moving_edge_on_permtest_10models_full_shiu.png
     ├── moving_edge_on_rdms_50models_full_shiu.png
     ├── moving_edge_on_permtest_50models_full_shiu.png
-    ├── umap_cc_ensemble_exp1.png
     ├── moving_edge_on_off_rdms_10models_full_shiu.png
     ├── moving_edge_on_off_permtest_10models_full_shiu.png
     ├── moving_edge_on_off_rdms_50models_full_shiu.png
@@ -743,12 +729,11 @@ connectome-fidelity/
     ├── within_polarity_blocks_cc_vs_random_50models_full_shiu.png
     ├── within_polarity_circular_test_50models_full_shiu.png
     ├── bootstrap_on_off_asymmetry_50models_full_shiu.png
-    ├── umap_cc_ensemble_exp2.png
     ├── maisak2013_t4t5_von_mises_tuning.png
     ├── biological_upper_bound_exp1.png
     ├── bio_upper_bound_exp1_permtest.png
-    ├── biological_upper_bound_exp2.png
-    └── bio_upper_bound_exp2_permtest.png
+    ├── umap_cc_ensemble_exp1.png       ← pending Experiment 1 re-run
+    └── umap_cc_ensemble_exp2.png
 ```
 
 ---
