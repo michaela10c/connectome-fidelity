@@ -776,8 +776,17 @@ if __name__ == "__main__":
         ax.set_yticks([])
 
     # Add colorbars in dedicated axes outside the plot area
-    cax1 = fig.add_axes([0.93, 0.53, 0.02, 0.35])  # top row colorbar
-    cax2 = fig.add_axes([0.93, 0.10, 0.02, 0.35])  # bottom row colorbar
+    fig.canvas.draw()  # force layout computation
+
+    # Get actual positions of the axes
+    pos00 = axes[0, 0].get_position()  # top-left panel
+    pos01 = axes[0, 1].get_position()  # top-right panel
+    pos10 = axes[1, 0].get_position()  # bottom-left panel
+    pos11 = axes[1, 1].get_position()  # bottom-right panel
+
+    # Place colorbars aligned to the right edge of column 1 and vertically matching each row
+    cax1 = fig.add_axes([pos01.x1 + 0.01, pos01.y0, 0.02, pos01.height])
+    cax2 = fig.add_axes([pos11.x1 + 0.01, pos11.y0, 0.02, pos11.height])
     fig.colorbar(ims[0], cax=cax1)
     fig.colorbar(ims[2], cax=cax2)
 
