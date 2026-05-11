@@ -587,10 +587,7 @@ The embedding reveals no discrete cluster structure — the 50 models form a con
 roughly uniform cloud with no visible groupings or gaps. Model rank shows a weak gradient
 across the embedding but no discrete separation. This confirms that the CC ensemble
 implements a single coherent representational strategy across all 50 trained solutions,
-rather than a mixture of qualitatively distinct geometries. This mirrors the Experiment 1 result (66 pairs, 12×12 RDM), where the same analysis
-also found no discrete cluster structure, confirming that uniform representational
-geometry is a robust property of the connectome constraint across both stimulus sets.
-This is precisely the property that makes geometry a candidate fidelity metric.
+rather than a mixture of qualitatively distinct geometries. This mirrors the Experiment 1 result (66 pairs, 12×12 RDM), where the same analysis also found no discrete cluster structure, confirming that uniform representational geometry is a robust property of the connectome constraint across both stimulus sets. This is precisely the property that makes geometry a candidate fidelity metric.
 
 ---
 
