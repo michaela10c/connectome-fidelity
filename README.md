@@ -760,6 +760,12 @@ connectome-fidelity/
 
 ---
 
+## Data and Code Availability
+
+All experiment scripts, analysis code, and saved results are available in this repository. The pretrained Flyvis ensemble (Lappalainen et al. 2024) is open source and available at https://github.com/TuragaLab/flyvis under the terms of its original license. Results files (`results/`) and figures (`figures/`) are included in this repository. All analyses are fully reproducible from the provided scripts using seed=42 on Google Colab with a T4 GPU runtime.
+
+---
+
 ## References
 
 - Lappalainen et al. 2024. Connectome-constrained networks predict neural activity across the fly visual system. *Nature* 634, 1132–1140. https://www.nature.com/articles/s41586-024-07939-3
