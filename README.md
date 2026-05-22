@@ -729,33 +729,37 @@ connectome-fidelity/
 ├── experiments/
 │   ├── moving_edge_on.py              ← ON edges experiment (canonical fidelity result)
 │   ├── moving_edge_on_off.py          ← ON+OFF edges experiment (polarity generalization)
-│   └── biological_upper_bound.py      ← Biological upper bound (Maisak et al. 2013)
+│   ├── biological_upper_bound.py      ← Biological upper bound (Maisak et al. 2013)
+│   └── cka_validation.py              ← CKA secondary validation (Kornblith et al. 2019)
 ├── notebooks/
 │   ├── moving_edge_on.ipynb           ← Colab-ready notebook, ON edges results
 │   ├── moving_edge_on_off.ipynb       ← Colab-ready notebook, ON+OFF edges results
-│   └── biological_upper_bound.ipynb   ← Colab-ready notebook, biological upper bound results
+│   ├── biological_upper_bound.ipynb   ← Colab-ready notebook, biological upper bound results
+│   └── cka_validation.ipynb           ← Colab-ready notebook, CKA validation (CPU-only)
 ├── results/
-│   ├── results_exp1_10models_full_shiu.npz   ← Exp 1, n=10, stability-constrained
-│   ├── results_exp1_50models_full_shiu.npz   ← Exp 1, n=50, stability-constrained
-│   ├── results_exp2_10models_full_shiu.npz   ← Exp 2, n=10, stability-constrained
-│   └── results_exp2_50models_full_shiu.npz   ← Exp 2, n=50, stability-constrained
-└── figures/
-    ├── moving_edge_on_rdms_10models_full_shiu.png
-    ├── moving_edge_on_permtest_10models_full_shiu.png
-    ├── moving_edge_on_rdms_50models_full_shiu.png
-    ├── moving_edge_on_permtest_50models_full_shiu.png
-    ├── moving_edge_on_off_rdms_10models_full_shiu.png
-    ├── moving_edge_on_off_permtest_10models_full_shiu.png
-    ├── moving_edge_on_off_rdms_50models_full_shiu.png
-    ├── moving_edge_on_off_permtest_50models_full_shiu.png
-    ├── within_polarity_blocks_cc_vs_random_50models_full_shiu.png
-    ├── within_polarity_circular_test_50models_full_shiu.png
-    ├── bootstrap_on_off_asymmetry_50models_full_shiu.png
-    ├── maisak2013_t4t5_von_mises_tuning.png
-    ├── biological_upper_bound_exp1.png
-    ├── bio_upper_bound_exp1_permtest.png
-    ├── umap_cc_ensemble_exp1.png
-    └── umap_cc_ensemble_exp2.png
+│   ├── results_exp1_10models_full_shiu.npz      ← Exp 1, n=10, stability-constrained
+│   ├── results_exp1_50models_full_shiu.npz      ← Exp 1, n=50, stability-constrained (canonical)
+│   ├── results_exp2_10models_full_shiu.npz      ← Exp 2, n=10, stability-constrained
+│   ├── results_exp2_50models_full_shiu.npz      ← Exp 2, n=50, stability-constrained (canonical)
+│   └── cka_validation_50models_full_shiu.npz    ← CKA results, both experiments
+├── figures/
+│   ├── moving_edge_on_rdms_10models_full_shiu.png
+│   ├── moving_edge_on_permtest_10models_full_shiu.png
+│   ├── moving_edge_on_rdms_50models_full_shiu.png
+│   ├── moving_edge_on_permtest_50models_full_shiu.png
+│   ├── moving_edge_on_off_rdms_10models_full_shiu.png
+│   ├── moving_edge_on_off_permtest_10models_full_shiu.png
+│   ├── moving_edge_on_off_rdms_50models_full_shiu.png
+│   ├── moving_edge_on_off_permtest_50models_full_shiu.png
+│   ├── within_polarity_blocks_cc_vs_random_50models_full_shiu.png
+│   ├── within_polarity_circular_test_50models_full_shiu.png
+│   ├── bootstrap_on_off_asymmetry_50models_full_shiu.png
+│   ├── maisak2013_t4t5_von_mises_tuning.png
+│   ├── biological_upper_bound_exp1.png
+│   ├── bio_upper_bound_exp1_permtest.png
+│   ├── umap_cc_ensemble_exp1.png
+│   ├── umap_cc_ensemble_exp2.png
+│   └── cka_validation_exp1_exp2.png            
 ```
 
 ---
