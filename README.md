@@ -671,6 +671,10 @@ biological comparison is not reported as a meaningful result.
 - The Experiment 2 biological comparison is uninterpretable due to a structural mismatch
   in the biological RDM construction; a matched-stimulus biological reference would be
   required to extend the upper bound analysis to the 24-condition case
+- Linear CKA (Kornblith et al. 2019) provides independent corroboration of the RSA
+  result: CKA(CC, Random) = 0.502 (Exp 1, p = 0.0095) and 0.647 (Exp 2, p < 0.0001),
+  both significantly below 1 by permutation test; bootstrap CIs are wide, reflecting
+  model-level variability, and the permutation test is the primary inference
 
 ---
 
@@ -798,9 +802,7 @@ All experiment scripts, analysis code, and saved results are available in this r
 
 - Nili et al. 2014. A toolbox for representational similarity analysis. *PLOS Computational Biology* 10(4): e1003553. https://doi.org/10.1371/journal.pcbi.1003553
 
-- Kornblith et al. 2019. Similarity of neural network representations revisited. 
-  *Proceedings of the 36th International Conference on Machine Learning (ICML)*, 
-  PMLR 97, 3519–3529. https://arxiv.org/abs/1905.00414
+- Kornblith et al. 2019. Similarity of neural network representations revisited. *Proceedings of the 36th International Conference on Machine Learning (ICML)*, PMLR 97, 3519–3529. https://arxiv.org/abs/1905.00414
 
 - Brunton et al. 2026. The digital sphinx: Can a worm brain control a fly body? *bioRxiv*. https://www.biorxiv.org/content/10.64898/2026.03.20.713233v1
 
