@@ -268,6 +268,20 @@ The near-null result reflects a structural mismatch between the biological RDM
 construction and the CC network's representational geometry — not a failure of the CC
 network. See Results for full interpretation.
 
+### CKA Validation — Experiments 1 and 2 (n=50, stability-constrained, full Shiu-style shuffle)
+
+| Experiment | CKA(CC, Random) | p (permutation) | Bootstrap 95% CI |
+|------------|----------------|-----------------|------------------|
+| Exp 1: ON edges (12 cond.) | 0.502 | 0.0095 | [0.412, 0.781] |
+| Exp 2: ON+OFF edges (24 cond.) | 0.647 | < 0.0001 | [0.052, 0.753] |
+
+Linear CKA (Kornblith et al. 2019) between mean CC and mean random population matrices
+is significantly below 1 in both experiments (permutation test, 10,000 permutations),
+confirming that the RSA-based fidelity result holds under an independent geometric
+similarity metric that operates on raw activation matrices rather than RDMs. Bootstrap
+CIs are wide, reflecting genuine model-level variability; the permutation test is the
+primary inference. The primary fidelity result rests on RSA.
+
 ---
 
 The connectome-constrained network produces direction-sensitive representational geometry
