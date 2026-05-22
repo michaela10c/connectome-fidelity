@@ -671,6 +671,8 @@ def run_experiment(n_models=50, randomization_strategy="full_shiu",
         "rand_rdm_eucl":    rand_rdm_eucl_mean,
         "r_cosine":  r_cosine,  "p_cosine":  p_cosine,
         "rk_cosine": rk_cosine, "pk_cosine": pk_cosine,
+        "cc_pop_matrices":   np.array(cc_pop_matrices), # added for CKA
+        "rand_pop_matrices": np.array(rand_pop_matrices), # added for CKA
         "r_eucl":    r_eucl,    "p_eucl":    p_eucl,
         "rk_eucl":   rk_eucl,   "pk_eucl":   pk_eucl,
         "perm_cosine": perm_results_cosine,
@@ -709,6 +711,8 @@ if __name__ == "__main__":
             cell_types=results["cell_types"],
             stim_labels=results["stim_labels"],
             cc_rdms_cosine=np.array(results["cc_rdms_cosine"]),  # for model-level bootstrap
+            cc_pop_matrices=results["cc_pop_matrices"], # added for CKA
+            rand_pop_matrices=results["rand_pop_matrices"], # added for CKA
         )
         print(f"Saved {RESULTS_FILE}")
 
