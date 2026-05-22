@@ -673,7 +673,7 @@ biological comparison is not reported as a meaningful result.
   required to extend the upper bound analysis to the 24-condition case
 - Linear CKA (Kornblith et al. 2019) provides independent corroboration of the RSA
   result: CKA(CC, Random) = 0.502 (Exp 1, p = 0.0095) and 0.647 (Exp 2, p < 0.0001),
-  both significantly below 1 by permutation test; bootstrap CIs are wide, reflecting
+  both significantly greater than chance (permutation test against stimulus-label null); bootstrap CIs are wide, reflecting
   model-level variability, and the permutation test is the primary inference
 
 ---
