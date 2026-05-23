@@ -119,153 +119,143 @@ def permutation_test_cka(cc_matrices, rand_matrices,
     return obs_cka, p_val, null_cka
 
 
-# ── 2. LOAD RESULTS ───────────────────────────────────────────────────────────
+def main():
+    # ── 2. LOAD RESULTS ───────────────────────────────────────────────────────
+    results_dir = Path("results")
 
-results_dir = Path("results")
+    print("Loading Experiment 1 results (ON edges, n=50)...")
+    exp1 = np.load(
+        results_dir / "results_exp1_50models_full_shiu.npz",
+        allow_pickle=True
+    )
+    cc1   = exp1["cc_pop_matrices"]    # (50, 12, 65)
+    rand1 = exp1["rand_pop_matrices"]  # (50, 12, 65)
+    print(f"  cc_pop_matrices:   {cc1.shape}")
+    print(f"  rand_pop_matrices: {rand1.shape}")
 
-print("Loading Experiment 1 results (ON edges, n=50)...")
-exp1 = np.load(
-    results_dir / "results_exp1_50models_full_shiu.npz",
-    allow_pickle=True
-)
-cc1   = exp1["cc_pop_matrices"]    # (50, 12, 65)
-rand1 = exp1["rand_pop_matrices"]  # (50, 12, 65)
-print(f"  cc_pop_matrices:   {cc1.shape}")
-print(f"  rand_pop_matrices: {rand1.shape}")
+    print("\nLoading Experiment 2 results (ON+OFF edges, n=50)...")
+    exp2 = np.load(
+        results_dir / "results_exp2_50models_full_shiu.npz",
+        allow_pickle=True
+    )
+    cc2   = exp2["cc_pop_matrices"]    # (50, 24, 65)
+    rand2 = exp2["rand_pop_matrices"]  # (50, 24, 65)
+    print(f"  cc_pop_matrices:   {cc2.shape}")
+    print(f"  rand_pop_matrices: {rand2.shape}")
 
-print("\nLoading Experiment 2 results (ON+OFF edges, n=50)...")
-exp2 = np.load(
-    results_dir / "results_exp2_50models_full_shiu.npz",
-    allow_pickle=True
-)
-cc2   = exp2["cc_pop_matrices"]    # (50, 24, 65)
-rand2 = exp2["rand_pop_matrices"]  # (50, 24, 65)
-print(f"  cc_pop_matrices:   {cc2.shape}")
-print(f"  rand_pop_matrices: {rand2.shape}")
+    # ── 3. COMPUTE CKA ───────────────────────────────────────────────────────
+    print("\n" + "="*60)
+    print("CKA RESULTS")
+    print("="*60)
 
+    cc1_mean   = cc1.mean(axis=0)
+    rand1_mean = rand1.mean(axis=0)
+    cc2_mean   = cc2.mean(axis=0)
+    rand2_mean = rand2.mean(axis=0)
 
-# ── 3. COMPUTE CKA ───────────────────────────────────────────────────────────
+    cka_exp1 = linear_cka(cc1_mean, rand1_mean)
+    cka_exp2 = linear_cka(cc2_mean, rand2_mean)
 
-print("\n" + "="*60)
-print("CKA RESULTS")
-print("="*60)
+    print(f"\nExp 1 (ON edges, 12 cond.)     — CKA(CC, Random) = {cka_exp1:.4f}")
+    print(f"Exp 2 (ON+OFF edges, 24 cond.) — CKA(CC, Random) = {cka_exp2:.4f}")
 
-# Mean population matrices across models
-cc1_mean   = cc1.mean(axis=0)    # (12, 65)
-rand1_mean = rand1.mean(axis=0)  # (12, 65)
-cc2_mean   = cc2.mean(axis=0)    # (24, 65)
-rand2_mean = rand2.mean(axis=0)  # (24, 65)
+    print(f"\n--- PERMUTATION TEST (10,000 permutations) ---")
+    obs1, p1, null1 = permutation_test_cka(cc1, rand1, seed=SEED)
+    obs2, p2, null2 = permutation_test_cka(cc2, rand2, seed=SEED)
+    print(f"Exp 1: CKA = {obs1:.4f}, p = {p1:.4f}")
+    print(f"Exp 2: CKA = {obs2:.4f}, p = {p2:.4f}")
 
-# Observed CKA
-cka_exp1 = linear_cka(cc1_mean, rand1_mean)
-cka_exp2 = linear_cka(cc2_mean, rand2_mean)
+    print(f"\n--- BOOTSTRAP 95% CI (10,000 samples, model-level resampling) ---")
+    ci1_low, ci1_high, boot1 = bootstrap_cka_ci(cc1, rand1, seed=SEED)
+    ci2_low, ci2_high, boot2 = bootstrap_cka_ci(cc2, rand2, seed=SEED)
+    print(f"Exp 1: 95% CI [{ci1_low:.4f}, {ci1_high:.4f}]")
+    print(f"Exp 2: 95% CI [{ci2_low:.4f}, {ci2_high:.4f}]")
 
-print(f"\nExp 1 (ON edges, 12 cond.)     — CKA(CC, Random) = {cka_exp1:.4f}")
-print(f"Exp 2 (ON+OFF edges, 24 cond.) — CKA(CC, Random) = {cka_exp2:.4f}")
+    # ── 4. FIGURE ────────────────────────────────────────────────────────────
+    fig, axes = plt.subplots(2, 2, figsize=(10, 8))
+    fig.suptitle(
+        "CKA Validation: Connectome-Constrained vs Stability-Constrained Random\n"
+        "(n=50, seed=42, Kornblith et al. 2019)",
+        fontsize=11
+    )
 
-# Permutation tests
-print(f"\n--- PERMUTATION TEST (10,000 permutations) ---")
-obs1, p1, null1 = permutation_test_cka(cc1, rand1, seed=SEED)
-obs2, p2, null2 = permutation_test_cka(cc2, rand2, seed=SEED)
-print(f"Exp 1: CKA = {obs1:.4f}, p = {p1:.4f}")
-print(f"Exp 2: CKA = {obs2:.4f}, p = {p2:.4f}")
+    for ax, null, obs, p, title in zip(
+        axes[0],
+        [null1, null2],
+        [obs1, obs2],
+        [p1, p2],
+        ["Exp 1: ON edges (12 cond.)", "Exp 2: ON+OFF edges (24 cond.)"]
+    ):
+        ax.hist(null, bins=50, color="steelblue", alpha=0.7,
+                label="Null distribution")
+        ax.axvline(obs, color="red", linewidth=2,
+                   label=f"Observed CKA = {obs:.4f}")
+        ax.set_xlabel("CKA (permuted)")
+        ax.set_ylabel("Count")
+        ax.set_title(f"{title}\np = {p:.4f}")
+        ax.legend(fontsize=8)
 
-# Bootstrap CIs
-print(f"\n--- BOOTSTRAP 95% CI (10,000 samples, model-level resampling) ---")
-ci1_low, ci1_high, boot1 = bootstrap_cka_ci(cc1, rand1, seed=SEED)
-ci2_low, ci2_high, boot2 = bootstrap_cka_ci(cc2, rand2, seed=SEED)
-print(f"Exp 1: 95% CI [{ci1_low:.4f}, {ci1_high:.4f}]")
-print(f"Exp 2: 95% CI [{ci2_low:.4f}, {ci2_high:.4f}]")
+    for ax, boot, obs, ci_low, ci_high, title in zip(
+        axes[1],
+        [boot1, boot2],
+        [obs1, obs2],
+        [ci1_low, ci2_low],
+        [ci1_high, ci2_high],
+        ["Exp 1: ON edges (12 cond.)", "Exp 2: ON+OFF edges (24 cond.)"]
+    ):
+        ax.hist(boot, bins=50, color="seagreen", alpha=0.7,
+                label="Bootstrap distribution")
+        ax.axvline(obs, color="red", linewidth=2,
+                   label=f"Observed CKA = {obs:.4f}")
+        ax.axvline(ci_low,  color="gray", linewidth=1.5, linestyle="--",
+                   label=f"95% CI [{ci_low:.4f}, {ci_high:.4f}]")
+        ax.axvline(ci_high, color="gray", linewidth=1.5, linestyle="--")
+        ax.set_xlabel("CKA (bootstrap)")
+        ax.set_ylabel("Count")
+        ax.set_title(f"{title}\n95% CI [{ci_low:.4f}, {ci_high:.4f}]")
+        ax.legend(fontsize=8)
 
+    plt.tight_layout()
+    fname = "figures/cka_validation_exp1_exp2.png"
+    fig.savefig(fname, dpi=150, bbox_inches="tight")
+    print(f"\nSaved: {fname}")
+    plt.show()
 
-# ── 4. FIGURE ────────────────────────────────────────────────────────────────
+    # ── 5. SUMMARY ───────────────────────────────────────────────────────────
+    print("\n" + "="*60)
+    print("SUMMARY")
+    print("="*60)
+    print(f"  Exp 1 (ON edges):     CKA = {obs1:.4f} | p = {p1:.4f} "
+          f"| 95% CI [{ci1_low:.4f}, {ci1_high:.4f}]")
+    print(f"  Exp 2 (ON+OFF edges): CKA = {obs2:.4f} | p = {p2:.4f} "
+          f"| 95% CI [{ci2_low:.4f}, {ci2_high:.4f}]")
+    print()
+    print("  Interpretation:")
+    print("  CKA < 1 with p < 0.05 → CC and random geometry are significantly different")
+    print("  Convergence with RSA result strengthens the fidelity claim")
+    print()
+    print("  RSA reference (from Experiments 1 & 2, n=50 canonical):")
+    print("  Exp 1: Spearman r = 0.686, p < 0.0001")
+    print("  Exp 2: Spearman r = 0.846, p < 0.0001")
 
-fig, axes = plt.subplots(2, 2, figsize=(10, 8))
-fig.suptitle(
-    "CKA Validation: Connectome-Constrained vs Stability-Constrained Random\n"
-    "(n=50, seed=42, Kornblith et al. 2019)",
-    fontsize=11
-)
-
-# Row 1: permutation null distributions
-for ax, null, obs, p, title in zip(
-    axes[0],
-    [null1, null2],
-    [obs1, obs2],
-    [p1, p2],
-    ["Exp 1: ON edges (12 cond.)", "Exp 2: ON+OFF edges (24 cond.)"]
-):
-    ax.hist(null, bins=50, color="steelblue", alpha=0.7,
-            label="Null distribution")
-    ax.axvline(obs, color="red", linewidth=2,
-               label=f"Observed CKA = {obs:.4f}")
-    ax.set_xlabel("CKA (permuted)")
-    ax.set_ylabel("Count")
-    ax.set_title(f"{title}\np = {p:.4f}")
-    ax.legend(fontsize=8)
-
-# Row 2: bootstrap distributions
-for ax, boot, obs, ci_low, ci_high, title in zip(
-    axes[1],
-    [boot1, boot2],
-    [obs1, obs2],
-    [ci1_low, ci2_low],
-    [ci1_high, ci2_high],
-    ["Exp 1: ON edges (12 cond.)", "Exp 2: ON+OFF edges (24 cond.)"]
-):
-    ax.hist(boot, bins=50, color="seagreen", alpha=0.7,
-            label="Bootstrap distribution")
-    ax.axvline(obs, color="red", linewidth=2,
-               label=f"Observed CKA = {obs:.4f}")
-    ax.axvline(ci_low,  color="gray", linewidth=1.5, linestyle="--",
-               label=f"95% CI [{ci_low:.4f}, {ci_high:.4f}]")
-    ax.axvline(ci_high, color="gray", linewidth=1.5, linestyle="--")
-    ax.set_xlabel("CKA (bootstrap)")
-    ax.set_ylabel("Count")
-    ax.set_title(f"{title}\n95% CI [{ci_low:.4f}, {ci_high:.4f}]")
-    ax.legend(fontsize=8)
-
-plt.tight_layout()
-fname = "figures/cka_validation_exp1_exp2.png"
-fig.savefig(fname, dpi=150, bbox_inches="tight")
-print(f"\nSaved: {fname}")
-plt.show()
-
-
-# ── 5. SUMMARY ───────────────────────────────────────────────────────────────
-
-print("\n" + "="*60)
-print("SUMMARY")
-print("="*60)
-print(f"  Exp 1 (ON edges):     CKA = {obs1:.4f} | p = {p1:.4f} "
-      f"| 95% CI [{ci1_low:.4f}, {ci1_high:.4f}]")
-print(f"  Exp 2 (ON+OFF edges): CKA = {obs2:.4f} | p = {p2:.4f} "
-      f"| 95% CI [{ci2_low:.4f}, {ci2_high:.4f}]")
-print()
-print("  Interpretation:")
-print("  CKA < 1 with p < 0.05 → CC and random geometry are significantly different")
-print("  Convergence with RSA result strengthens the fidelity claim")
-print()
-print("  RSA reference (from Experiments 1 & 2, n=50 canonical):")
-print("  Exp 1: Spearman r = 0.686, p < 0.0001")
-print("  Exp 2: Spearman r = 0.846, p < 0.0001")
+    # ── 6. SAVE CKA RESULTS ──────────────────────────────────────────────────
+    np.savez(
+        "results/cka_validation_50models_full_shiu.npz",
+        cka_exp1=obs1,
+        cka_exp2=obs2,
+        p_exp1=p1,
+        p_exp2=p2,
+        ci1_low=ci1_low,
+        ci1_high=ci1_high,
+        ci2_low=ci2_low,
+        ci2_high=ci2_high,
+        null_exp1=null1,
+        null_exp2=null2,
+        boot_exp1=boot1,
+        boot_exp2=boot2,
+    )
+    print("Saved: results/cka_validation_50models_full_shiu.npz")
 
 
-# ── 6. SAVE CKA RESULTS ──────────────────────────────────────────────────────
-
-np.savez(
-    "results/cka_validation_50models_full_shiu.npz",
-    cka_exp1=obs1,
-    cka_exp2=obs2,
-    p_exp1=p1,
-    p_exp2=p2,
-    ci1_low=ci1_low,
-    ci1_high=ci1_high,
-    ci2_low=ci2_low,
-    ci2_high=ci2_high,
-    null_exp1=null1,
-    null_exp2=null2,
-    boot_exp1=boot1,
-    boot_exp2=boot2,
-)
-print("Saved: results/cka_validation_50models_full_shiu.npz")
+if __name__ == "__main__":
+    main()
