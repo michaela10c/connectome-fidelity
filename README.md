@@ -731,13 +731,16 @@ results = run_experiment(n_models=50, randomization_strategy="synapse_only")
 ### n=50 canonical experiment (or when the results file is already present).
 
 # Experiment 3: Biological upper bound
+
 bio_results = run_biological_upper_bound(results_exp1, results_exp2)
 
 # CKA validation (CPU-only, no Flyvis required)
+
 ### Run after Experiments 1 and 2 are complete and results files are saved
 run_cka_validation()  # or cka_validation.ipynb
 
 # Post-hoc analyses: MDS and noise-whitened RDMs (CPU-only, no Flyvis required)
+
 ### Run after Experiments 1 and 2 are complete and results files are saved
 posthoc_mds_whitened_rdms.py  # or posthoc_mds_whitened_rdms.ipynb
 ```
