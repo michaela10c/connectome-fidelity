@@ -675,7 +675,13 @@ biological comparison is not reported as a meaningful result.
   result: CKA(CC, Random) = 0.502 (Exp 1, p = 0.0095) and 0.647 (Exp 2, p < 0.0001),
   both significantly greater than chance (permutation test against stimulus-label null); bootstrap CIs are wide, reflecting
   model-level variability, and the permutation test is the primary inference
-
+- MDS embeddings confirm the representational geometry visually: a partially
+  circular ring structure for Experiment 1 and clear polarity separation for
+  Experiment 2; noise-whitened RDM correlations remain significant in both
+  experiments (Exp 1: r = 0.344, p_perm = 0.0129; Exp 2: r = 0.728,
+  p_perm < 0.0001), confirming the fidelity signal is not an artifact of
+  response scale differences; within-polarity circular structure is preserved
+  under whitening (ON-ON: r = 0.952; OFF-OFF: r = 0.658; both p_perm < 0.0001)
 ---
 
 ## Installation
@@ -726,6 +732,14 @@ results = run_experiment(n_models=50, randomization_strategy="synapse_only")
 
 # Experiment 3: Biological upper bound
 bio_results = run_biological_upper_bound(results_exp1, results_exp2)
+
+# CKA validation (CPU-only, no Flyvis required)
+### Run after Experiments 1 and 2 are complete and results files are saved
+run_cka_validation()  # or cka_validation.ipynb
+
+# Post-hoc analyses: MDS and noise-whitened RDMs (CPU-only, no Flyvis required)
+### Run after Experiments 1 and 2 are complete and results files are saved
+posthoc_mds_whitened_rdms.py  # or posthoc_mds_whitened_rdms.ipynb
 ```
 
 Set `n_models=1` for a quick debug run before committing to a full experiment.
@@ -748,18 +762,21 @@ connectome-fidelity/
 │   ├── moving_edge_on.py              ← ON edges experiment (canonical fidelity result)
 │   ├── moving_edge_on_off.py          ← ON+OFF edges experiment (polarity generalization)
 │   ├── biological_upper_bound.py      ← Biological upper bound (Maisak et al. 2013)
-│   └── cka_validation.py              ← CKA secondary validation (Kornblith et al. 2019)
+│   ├── cka_validation.py              ← CKA secondary validation (Kornblith et al. 2019)
+│   └── posthoc_mds_whitened_rdms.py   ← MDS visualization and noise-whitened RDMs (CPU-only)
 ├── notebooks/
-│   ├── moving_edge_on.ipynb           ← Colab-ready notebook, ON edges results
-│   ├── moving_edge_on_off.ipynb       ← Colab-ready notebook, ON+OFF edges results
-│   ├── biological_upper_bound.ipynb   ← Colab-ready notebook, biological upper bound results
-│   └── cka_validation.ipynb           ← Colab-ready notebook, CKA validation (CPU-only)
+│   ├── moving_edge_on.ipynb             ← Colab-ready notebook, ON edges results
+│   ├── moving_edge_on_off.ipynb         ← Colab-ready notebook, ON+OFF edges results
+│   ├── biological_upper_bound.ipynb     ← Colab-ready notebook, biological upper bound results
+│   ├── cka_validation.ipynb             ← Colab-ready notebook, CKA validation (CPU-only)
+│   └── posthoc_mds_whitened_rdms.ipynb  ← Colab-ready notebook, MDS visualization and noise-whitened RDMs (CPU-only)
 ├── results/
-│   ├── results_exp1_10models_full_shiu.npz      ← Exp 1, n=10, stability-constrained
-│   ├── results_exp1_50models_full_shiu.npz      ← Exp 1, n=50, stability-constrained (canonical)
-│   ├── results_exp2_10models_full_shiu.npz      ← Exp 2, n=10, stability-constrained
-│   ├── results_exp2_50models_full_shiu.npz      ← Exp 2, n=50, stability-constrained (canonical)
-│   └── cka_validation_50models_full_shiu.npz    ← CKA results, both experiments
+│   ├── results_exp1_10models_full_shiu.npz          ← Exp 1, n=10, stability-constrained
+│   ├── results_exp1_50models_full_shiu.npz          ← Exp 1, n=50, stability-constrained (canonical)
+│   ├── results_exp2_10models_full_shiu.npz          ← Exp 2, n=10, stability-constrained
+│   ├── results_exp2_50models_full_shiu.npz          ← Exp 2, n=50, stability-constrained (canonical)
+│   └── cka_validation_50models_full_shiu.npz        ← CKA results, both experiments
+│   └── posthoc_mds_whitened_50models_full_shiu.npz  ← MDS coordinates and whitened RDMs, both experiments 
 ├── figures/
 │   ├── moving_edge_on_rdms_10models_full_shiu.png
 │   ├── moving_edge_on_permtest_10models_full_shiu.png
@@ -777,7 +794,11 @@ connectome-fidelity/
 │   ├── bio_upper_bound_exp1_permtest.png
 │   ├── umap_cc_ensemble_exp1.png
 │   ├── umap_cc_ensemble_exp2.png
-│   └── cka_validation_exp1_exp2.png            
+│   ├── cka_validation_exp1_exp2.png             
+│   ├── mds_exp1_on_edges_50models.png
+│   ├── mds_exp2_on_off_edges_50models.png
+│   ├── whitened_rdms_exp1_exp2_50models.png
+│   └── within_polarity_blocks_whitened_exp2_50models.png
 ```
 
 ---
