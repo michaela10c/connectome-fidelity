@@ -52,7 +52,7 @@ USAGE:
 REFERENCES:
     Maisak et al. 2013, Nature 500:212-216
     Nili et al. 2014, PLOS Computational Biology (permutation test)
-    Kriegeskorte et al. 2008, Nature Neuroscience (RSA)
+    Kriegeskorte et al. 2008, Frontiers in Systems Neuroscience (RSA)
 """
 
 import numpy as np
