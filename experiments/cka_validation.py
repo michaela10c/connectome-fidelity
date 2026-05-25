@@ -231,13 +231,16 @@ def main():
           f"| 95% CI [{ci2_low:.4f}, {ci2_high:.4f}]")
     print()
     print("  Interpretation:")
-    print("  CKA < 1 with p < 0.05 → CC and random geometry are significantly different")
+    print("  CKA significantly greater than chance (p < 0.05, permutation test) → CC and random geometry differ")
+    print("  Note: Exp 2 bootstrap distribution is bimodal — near-overflow activations in")
+    print("  some stable random models drive CKA toward zero under resampling; permutation")
+    print("  test is the primary inference")
     print("  Convergence with RSA result strengthens the fidelity claim")
     print()
     print("  RSA reference (from Experiments 1 & 2, n=50 canonical):")
     print("  Exp 1: Spearman r = 0.686, p < 0.0001")
     print("  Exp 2: Spearman r = 0.846, p < 0.0001")
-
+    
     # ── 6. SAVE CKA RESULTS ──────────────────────────────────────────────────
     np.savez(
         "../results/cka_validation_50models_full_shiu.npz",
