@@ -280,6 +280,29 @@ is significantly greater than chance in both experiments (permutation test, 10,0
 confirming that the RSA-based fidelity result holds under an independent geometric
 similarity metric that operates on raw activation matrices rather than RDMs. Bootstrap CIs are wide; the Exp 2 CI reflects a bimodal bootstrap distribution caused by near-overflow activations in some stable random models under resampling — the permutation test is the primary inference. The primary fidelity result rests on RSA.
 
+### Post-hoc Analyses: MDS Visualization and Noise-Whitened RDMs (n=50, both experiments)
+
+| Analysis | Experiment | Result |
+|----------|------------|--------|
+| MDS embedding (CC) | Exp 1: ON edges | Partially circular arrangement — broad topology correct; 2D projection distorted |
+| MDS embedding (CC) | Exp 2: ON+OFF edges | Clear polarity separation; ON and OFF conditions form distinct clusters |
+| MDS embedding (Random) | Both experiments | No circular or polarity organization |
+| Whitened RDM correlation | Exp 1: ON edges | Spearman r = 0.344, p_perm = 0.0129 \| Kendall τ = 0.269, p_perm = 0.0066 |
+| Whitened RDM correlation | Exp 2: ON+OFF edges | Spearman r = 0.728, p_perm < 0.0001 \| Kendall τ = 0.540, p_perm < 0.0001 |
+| Whitened within-polarity (ON-ON) | Exp 2 | Spearman r = 0.952, p_perm < 0.0001 |
+| Whitened within-polarity (OFF-OFF) | Exp 2 | Spearman r = 0.658, p_perm < 0.0001 |
+| Whitened ON/OFF asymmetry | Exp 2 | Δr = 0.294 (ON-ON r = 0.952 vs OFF-OFF r = 0.658) |
+
+Noise-whitened RDMs use Mahalanobis distance with noise covariance estimated from
+model-level variability across 50 CC models (Kriegeskorte & Wei 2021). Condition
+numbers are high (Exp 1: 4.97e+07, Exp 2: 4.28e+07) due to limited sample size
+(50 models, 65 dimensions); ridge regularization applied. The fidelity signal
+remains significant under whitening in both experiments. The Exp 2 whitened result
+is closer to the cosine RDM primary result (r = 0.846) than Exp 1 (r = 0.686),
+consistent with more stable covariance estimation from the larger 24-condition
+residual matrix. Whitened results are robustness checks — the cosine RDM remains
+the primary metric.
+
 ---
 
 The connectome-constrained network produces direction-sensitive representational geometry
