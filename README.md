@@ -278,9 +278,7 @@ network. See Results for full interpretation.
 Linear CKA (Kornblith et al. 2019) between mean CC and mean random population matrices
 is significantly greater than chance in both experiments (permutation test, 10,000 permutations),
 confirming that the RSA-based fidelity result holds under an independent geometric
-similarity metric that operates on raw activation matrices rather than RDMs. Bootstrap
-CIs are wide, reflecting genuine model-level variability; the permutation test is the
-primary inference. The primary fidelity result rests on RSA.
+similarity metric that operates on raw activation matrices rather than RDMs. Bootstrap CIs are wide; the Exp 2 CI reflects a bimodal bootstrap distribution caused by near-overflow activations in some stable random models under resampling — the permutation test is the primary inference. The primary fidelity result rests on RSA.
 
 ---
 
@@ -673,8 +671,7 @@ biological comparison is not reported as a meaningful result.
   required to extend the upper bound analysis to the 24-condition case
 - Linear CKA (Kornblith et al. 2019) provides independent corroboration of the RSA
   result: CKA(CC, Random) = 0.502 (Exp 1, p = 0.0095) and 0.647 (Exp 2, p < 0.0001),
-  both significantly greater than chance (permutation test against stimulus-label null); bootstrap CIs are wide, reflecting
-  model-level variability, and the permutation test is the primary inference
+  both significantly greater than chance (permutation test against stimulus-label null); the Exp 2 bootstrap CI is wide due to a bimodal distribution caused by near-overflow activations in some stable random models — the permutation test is the primary inference
 - MDS embeddings confirm the representational geometry visually: a partially
   circular ring structure for Experiment 1 and clear polarity separation for
   Experiment 2; noise-whitened RDM correlations remain significant in both
