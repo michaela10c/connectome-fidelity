@@ -24,14 +24,10 @@ Results files must be present in results/ from Experiments 1 and 2.
 import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
-import torch
 
 # ── REPRODUCIBILITY ───────────────────────────────────────────────────────────
 SEED = 42
 np.random.seed(SEED)
-torch.manual_seed(SEED)
-torch.cuda.manual_seed_all(SEED)
-torch.use_deterministic_algorithms(True)
 
 # ── 1. CKA IMPLEMENTATION (linear kernel) ────────────────────────────────────
 # Kornblith et al. 2019, ICML
