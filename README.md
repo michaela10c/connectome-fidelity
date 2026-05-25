@@ -735,12 +735,12 @@ bio_results = run_biological_upper_bound(results_exp1, results_exp2)
 # CKA validation (CPU-only, no Flyvis required)
 
 ### Run after Experiments 1 and 2 are complete and results files are saved
-run_cka_validation()  # or cka_validation.ipynb
+python cka_validation.py  # or cka_validation.ipynb
 
 # Post-hoc analyses: MDS and noise-whitened RDMs (CPU-only, no Flyvis required)
 
 ### Run after Experiments 1 and 2 are complete and results files are saved
-posthoc_mds_whitened_rdms.py  # or posthoc_mds_whitened_rdms.ipynb
+python posthoc_mds_whitened_rdms.py  # or posthoc_mds_whitened_rdms.ipynb
 ```
 
 Set `n_models=1` for a quick debug run before committing to a full experiment.
