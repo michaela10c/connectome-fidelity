@@ -121,7 +121,7 @@ def permutation_test_cka(cc_matrices, rand_matrices,
 
 def main():
     # ── 2. LOAD RESULTS ───────────────────────────────────────────────────────
-    results_dir = Path("results")
+    results_dir = Path("../results")
 
     print("Loading Experiment 1 results (ON edges, n=50)...")
     exp1 = np.load(
@@ -216,7 +216,7 @@ def main():
         ax.legend(fontsize=8)
 
     plt.tight_layout()
-    fname = "figures/cka_validation_exp1_exp2.png"
+    fname = "../figures/cka_validation_exp1_exp2.png"
     fig.savefig(fname, dpi=150, bbox_inches="tight")
     print(f"\nSaved: {fname}")
     plt.show()
@@ -240,7 +240,7 @@ def main():
 
     # ── 6. SAVE CKA RESULTS ──────────────────────────────────────────────────
     np.savez(
-        "results/cka_validation_50models_full_shiu.npz",
+        "../results/cka_validation_50models_full_shiu.npz",
         cka_exp1=obs1,
         cka_exp2=obs2,
         p_exp1=p1,
@@ -254,7 +254,7 @@ def main():
         boot_exp1=boot1,
         boot_exp2=boot2,
     )
-    print("Saved: results/cka_validation_50models_full_shiu.npz")
+    print("Saved: ../results/cka_validation_50models_full_shiu.npz")
 
 
 if __name__ == "__main__":
