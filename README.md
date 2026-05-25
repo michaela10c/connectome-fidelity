@@ -502,9 +502,7 @@ n=10 vs 0.721 ± 0.150 at n=50).
 
 #### Within-Ensemble Consistency
 At n=10, mean pairwise RDM correlation: **r = 0.838 ± 0.078** (range: 0.601–0.956). At
-n=50, mean pairwise RDM correlation: **r = 0.721 ± 0.150** (range: 0.323–0.983). The
-decrease at n=50 reflects the inclusion of lower-performing models, consistent with the
-known cluster structure of the Flyvis ensemble reported in Lappalainen et al. Fig. 3.
+n=50, mean pairwise RDM correlation: **r = 0.721 ± 0.150** (range: 0.323–0.983). The decrease in mean and increase in variance at n=50 reflects the inclusion of lower-performing models implementing more varied representational solutions.
 
 #### UMAP of CC Ensemble Geometry
 To assess whether the within-ensemble consistency (r = 0.721 ± 0.150) reflects a
@@ -518,17 +516,19 @@ roughly uniform cloud with no visible groupings or gaps. Model rank shows a weak
 across the embedding but no discrete separation between high- and low-performing models.
 The higher variance at n=50 (± 0.150 vs ± 0.078 at n=10) reflects a smooth spread in
 representational fidelity across the ensemble, not the presence of distinct subpopulations.
-This is notable in contrast to Lappalainen et al. (2024), who projected raw voltage
-responses to naturalistic video and found discrete mechanistic clusters (e.g. T4c
-splitting into three groups with qualitatively different direction selectivity solutions).
-The two analyses ask different questions — theirs whether models implement direction
-selectivity via different circuit mechanisms (**yes**), ours whether models produce
-different ordinal stimulus geometries (**no**) — and the results are compatible: the
-Flyvis ensemble explores diverse parameter configurations and tuning mechanisms, but
-***the representational geometry over stimulus space remains stable***. This mirrors
-the Experiment 2 result; taken together, both experiments confirm that uniform
-representational geometry is a robust property of the connectome constraint across
-both stimulus sets.
+
+This analysis operates on per-model RDM geometry summaries and is distinct from
+the per-cell-type, naturalistic-stimulus UMAP used in Lappalainen et al. (Fig. 3),
+which identified clusters of qualitatively distinct tuning solutions for individual
+cell types such as T4c; those cell-type-level clusters are not expected to be
+visible in a model-level RDM embedding. The two analyses ask different questions —
+theirs whether models implement direction selectivity via different circuit
+mechanisms, ours whether models produce different ordinal stimulus geometries —
+and the results are compatible: the Flyvis ensemble explores diverse parameter
+configurations and tuning mechanisms, but the representational geometry over
+stimulus space remains stable. This mirrors the Experiment 2 result; taken
+together, both experiments confirm that uniform representational geometry is a
+robust property of the connectome constraint across both stimulus sets.
 
 ---
 
@@ -622,7 +622,22 @@ The embedding reveals no discrete cluster structure — the 50 models form a con
 roughly uniform cloud with no visible groupings or gaps. Model rank shows a weak gradient
 across the embedding but no discrete separation. This confirms that the CC ensemble
 implements a single coherent representational strategy across all 50 trained solutions,
-rather than a mixture of qualitatively distinct geometries. This mirrors the Experiment 1 result (66 pairs, 12×12 RDM), where the same analysis also found no discrete cluster structure, confirming that uniform representational geometry is a robust property of the connectome constraint across both stimulus sets. This is precisely the property that makes geometry a candidate fidelity metric.
+rather than a mixture of qualitatively distinct geometries. 
+
+This analysis operates on per-model RDM geometry summaries and is distinct from
+the per-cell-type, naturalistic-stimulus UMAP used in Lappalainen et al. (Fig. 3),
+which identified clusters of qualitatively distinct tuning solutions for individual
+cell types such as T4c; those cell-type-level clusters are not expected to be
+visible in a model-level RDM embedding. The two analyses ask different questions —
+theirs whether models implement direction selectivity via different circuit
+mechanisms, ours whether models produce different ordinal stimulus geometries —
+and the results are compatible: the Flyvis ensemble explores diverse parameter
+configurations and tuning mechanisms, but the representational geometry over
+stimulus space remains stable. This mirrors the Experiment 1 result (66 pairs,
+12×12 RDM), where the same analysis also found no discrete cluster structure,
+confirming that uniform representational geometry is a robust property of the
+connectome constraint across both stimulus sets. This is precisely the property
+that makes geometry a candidate fidelity metric.
 
 ---
 
