@@ -393,7 +393,7 @@ and ON-ON submatrices (top row) and random OFF-OFF and ON-ON submatrices (bottom
 plotted with row-level shared colormaps — a single shared colorbar is shown per row:
 CC row range 0–0.012, Random row range 0–0.040. The CC ON-ON block shows a clear
 circular direction gradient; the CC OFF-OFF block shows the same ordinal structure at
-a compressed range. The random blocks show no circular direction structure. Stimulus
+a compressed range. The random ON-ON block shows a two-block artifact — 0° appears as a strong outlier with high dissimilarity from all other directions, while 30°–330° form a relatively uniform elevated block, unrelated to angular distance. The random OFF-OFF block is essentially flat. Stimulus
 conditions are interleaved by direction (OFF 0°, ON 0°, OFF 30°, ON 30°, ...),
 extracted via even/odd index separation.*
 
