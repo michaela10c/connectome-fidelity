@@ -649,12 +649,18 @@ structure alone. Both CC and Random vs Biology p_perm < 0.0001 — the gap, not
 significance, is the meaningful quantity.
 
 #### Experiment 2 Comparison (ON+OFF edges, 24 conditions)
-CC vs Biology: **Spearman r = 0.049, p_perm = 0.159** — not significant at α = 0.05.
-The near-null result reflects a structural mismatch between the biological RDM
+CC vs Biology: **Spearman r = 0.049, p = 0.422 | Kendall τ = 0.040, p = 0.368**
+(analytical); **p_perm = 0.159 | p_perm = 0.142** (permutation) — not significant at
+α = 0.05 by either measure or inference method. Random vs Biology: r = −0.038,
+τ = −0.028 — effectively zero.
+
+The near-null result is expected. The biological 24×24 RDM encodes strict T4/T5 ON/OFF
+pathway orthogonality — same-direction ON/OFF pairs are maximally dissimilar by
+construction (Maisak et al. 2013, Fig. 3c/3d). The CC network assigns moderate
+cross-polarity dissimilarity (~0.099–0.103) with shared directional structure — a
+geometrically different claim. This is a mismatch between the biological RDM
 construction and the CC network's representational geometry, not a failure of the CC
-network. A more appropriate biological upper bound for Experiment 2 would require T4/T5
-direction tuning curves measured with moving edges at matched velocities. The Experiment 2
-biological comparison is not reported as a meaningful result.
+network. The Experiment 2 biological comparison is not reported as a meaningful result.
 
 ---
 
