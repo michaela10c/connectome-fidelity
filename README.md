@@ -682,6 +682,7 @@ biological comparison is not reported as a meaningful result.
   p_perm < 0.0001), confirming the fidelity signal is not an artifact of
   response scale differences; within-polarity circular structure is preserved
   under whitening (ON-ON: r = 0.952; OFF-OFF: r = 0.658; both p_perm < 0.0001)
+
 ---
 
 ## Installation
@@ -778,7 +779,7 @@ connectome-fidelity/
 │   ├── results_exp1_50models_full_shiu.npz          ← Exp 1, n=50, stability-constrained (canonical)
 │   ├── results_exp2_10models_full_shiu.npz          ← Exp 2, n=10, stability-constrained
 │   ├── results_exp2_50models_full_shiu.npz          ← Exp 2, n=50, stability-constrained (canonical)
-│   └── cka_validation_50models_full_shiu.npz        ← CKA results, both experiments
+│   ├── cka_validation_50models_full_shiu.npz        ← CKA results, both experiments
 │   └── posthoc_mds_whitened_50models_full_shiu.npz  ← MDS coordinates and whitened RDMs, both experiments 
 ├── figures/
 │   ├── moving_edge_on_rdms_10models_full_shiu.png
