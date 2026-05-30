@@ -812,7 +812,7 @@ connectome-fidelity/
 ├── notebooks/
 │   ├── moving_edge_on.ipynb             ← Colab-ready notebook, ON edges results
 │   ├── moving_edge_on_off.ipynb         ← Colab-ready notebook, ON+OFF edges results
-│   ├── biological_reference.ipynb     ← Colab-ready notebook, biological reference results
+│   ├── biological_reference.ipynb       ← Colab-ready notebook, biological reference results
 │   ├── cka_validation.ipynb             ← Colab-ready notebook, CKA validation (CPU-only)
 │   └── posthoc_mds_whitened_rdms.ipynb  ← Colab-ready notebook, MDS visualization and noise-whitened RDMs (CPU-only)
 ├── results/
