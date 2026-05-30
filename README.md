@@ -117,7 +117,7 @@ each stimulus condition
 
 ---
 
-### Experiment 3: Biological Upper Bound
+### Experiment 3: Biological Reference
 **Reference:** T4/T5 direction tuning data from Maisak et al. (2013), Fig. 3g/3h — 8
 subtypes (T4a, T4b, T4c, T4d, T5a, T5b, T5c, T5d) with cardinal preferred directions
 (0°, 90°, 180°, 270°). Tuning curves modeled analytically using a von Mises profile
@@ -136,8 +136,8 @@ configurations.
 - Biological stimulus: moving square-wave gratings (Maisak et al. Fig. 3g/3h); model
   stimulus: `MovingEdge`. Direction tuning structure is qualitatively preserved but
   absolute response profiles differ.
-- Biological RDM covers T4/T5 subspace only (8 of 65 cell types). Interpret as an upper
-  bound for the T4/T5 subpopulation, not the full population.
+- Biological RDM covers T4/T5 subspace only (8 of 65 cell types). Interpret as a biological
+  reference for the T4/T5 subpopulation, not the full population.
 - Von Mises approximation reproduces published tuning width and peak locations; does not
   capture trial-by-trial variability.
 
@@ -240,7 +240,7 @@ configurations.
 | Cluster structure | None — 50 models form a continuous cloud |
 | Interpretation | High consistency reflects genuinely coherent geometry, not averaging across qualitatively distinct solutions |
 
-### Experiment 3: Biological Upper Bound — Experiment 1 comparison (ON edges, 12 conditions, n=50 baseline)
+### Experiment 3: Biological Reference — Experiment 1 comparison (ON edges, 12 conditions, n=50 baseline)
 
 | Comparison | Spearman r | Kendall τ | p_perm (r) |
 |------------|-----------|-----------|------------|
@@ -257,7 +257,7 @@ Both CC and Random vs Biology are significant — the circular stimulus geometry
 produces ordinal structure in any distance-preserving space. The key quantity
 is the gap (Δr = 0.327), not significance alone.
 
-### Experiment 3: Biological Upper Bound — Experiment 2 comparison (ON+OFF edges, 24 conditions, n=50 baseline)
+### Experiment 3: Biological Reference — Experiment 2 comparison (ON+OFF edges, 24 conditions, n=50 baseline)
 
 | Comparison | Spearman r | Kendall τ | p_perm (r) | Interpretable |
 |------------|-----------|-----------|------------|---------------|
@@ -429,7 +429,7 @@ HWHM ≈ 67°, rectified) for 8 T4/T5 subtypes, consistent with Maisak et al. 20
 peaks at one of the four cardinal directions (0°, 90°, 180°, 270°) with no response at
 the anti-preferred direction.*
 
-![Experiment 3 biological upper bound — Experiment 1](figures/biological_upper_bound_exp1.png)
+![Experiment 3 biological reference — Experiment 1](figures/biological_reference_exp1.png)
 
 *Experiment 3 three-way RDM comparison for Experiment 1 (ON edges, 12 conditions, n=50
 stability-constrained baseline). Left: biological reference RDM (Maisak 2013 T4/T5
@@ -438,7 +438,7 @@ bio = 0.930, τ = 0.783). Right: random mean cosine RDM (r vs bio = 0.603, τ = 
 The gap r(CC vs Bio) − r(Rand vs Bio) = 0.327 quantifies the fidelity attributable to
 the connectome constraint beyond circular stimulus structure.*
 
-![Experiment 3 permutation test — Experiment 1](figures/bio_upper_bound_exp1_permtest.png)
+![Experiment 3 permutation test — Experiment 1](figures/bio_reference_exp1_permtest.png)
 
 *Experiment 3 permutation test for CC vs Biology comparison (Experiment 1, n=50
 stability-constrained baseline, 10,000 permutations). Observed r = 0.930 and τ = 0.783
@@ -641,7 +641,7 @@ that makes geometry a candidate fidelity metric.
 
 ---
 
-### Experiment 3: Biological Upper Bound
+### Experiment 3: Biological Reference
 
 #### Biological Reference RDM
 The von Mises tuning model (kappa=2.5, HWHM ≈ 67°, rectified) produces a 12×12
@@ -691,7 +691,7 @@ network. The Experiment 2 biological comparison is not reported as a meaningful 
   (r = 0.749 vs 0.757); the larger gap in Experiment 2 (r = 0.783 vs 0.862) suggests
   clamped instability may modestly inflate the matched-instability result in the
   24-condition case
-- The biological upper bound (Experiment 3, n=50 baseline) provides strong additional
+- The biological reference (Experiment 3, n=50 baseline) provides strong additional
   support: CC geometry (r = 0.930 vs T4/T5 biology) substantially exceeds random geometry
   (r = 0.603 vs T4/T5 biology), with gap Δr = 0.327 attributable to the connectome
   constraint above and beyond circular stimulus structure
@@ -712,7 +712,7 @@ network. The Experiment 2 biological comparison is not reported as a meaningful 
   with known T4/T5 differences in direction selectivity strength
 - The Experiment 2 biological comparison is uninterpretable due to a structural mismatch
   in the biological RDM construction; a matched-stimulus biological reference would be
-  required to extend the upper bound analysis to the 24-condition case
+  required to extend the biological reference analysis to the 24-condition case
 - Linear CKA (Kornblith et al. 2019) provides independent corroboration of the RSA
   result: CKA(CC, Random) = 0.502 (Exp 1, p = 0.0095) and 0.647 (Exp 2, p < 0.0001),
   both significantly greater than chance (permutation test against stimulus-label null); the Exp 2 bootstrap CI is wide due to a bimodal distribution caused by near-overflow activations in some stable random models — the permutation test is the primary inference
@@ -772,9 +772,9 @@ results = run_experiment(n_models=50, randomization_strategy="synapse_only")
 ### Within-polarity and UMAP post-hoc analyses run automatically after the
 ### n=50 canonical experiment (or when the results file is already present).
 
-# Experiment 3: Biological upper bound
+# Experiment 3: Biological reference
 
-bio_results = run_biological_upper_bound(results_exp1, results_exp2)
+bio_results = run_biological_reference(results_exp1, results_exp2)
 
 # CKA validation (CPU-only, no Flyvis required)
 
@@ -806,13 +806,13 @@ connectome-fidelity/
 ├── experiments/
 │   ├── moving_edge_on.py              ← ON edges experiment (canonical fidelity result)
 │   ├── moving_edge_on_off.py          ← ON+OFF edges experiment (polarity generalization)
-│   ├── biological_upper_bound.py      ← Biological upper bound (Maisak et al. 2013)
+│   ├── biological_reference.py        ← Biological reference (Maisak et al. 2013)
 │   ├── cka_validation.py              ← CKA secondary validation (Kornblith et al. 2019)
 │   └── posthoc_mds_whitened_rdms.py   ← MDS visualization and noise-whitened RDMs (CPU-only)
 ├── notebooks/
 │   ├── moving_edge_on.ipynb             ← Colab-ready notebook, ON edges results
 │   ├── moving_edge_on_off.ipynb         ← Colab-ready notebook, ON+OFF edges results
-│   ├── biological_upper_bound.ipynb     ← Colab-ready notebook, biological upper bound results
+│   ├── biological_reference.ipynb     ← Colab-ready notebook, biological reference results
 │   ├── cka_validation.ipynb             ← Colab-ready notebook, CKA validation (CPU-only)
 │   └── posthoc_mds_whitened_rdms.ipynb  ← Colab-ready notebook, MDS visualization and noise-whitened RDMs (CPU-only)
 ├── results/
@@ -835,8 +835,8 @@ connectome-fidelity/
 │   ├── within_polarity_circular_test_50models_full_shiu.png
 │   ├── bootstrap_on_off_asymmetry_50models_full_shiu.png
 │   ├── maisak2013_t4t5_von_mises_tuning.png
-│   ├── biological_upper_bound_exp1.png
-│   ├── bio_upper_bound_exp1_permtest.png
+│   ├── biological_reference_exp1.png
+│   ├── bio_reference_exp1_permtest.png
 │   ├── umap_cc_ensemble_exp1.png
 │   ├── umap_cc_ensemble_exp2.png
 │   ├── cka_validation_exp1_exp2.png             
