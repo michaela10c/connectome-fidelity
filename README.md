@@ -453,11 +453,11 @@ of 10,000 permutations exceeded the observed correlation.*
 
 | Label | File |
 |-------|------|
-| S1 | `figures/umap_cc_ensemble_exp1.png` |
-| S2 | `figures/umap_cc_ensemble_exp2.png` |
-| S3 | `figures/bootstrap_on_off_asymmetry_50models_full_shiu.png` |
-| S4 | `figures/bio_reference_exp1_permtest.png` |
-| S5 | `figures/within_polarity_blocks_whitened_exp2_50models.png` |
+| S1 | [`figures/umap_cc_ensemble_exp1.png`](https://github.com/michaela10c/connectome-fidelity/blob/main/figures/umap_cc_ensemble_exp1.png) |
+| S2 | [`figures/umap_cc_ensemble_exp2.png`](https://github.com/michaela10c/connectome-fidelity/blob/main/figures/umap_cc_ensemble_exp2.png) |
+| S3 | [`figures/bootstrap_on_off_asymmetry_50models_full_shiu.png`](https://github.com/michaela10c/connectome-fidelity/blob/main/figures/bootstrap_on_off_asymmetry_50models_full_shiu.png) |
+| S4 | [`figures/bio_reference_exp1_permtest.png`](https://github.com/michaela10c/connectome-fidelity/blob/main/figures/bio_reference_exp1_permtest.png) |
+| S5 | [`figures/within_polarity_blocks_whitened_exp2_50models.png`](https://github.com/michaela10c/connectome-fidelity/blob/main/figures/within_polarity_blocks_whitened_exp2_50models.png) |
 
 ---
 
