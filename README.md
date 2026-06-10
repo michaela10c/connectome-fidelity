@@ -1,4 +1,4 @@
-# Representational Geometry as a Fidelity Metric for Connectome-Constrained Neural Emulations
+# Representational geometry as a fidelity metric for connectome-constrained networks: evidence from the *Drosophila* visual system
 
 This repository implements a proof-of-concept showing that connectome-constrained networks
 produce geometrically distinct population codes compared to randomly initialized networks
