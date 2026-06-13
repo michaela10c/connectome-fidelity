@@ -872,9 +872,9 @@ All experiment scripts, analysis code, and saved results are available in this r
 
 If you use this work, please cite:
 
-Zhou, M.G. and Hasler, J.O. (2026). Connectome wiring shapes population-level
-neural geometry in the *Drosophila* visual system. *bioRxiv*.
-https://doi.org/10.64898/2026.06.10.731214 
+Zhou, M.G. & Hasler, J.O. (2026). Representational geometry as a fidelity 
+metric for connectome-constrained networks: evidence from the *Drosophila* 
+visual system. *bioRxiv*. https://doi.org/10.64898/2026.06.10.731214
 
 ---
 
