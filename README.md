@@ -5,7 +5,7 @@ produce geometrically distinct population codes compared to randomly initialized
 with the same architecture — using representational similarity analysis (RSA) applied to
 the [Flyvis](https://github.com/TuragaLab/flyvis) Drosophila visual system model.
 
-<!--**Preprint:** [bioRxiv link]-->
+**Preprint:** https://doi.org/10.64898/2026.06.10.731214
 
 ---
 
@@ -866,8 +866,6 @@ connectome-fidelity/
 
 All experiment scripts, analysis code, and saved results are available in this repository. The pretrained Flyvis ensemble (Lappalainen et al. 2024) is open source and available at https://github.com/TuragaLab/flyvis under the terms of its original license. Results files (`results/`) and figures (`figures/`) are included in this repository. All analyses are fully reproducible from the provided scripts using seed=42 on Google Colab with a T4 GPU runtime.
 
-<!--
-
 ---
 
 ## Citation
@@ -876,9 +874,7 @@ If you use this work, please cite:
 
 Zhou, M.G. and Hasler, J.O. (2026). Connectome wiring shapes population-level
 neural geometry in the *Drosophila* visual system. *bioRxiv*.
-https://doi.org/[your_doi]
-
--->
+https://doi.org/10.64898/2026.06.10.731214 
 
 ---
 
