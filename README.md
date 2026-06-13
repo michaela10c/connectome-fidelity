@@ -872,7 +872,7 @@ All experiment scripts, analysis code, and saved results are available in this r
 
 If you use this work, please cite:
 
-```
+```bibtex
 @article {Zhou2026.06.10.731214,
 	author = {Zhou, Michael George and Hasler, Jennifer Olson},
 	title = {Representational geometry as a fidelity metric for connectome-constrained networks: evidence from the \emph{Drosophila} visual system},
