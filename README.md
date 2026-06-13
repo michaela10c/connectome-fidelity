@@ -873,16 +873,14 @@ All experiment scripts, analysis code, and saved results are available in this r
 If you use this work, please cite:
 
 ```bibtex
-@article {Zhou2026.06.10.731214,
-	author = {Zhou, Michael George and Hasler, Jennifer Olson},
-	title = {Representational geometry as a fidelity metric for connectome-constrained networks: evidence from the \emph{Drosophila} visual system},
-	elocation-id = {2026.06.10.731214},
-	year = {2026},
-	doi = {10.64898/2026.06.10.731214},
-	publisher = {Cold Spring Harbor Laboratory},
-	URL = {https://www.biorxiv.org/content/early/2026/06/12/2026.06.10.731214},
-	eprint = {https://www.biorxiv.org/content/early/2026/06/12/2026.06.10.731214.full.pdf},
-	journal = {bioRxiv}
+@article{Zhou2026.06.10.731214,
+    author = {Zhou, Michael George and Hasler, Jennifer Olson},
+    title = {Representational geometry as a fidelity metric for connectome-constrained networks: evidence from the \emph{Drosophila} visual system},
+    elocation-id = {2026.06.10.731214},
+    year = {2026},
+    doi = {10.64898/2026.06.10.731214},
+    publisher = {Cold Spring Harbor Laboratory},
+    journal = {bioRxiv}
 }
 ```
 
