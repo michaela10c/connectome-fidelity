@@ -125,8 +125,6 @@ subtypes (T4a, T4b, T4c, T4d, T5a, T5b, T5c, T5d) with cardinal preferred direct
 (0°, 90°, 180°, 270°). Tuning curves modeled analytically using a von Mises profile
 (kappa=2.5, HWHM ≈ 67°, rectified), consistent with the published 60–90° half-width.
 
-**Scope:** This work partially answers the fidelity question raised by Brunton et al. 2026 and Eon Systems. The Flyvis networks are runnable simulations — stimuli are fed in, population activity comes out, and representational geometry is compared against real T4/T5 biological measurements (Experiment 3). However, the networks are connectome-constrained *and* task-trained, so representational geometry reflects both the wiring and the training; the wiring's independent contribution cannot be fully isolated. Fully answering the fidelity question would require comparing connectome-constrained versus random networks at equivalent training on held-out biological data, validated against simultaneously recorded neural activity.
-
 **Design:** Biological population matrix (12 directions × 8 T4/T5 subtypes) is used to
 construct a 12×12 biological stimulus RDM, directly comparable to the CC and random RDMs
 from Experiment 1. A three-way comparison — CC vs Biology, Random vs Biology, CC vs
