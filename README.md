@@ -29,6 +29,8 @@ connectome-constrained models versus sign-preserving random weight shuffles. Exp
 extends the comparison to a biological reference derived from T4/T5 direction tuning data
 (Maisak et al. 2013).
 
+**Scope:** This work partially answers the fidelity question raised by Brunton et al. 2026 and Eon Systems. The Flyvis networks are runnable simulations — stimuli are fed in, population activity comes out, and representational geometry is compared against real T4/T5 biological measurements (Experiment 3). However, the networks are connectome-constrained *and* task-trained, so representational geometry reflects both the wiring and the training; the wiring's independent contribution cannot be fully isolated. Fully answering the fidelity question would require comparing connectome-constrained versus random networks at equivalent training on held-out biological data, validated against simultaneously recorded neural activity.
+
 ---
 
 ## Experiments
