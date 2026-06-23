@@ -21,7 +21,13 @@ Representational geometry — the structure of pairwise distances between popula
 responses to different stimuli — offers a candidate answer. If connectome-constrained
 networks produce a representational geometry that random networks cannot replicate, then
 geometry is a fidelity-discriminating signal that operates at the population level,
-without requiring a behavioral decoder.
+without requiring a behavioral decoder. Critically, RSA on representational geometry
+provides a fidelity signal that behavioral benchmarks cannot: null models that would
+produce equally good behavior given sufficient training are nonetheless discriminable
+from real biological wiring by their population geometry. This makes representational
+geometry a practical fidelity detector — one that operates without a behavioral decoder
+and without single-unit recordings, requiring only population responses to a structured
+stimulus set.
 
 This project tests that hypothesis using the pretrained Flyvis ensemble (Lappalainen et
 al. 2024), applying RSA (Kriegeskorte et al. 2008) to compare population codes across
@@ -701,6 +707,15 @@ truth. See Results for full interpretation.
 ---
 
 ## Discussion
+
+The core practical implication of these results: Brunton et al. (2026) showed that a
+randomly-wired connectome can recover realistic behavior with enough training. The results
+here show the real connectome produces representational geometry closer to biology than
+all null models — including null models that would produce equally good behavior given
+sufficient training. RSA on representational geometry is therefore a fidelity detector
+that behavioral benchmarks are not: it discriminates real biological wiring from arbitrary
+wiring at the population level, without requiring a behavioral decoder.
+
 - Across Experiments 1 and 2, the cosine RDM correlation is significant by analytical
   p-values, Kendall τ, and stimulus-label permutation test — three independent inference
   methods converging on the same conclusion (Experiment 1: r = 0.686 at n=50 canonical,
