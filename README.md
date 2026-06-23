@@ -30,36 +30,14 @@ extends the comparison to a biological reference derived from T4/T5 direction tu
 (Maisak et al. 2013). Experiment 4 addresses the training confound by testing whether the
 geometry signal is present before any task training.
 
-**Scope:** This work partially answers the fidelity question raised by Brunton et al. 2026
-and Eon Systems. The Flyvis networks are runnable simulations — stimuli are fed in,
-population activity comes out, and representational geometry is compared against real
-T4/T5 biological measurements (Experiment 3). However, the networks are
-connectome-constrained *and* task-trained, so representational geometry reflects both the
-wiring and the training; the wiring's independent contribution cannot be fully isolated
-from Experiments 1–3 alone.
-
-Experiment 4 addresses this confound by comparing untrained connectome-constrained
-networks against two shuffled baselines — a synapse-strength shuffle preserving E/I
-identity, and a sign shuffle scrambling which cell-type pairs are excitatory vs
-inhibitory — before any gradient-based optimization. The mean untrained CC RDM shows a
-directional geometry that is progressively degraded by both shuffles (CC vs Rand-syn:
-r = 0.260, p_perm = 0.041; CC vs Rand-sign: r = 0.215, p_perm = 0.048), establishing
-that the connectome prior shapes representational geometry at the ensemble level before
-training. Individual seed geometry is near-zero consistent (within-CC r ≈ 0.006 ± 0.133),
-confirming the directional signal is a property of the ensemble mean, not any single
-instantiation. The biological reference comparison (von Mises T4/T5) is uninformative in
-this setting — the reference captures only 8 of 65 cell types and is insufficient for
-untrained networks where training has not yet compressed the geometry toward T4/T5-dominant
-responses. Acquisition of full per-cell-type calcium recordings (Lappalainen et al.,
-in outreach) is the next step toward a complete biological validation.
-
-Fully answering the Brunton/Eon fidelity question in its strongest form would additionally
-require comparing simulated versus real simultaneously recorded neural activity (e.g.,
-MICrONS calcium imaging), which is beyond the scope of the current work. The strongest
-possible test — CC simulation outputs vs real recorded Drosophila activity — depends on
-whether raw per-cell-type, per-direction calcium recordings exist at sufficient resolution
-for RDM construction. The present paper establishes the metric and framework; that
-experiment would be the empirical validation.
+**Scope:** This work establishes representational geometry as a fidelity metric for
+connectome-constrained networks, using four experiments on the pretrained Flyvis ensemble
+(Lappalainen et al. 2024). Experiments 1–3 compare trained CC networks against
+weight-shuffled random baselines and a T4/T5 biological reference. Experiment 4 tests
+whether the geometry signal persists before any task training. Fully answering the
+Brunton/Eon fidelity question would additionally require comparing simulation outputs
+directly against simultaneously recorded neural activity — a next-project dependency on
+raw per-cell-type calcium recordings not currently in the public Flyvis release.
 
 ---
 
