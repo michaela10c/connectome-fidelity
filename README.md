@@ -684,6 +684,14 @@ symmetric. The observed values replicate across two independent null conditions 
 independent permutation tests each. Both p-values are marginal (p = 0.041 and 0.048);
 replication with larger ensemble sizes would strengthen the conclusion.
 
+CKA was assessed but found to be uninformative in the untrained setting: mean CC vs
+random activation similarity was near zero (CC vs Rand-syn: CKA = −0.096; CC vs
+Rand-sign: CKA = 0.057), consistent with the near-zero within-CC consistency
+(r = 0.006 ± 0.133) and confirming that individual-seed activation patterns do not
+carry coherent directional structure at prior initialization. This contrasts with
+Experiments 1–2, where CKA = 0.502 and 0.647 respectively — the gap reflects that
+trained networks share a coherent mean activation geometry that untrained networks do not.
+
 #### Within-Ensemble Consistency
 **r = 0.006 ± 0.133** — near-zero. The directional signal is a property of the
 connectome prior operating on the ensemble mean, not a property shared by individual
