@@ -351,6 +351,179 @@ interpretation.
 
 ---
 
+The connectome-constrained network produces direction-sensitive representational geometry
+with a smooth circular structure — adjacent directions are most similar, opposite
+directions most dissimilar — consistent with the known tuning of T4/T5 neurons in the
+fly visual system. In Experiment 2, this direction geometry is preserved within each
+polarity block, while ON and OFF edges occupy geometrically distinct population-level
+regions (~0.099–0.103 cross-polarity dissimilarity), consistent with the known T4/T5
+ON/OFF pathway segregation. Zero trained CC models exhibited instability under any
+condition across either experiment. The canonical fidelity result is robust to baseline
+construction choice and ensemble size: stability-constrained results converge across n=10
+and n=50 (Experiment 1: r = 0.686 at n=50 canonical, r = 0.749 at n=10 comparison;
+Experiment 2: r = 0.846 at n=50 canonical, r = 0.783 at n=10 comparison; all
+p_perm < 0.0001), and stability-constrained and matched-instability baselines converge
+at n=10 (Experiment 1: r = 0.749 vs 0.757; Experiment 2: r = 0.783 vs 0.862).
+Experiment 4 shows that the directional signal is present in the mean untrained CC
+ensemble before any task training (CC vs Rand-syn: r = 0.260, p_perm = 0.041; CC vs
+Rand-sign: r = 0.215, p_perm = 0.048), establishing that connectome wiring shapes
+ensemble geometry before optimization.
+
+![Experiment 1 RDM figure — n=50](figures/moving_edge_on_rdms_50models_full_shiu.png)
+
+*Experiment 1 (n=50, canonical result, stability-constrained full Shiu-style shuffle) —
+left to right: connectome-constrained cosine RDM, random baseline cosine RDM,
+connectome-constrained Euclidean RDM, random baseline Euclidean RDM. The CC cosine RDM
+shows the same circular gradient at reduced range (0.001–0.012). The random cosine RDM
+is block-structured, averaged across 50 independently accepted stable configurations.
+Cosine RDM correlation: Spearman r = 0.686, p < 0.0001 | Kendall τ = 0.515, p < 0.0001;
+p_perm < 0.0001 (10,000 permutations). All 50 pretrained Flyvis models, seed=42.*
+
+![Experiment 1 permutation test — n=50](figures/moving_edge_on_permtest_50models_full_shiu.png)
+
+*Experiment 1 permutation test (n=50, canonical result, stability-constrained full
+Shiu-style shuffle, 10,000 stimulus-label permutations, Nili et al. 2014). Left: null
+distribution of Spearman r with observed r = 0.686 (red line) falling far outside the
+null. Right: null distribution of Kendall τ with observed τ = 0.515 (red line). Both
+p_perm < 0.0001 — zero of 10,000 permutations exceeded the observed correlation.*
+
+![Experiment 1 RDM figure — n=10](figures/moving_edge_on_rdms_10models_full_shiu.png)
+
+*Experiment 1 (n=10, comparison result, stability-constrained full Shiu-style shuffle).
+Cosine RDM correlation: Spearman r = 0.749, p < 0.0001 | Kendall τ = 0.552, p < 0.0001;
+p_perm < 0.0001 (10,000 permutations).*
+
+![Experiment 1 permutation test — n=10](figures/moving_edge_on_permtest_10models_full_shiu.png)
+
+*Experiment 1 permutation test (n=10, comparison result, 10,000 permutations). Both
+p_perm < 0.0001 — zero of 10,000 permutations exceeded the observed correlation.*
+
+![Experiment 1 UMAP — CC ensemble](figures/umap_cc_ensemble_exp1.png)
+
+*Experiment 1 UMAP of CC ensemble representational geometry (n=50, full Shiu-style
+shuffle). Features: upper triangle of per-model cosine RDM (66 pairs). Color encodes
+model rank (0 = best task performance). No discrete cluster structure is visible — the
+50 models form a continuous cloud, confirming that within-CC consistency (r = 0.721 ±
+0.150) reflects a continuous gradient in representational fidelity rather than averaging
+across qualitatively distinct solutions.*
+
+![Experiment 2 RDM figure — n=50](figures/moving_edge_on_off_rdms_50models_full_shiu.png)
+
+*Experiment 2 (n=50, canonical result, stability-constrained full Shiu-style shuffle) —
+left to right: connectome-constrained cosine RDM, random baseline cosine RDM,
+connectome-constrained Euclidean RDM, random baseline Euclidean RDM. The CC cosine RDM
+shows the same 24×24 block structure. The random cosine RDM is block-structured, averaged
+across 50 independently accepted stable configurations. Cosine RDM correlation:
+Spearman r = 0.846, p < 0.0001 | Kendall τ = 0.651, p < 0.0001; p_perm < 0.0001
+(10,000 permutations). All 50 pretrained Flyvis models, seed=42.*
+
+![Experiment 2 permutation test — n=50](figures/moving_edge_on_off_permtest_50models_full_shiu.png)
+
+*Experiment 2 permutation test (n=50, canonical result, stability-constrained full
+Shiu-style shuffle, 10,000 stimulus-label permutations, Nili et al. 2014). Left: null
+distribution of Spearman r with observed r = 0.846 (red line) falling far outside the
+null. Right: null distribution of Kendall τ with observed τ = 0.651 (red line). Both
+p_perm < 0.0001.*
+
+![Experiment 2 RDM figure — n=10](figures/moving_edge_on_off_rdms_10models_full_shiu.png)
+
+*Experiment 2 (n=10, comparison result, stability-constrained full Shiu-style shuffle).
+Cosine RDM correlation: Spearman r = 0.783, p < 0.0001 | Kendall τ = 0.562, p < 0.0001;
+p_perm < 0.0001 (10,000 permutations).*
+
+![Experiment 2 permutation test — n=10](figures/moving_edge_on_off_permtest_10models_full_shiu.png)
+
+*Experiment 2 permutation test (n=10, comparison result, 10,000 permutations). Both
+p_perm < 0.0001 — zero of 10,000 permutations exceeded the observed correlation.*
+
+![Experiment 2 within-polarity blocks — CC vs Random](figures/within_polarity_blocks_cc_vs_random_50models_full_shiu.png)
+
+*Experiment 2 within-polarity direction structure (n=50, canonical result). CC OFF-OFF
+and ON-ON submatrices (top row) and random OFF-OFF and ON-ON submatrices (bottom row),
+plotted with row-level shared colormaps — CC row range 0–0.012, Random row range 0–0.040.
+The CC ON-ON block shows a clear circular direction gradient; the CC OFF-OFF block shows
+the same ordinal structure at a compressed range. The random ON-ON block shows a two-block
+artifact — 0° appears as a strong outlier, while 30°–330° form a relatively uniform
+elevated block unrelated to angular distance. The random OFF-OFF block is essentially
+flat.*
+
+![Experiment 2 within-polarity circular structure test](figures/within_polarity_circular_test_50models_full_shiu.png)
+
+*Experiment 2 within-polarity circular structure test (n=50, canonical result, 10,000
+permutations). Left: ON-ON block vs circular distance reference (Spearman r = 0.937,
+p_perm < 0.0001). Right: OFF-OFF block vs circular distance reference (Spearman r = 0.799,
+p_perm < 0.0001). Both observed values fall far outside the null distribution.*
+
+![Experiment 2 ON/OFF asymmetry bootstrap](figures/bootstrap_on_off_asymmetry_50models_full_shiu.png)
+
+*Experiment 2 model-level bootstrap for ON/OFF circular structure asymmetry (n=50,
+10,000 bootstrap samples). Observed Δr = 0.138. Bootstrap mean Δr = 0.153 ± 0.039;
+95% CI [0.091, 0.236], p < 0.0001 (one-sided). The 95% CI excludes zero, confirming
+that the ON pathway encodes direction with significantly stronger geometric separation
+than the OFF pathway.*
+
+![Experiment 2 UMAP — CC ensemble](figures/umap_cc_ensemble_exp2.png)
+
+*Experiment 2 UMAP of CC ensemble representational geometry (n=50, full Shiu-style
+shuffle). Features: upper triangle of per-model cosine RDM (276 pairs). Color encodes
+model rank (0 = best task performance). No discrete cluster structure is visible — the
+50 models form a continuous cloud, confirming that within-CC consistency (r = 0.838 ±
+0.059) reflects a genuinely coherent representational geometry.*
+
+![Experiment 3 T4/T5 tuning curves](figures/maisak2013_t4t5_von_mises_tuning.png)
+
+*Experiment 3 biological reference: von Mises direction tuning curves (kappa=2.5,
+HWHM ≈ 67°, rectified) for 8 T4/T5 subtypes, consistent with Maisak et al. 2013 Fig.
+3g/3h. Blue: T4 subtypes (ON pathway); coral: T5 subtypes (OFF pathway). Each subtype
+peaks at one of the four cardinal directions (0°, 90°, 180°, 270°).*
+
+![Experiment 3 biological reference — Experiment 1](figures/biological_reference_exp1.png)
+
+*Experiment 3 three-way RDM comparison for Experiment 1 (ON edges, 12 conditions, n=50
+stability-constrained baseline). Left: biological reference RDM (Maisak 2013 T4/T5,
+off-diagonal range 0.046–0.989). Center: CC mean cosine RDM (r vs bio = 0.930,
+τ = 0.783). Right: random mean cosine RDM (r vs bio = 0.603, τ = 0.449). The gap
+Δr = 0.327 quantifies the fidelity attributable to the connectome constraint beyond
+circular stimulus structure.*
+
+![Experiment 3 permutation test — Experiment 1](figures/bio_reference_exp1_permtest.png)
+
+*Experiment 3 permutation test for CC vs Biology comparison (Experiment 1, n=50
+stability-constrained baseline, 10,000 permutations). Observed r = 0.930 and τ = 0.783
+both fall far outside the null distribution; p_perm < 0.0001.*
+
+![Experiment 4 RDMs — untrained networks](figures/exp4_untrained_rdms.png)
+
+*Experiment 4 (n=50 per condition) — left to right: untrained CC mean cosine RDM,
+Rand-syn mean cosine RDM, Rand-sign mean cosine RDM, biological reference (von Mises
+T4/T5). The untrained CC RDM shows a directional block-diagonal / anti-diagonal structure
+progressively degraded by both shuffles. All network RDMs are on the order of
+10⁻⁸–10⁻⁷ in absolute scale; relative geometry is the meaningful quantity. CC vs
+Rand-syn: r = 0.260, p_perm = 0.041; CC vs Rand-sign: r = 0.215, p_perm = 0.048
+(10,000 permutations).*
+
+![Experiment 4 permutation test — untrained networks](figures/exp4_untrained_permtest.png)
+
+*Experiment 4 permutation test (n=50 per condition, 10,000 permutations). Left: CC vs
+Rand-syn null distribution with observed r = 0.260 (red line); p_perm = 0.041. Right:
+CC vs Rand-sign null distribution with observed r = 0.215 (red line); p_perm = 0.048.
+Both null distributions centered near zero and approximately symmetric.*
+
+---
+
+## Supplementary Figures
+
+| Label | File |
+|-------|------|
+| S1 | [`figures/umap_cc_ensemble_exp1.png`](https://github.com/michaela10c/connectome-fidelity/blob/main/figures/umap_cc_ensemble_exp1.png) |
+| S2 | [`figures/umap_cc_ensemble_exp2.png`](https://github.com/michaela10c/connectome-fidelity/blob/main/figures/umap_cc_ensemble_exp2.png) |
+| S3 | [`figures/bootstrap_on_off_asymmetry_50models_full_shiu.png`](https://github.com/michaela10c/connectome-fidelity/blob/main/figures/bootstrap_on_off_asymmetry_50models_full_shiu.png) |
+| S4 | [`figures/bio_reference_exp1_permtest.png`](https://github.com/michaela10c/connectome-fidelity/blob/main/figures/bio_reference_exp1_permtest.png) |
+| S5 | [`figures/within_polarity_blocks_whitened_exp2_50models.png`](https://github.com/michaela10c/connectome-fidelity/blob/main/figures/within_polarity_blocks_whitened_exp2_50models.png) |
+| S6 | [`figures/exp4_untrained_permtest.png`](https://github.com/michaela10c/connectome-fidelity/blob/main/figures/exp4_untrained_permtest.png) |
+
+---
+
 ## Results
 
 ### Experiment 1: ON Edges
@@ -627,7 +800,7 @@ connectome-fidelity/
 │   ├── moving_edge_on.ipynb
 │   ├── moving_edge_on_off.ipynb
 │   ├── biological_reference.ipynb
-│   ├── untrained_networks.ipynb       
+│   ├── untrained_networks.ipynb       ← Experiment 4: Colab-ready notebook
 │   ├── cka_validation.ipynb
 │   └── posthoc_mds_whitened_rdms.ipynb
 ├── results/
@@ -635,7 +808,7 @@ connectome-fidelity/
 │   ├── results_exp1_50models_full_shiu.npz
 │   ├── results_exp2_10models_full_shiu.npz
 │   ├── results_exp2_50models_full_shiu.npz
-│   ├── results_exp4_untrained.npz             
+│   ├── results_exp4_untrained.npz             ← Experiment 4 results
 │   ├── cka_validation_50models_full_shiu.npz
 │   └── posthoc_mds_whitened_50models_full_shiu.npz
 ├── figures/
@@ -655,8 +828,8 @@ connectome-fidelity/
 │   ├── bio_reference_exp1_permtest.png
 │   ├── umap_cc_ensemble_exp1.png
 │   ├── umap_cc_ensemble_exp2.png
-│   ├── exp4_untrained_rdms.png               
-│   ├── exp4_untrained_permtest.png            
+│   ├── exp4_untrained_rdms.png                ← Experiment 4 RDM figure
+│   ├── exp4_untrained_permtest.png            ← Experiment 4 permutation test
 │   ├── cka_validation_exp1_exp2.png
 │   ├── mds_exp1_on_edges_50models.png
 │   ├── mds_exp2_on_off_edges_50models.png
