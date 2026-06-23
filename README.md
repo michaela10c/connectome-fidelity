@@ -779,7 +779,7 @@ bio_results = run_biological_reference(results_exp1, results_exp2)
 
 # Experiment 4: Untrained networks
 # Run as a Colab notebook or standalone script
-# N_MODELS=10 for sanity check, N_MODELS=50 for full result
+# Use N_MODELS=50 for full result
 
 # CKA validation (CPU-only, no Flyvis required)
 python cka_validation.py  # or cka_validation.ipynb
