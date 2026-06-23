@@ -627,7 +627,7 @@ connectome-fidelity/
 │   ├── moving_edge_on.ipynb
 │   ├── moving_edge_on_off.ipynb
 │   ├── biological_reference.ipynb
-│   ├── untrained_networks.ipynb       ← Experiment 4: Colab-ready notebook
+│   ├── untrained_networks.ipynb       
 │   ├── cka_validation.ipynb
 │   └── posthoc_mds_whitened_rdms.ipynb
 ├── results/
@@ -635,7 +635,7 @@ connectome-fidelity/
 │   ├── results_exp1_50models_full_shiu.npz
 │   ├── results_exp2_10models_full_shiu.npz
 │   ├── results_exp2_50models_full_shiu.npz
-│   ├── results_exp4_untrained.npz             ← Experiment 4 results
+│   ├── results_exp4_untrained.npz             
 │   ├── cka_validation_50models_full_shiu.npz
 │   └── posthoc_mds_whitened_50models_full_shiu.npz
 ├── figures/
@@ -655,8 +655,8 @@ connectome-fidelity/
 │   ├── bio_reference_exp1_permtest.png
 │   ├── umap_cc_ensemble_exp1.png
 │   ├── umap_cc_ensemble_exp2.png
-│   ├── exp4_untrained_rdms.png                ← Experiment 4 RDM figure
-│   ├── exp4_untrained_permtest.png            ← Experiment 4 permutation test
+│   ├── exp4_untrained_rdms.png               
+│   ├── exp4_untrained_permtest.png            
 │   ├── cka_validation_exp1_exp2.png
 │   ├── mds_exp1_on_edges_50models.png
 │   ├── mds_exp2_on_off_edges_50models.png
