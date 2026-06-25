@@ -56,7 +56,8 @@ raw per-cell-type calcium recordings not currently in the public Flyvis release.
 - *Connectome-constrained (CC):* 10–50 models from the pretrained Flyvis ensemble
   (indices `000–049` within `flow/0000`, pre-sorted by task error), trained to perform
   optic flow estimation on naturalistic video with connectome-fixed architecture
-  (734 free parameters)
+  (the Flyvis connectome, reconstructed from partial electron-microscopy sources;
+  734 free parameters)
 - *Random baseline:* Same model architectures with sign-preserving weight shuffles.
   Three strategies were evaluated:
   1. **Full Shiu-style shuffle (canonical):** all 734 free parameters shuffled;
