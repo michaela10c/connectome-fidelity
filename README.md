@@ -5,7 +5,7 @@ produce geometrically distinct population codes compared to randomly initialized
 with the same architecture — using representational similarity analysis (RSA) applied to
 the [Flyvis](https://github.com/TuragaLab/flyvis) Drosophila visual system model.
 
-**Preprint:** https://doi.org/10.64898/2026.06.10.731214
+**Preprint:** [https://doi.org/10.64898/2026.06.10.731214](https://doi.org/10.64898/2026.06.10.731214)
 
 ---
 
