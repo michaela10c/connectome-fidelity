@@ -72,8 +72,13 @@ raw per-cell-type calcium recordings not currently in the public Flyvis release.
      non-finite activations clamped to ±1e3 in RDM construction. Retained for comparison
      against the stability-constrained result.
 
+> **Note on naming:** Files and result keys labeled `full_shiu` refer to the
+> **full-parameter shuffle** baseline (all 734 free parameters shuffled, sign-preserving).
+> The name reflects that this shuffle follows the connectivity-shuffle control of Shiu et
+> al. (2024); it does **not** imply the model is Shiu's spiking whole-brain model — this
+> work uses the graded-potential Flyvis model (Lappalainen et al. 2024).
+
 **Population vectors:** Peak central-cell voltage per cell type (65-dim) in response to
-each stimulus direction
 
 **Metrics:**
 - Cosine distance RDM — scale-invariant, captures pattern geometry
