@@ -347,7 +347,7 @@ def randomize_weights_stable(network_view, strategy="full_shiu",
                     # isfinite alone is insufficient: very large but technically finite values
                     # (e.g. 1e38) pass the finiteness check but overflow scipy's float64
                     # cosine computation (uv / sqrt(uu * vv)). The 1e6 threshold is
-                    # conservative — legitimate LIF voltages are O(mV), so anything above
+                    # conservative — legitimate graded-potential voltages are O(mV), so anything above
                     # 1e3 is already pathological.
                     return network, attempt + 1  # attempts_needed is 1-indexed
             except Exception:
