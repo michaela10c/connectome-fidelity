@@ -310,14 +310,31 @@ stimulus structure alone provides.
 
 ### Experiment 3: Biological Reference — Experiment 2 comparison (ON+OFF edges, 24 conditions, n=50 baseline)
 
-| Comparison | Spearman r | Kendall τ | p_perm (r) | Interpretable |
-|------------|-----------|-----------|------------|---------------|
-| CC vs Biology | 0.049 | 0.040 | 0.159 | No — see Results |
-| Random vs Biology | -0.038 | -0.028 | — | No |
+| Comparison | Spearman r | Kendall τ | p_perm (r) |
+|------------|-----------|-----------|------------|
+| CC vs Biology | 0.824 | 0.640 | < 0.0001 |
+| Random vs Biology | 0.752 | 0.531 | < 0.0001 |
 
-The near-null result reflects a structural mismatch between the biological RDM
-construction and the CC network's representational geometry — not a failure of the CC
-network. See Results for full interpretation.
+**Note on stimulus ordering (corrected).** An earlier version of this comparison
+reported a near-null result (CC vs Biology r = 0.049), which was an artifact of a
+stimulus-ordering mismatch: the 24-condition responses are stored in
+direction-interleaved order (OFF 0°, ON 0°, OFF 30°, ...) while the biological
+reference RDM had been built in polarity-blocked order (all OFF, then all ON).
+With the biological reference rebuilt in matching interleaved order, both networks
+correlate strongly with biology (values above), but the CC advantage over random
+narrows to Δr = 0.072 — far below the Experiment 1 gap of Δr = 0.327.
+
+This compression is informative and localizes the fidelity signal. ON/OFF pathway
+segregation dominates the 24-condition geometry and is captured by both CC and
+random networks, so it accounts for most of the full-matrix correlation with
+biology and dilutes finer distinctions. The CC advantage is instead concentrated
+in within-polarity direction tuning: correlating each within-polarity block
+against a circular-direction reference, the CC network shows strong direction
+structure (ON-ON r = 0.94, OFF-OFF r = 0.80) while random does not (ON-ON r =
+0.38, OFF-OFF r = 0.49). The distinctive biological match is carried by
+fine-grained direction tuning — the signal Experiment 1 (ON edges, Δr = 0.327)
+isolates directly — rather than by the coarse ON/OFF axis that random networks
+also reproduce. See Results for full interpretation.
 
 ### Experiment 4: Untrained Networks — n=50 per condition
 
@@ -663,10 +680,16 @@ p_perm < 0.0001. Random vs Biology: r = 0.603. Gap Δr = 0.327 — the additiona
 attributable to the connectome constraint beyond circular stimulus structure alone.
 
 #### Experiment 2 Comparison (ON+OFF edges, 24 conditions)
-CC vs Biology: r = 0.049, p_perm = 0.159 — not significant. The near-null result reflects
-a structural mismatch between the biological RDM construction and the CC network's
-representational geometry, not a failure of the CC network. The Experiment 2 biological
-comparison is not reported as a meaningful result.
+CC vs Biology: **Spearman r = 0.824, p_perm < 0.0001**; Random vs Biology: r = 0.752,
+p_perm < 0.0001. (An earlier version reported r = 0.049, an artifact of a stimulus-ordering
+mismatch — interleaved response data vs a polarity-blocked biological reference — now
+corrected by rebuilding the reference in matching interleaved order.) The CC advantage over
+random narrows to Δr = 0.072, far below the Experiment 1 gap of Δr = 0.327. ON/OFF pathway
+segregation dominates the 24-condition geometry and is captured by both networks, diluting
+the full-matrix distinction; the CC advantage is instead concentrated in within-polarity
+direction tuning (CC ON-ON r = 0.94 vs random 0.38). The distinctive biological match is
+carried by fine direction tuning — the signal Experiment 1 isolates directly — not by the
+coarse ON/OFF axis that random networks also reproduce.
 
 ---
 
