@@ -33,14 +33,18 @@ This project tests that hypothesis using the pretrained Flyvis ensemble (Lappala
 al. 2024), applying RSA (Kriegeskorte et al. 2008) to compare population codes across
 connectome-constrained models versus sign-preserving random weight shuffles. Experiment 3
 extends the comparison to a biological reference derived from T4/T5 direction tuning data
-(Maisak et al. 2013). Experiment 4 addresses the training confound by testing whether the
-geometry signal is present before any task training.
+(Maisak et al. 2013) — which proves degenerate on the ON-only stimulus set and cannot
+measure biological fidelity. Experiment 4 addresses the training confound by testing
+whether the geometry signal is present before any task training; it finds that untrained
+networks produce no measurable representational geometry at all.
 
 **Scope:** This work establishes representational geometry as a fidelity metric for
 connectome-constrained networks, using four experiments on the pretrained Flyvis ensemble
 (Lappalainen et al. 2024). Experiments 1–3 compare trained CC networks against
-weight-shuffled random baselines and a T4/T5 biological reference. Experiment 4 tests
-whether the geometry signal persists before any task training. Fully answering the
+weight-shuffled random baselines and a T4/T5 biological reference. Experiment 4 tests whether the geometry signal persists before any task training, and
+finds that untrained networks' RDMs fall below the numerical resolution of the responses
+they derive from — at any perturbation of the free parameters within the regime where the
+network remains connectome-constrained (Experiment 4b). Fully answering the
 Brunton/Eon fidelity question would additionally require comparing simulation outputs
 directly against simultaneously recorded neural activity — a next-project dependency on
 raw per-cell-type calcium recordings not currently in the public Flyvis release.
@@ -174,8 +178,16 @@ Experiment 1 exactly.
 **Networks:**
 - *Untrained CC:* `Network()` with default Flyvis architecture, connectome fixed, free
   parameters (`nodes_bias`, `nodes_time_const`, `edges_syn_strength`) perturbed with
-  Gaussian noise to generate an ensemble of N=50 distinct seeds. No checkpoint loaded.
-  `edges_sign` and `edges_syn_count` are fixed by the connectome and unchanged throughout.
+  Gaussian noise (σ = 0.05, 0.005, 0.002 respectively) to generate an ensemble of N=50
+  distinct seeds. No checkpoint loaded. `edges_sign` and `edges_syn_count` are fixed by
+  the connectome and unchanged throughout.
+
+  **Note on the synapse-strength clamp.** `edges_syn_strength` initializes to
+  `0.01 × syn_count` and is clamped at `min=0.0` after perturbation. Because σ = 0.002
+  exceeds many of these values, **8.8% of edges are clamped to exactly zero at the prior
+  noise level.** Untrained CC networks are therefore pruned as well as perturbed. The
+  fraction rises to 48.2% at σ = 0.128 (see Experiment 4b), at which point the
+  manipulation is sparsification rather than perturbation.
 - *Untrained Random (syn shuffle):* Same untrained CC networks with `edges_syn_strength`
   shuffled in a sign-preserving manner after perturbation. Absolute values shuffled within
   each sign class, preserving E/I identity. Matches the Shiu-style baseline design from
@@ -186,15 +198,25 @@ Experiment 1 exactly.
 
 **Stability constraint:** Candidate networks rejected and resampled if any activation
 exceeds ±1×10⁶ or is non-finite. All 50 models accepted in all three conditions with no
-rejections — confirming that dynamic instability in trained random baselines is a property
-of the trained parameter regime, not the architecture.
+rejections (50/50 first-try) — confirming that dynamic instability in trained random
+baselines is a property of the trained parameter regime, not the architecture. The check
+does not wrap the forward pass in `try/except`: a CUDA error or shape mismatch is not
+dynamic instability, and the original implementation would have counted it as such,
+silently. (The original also reported "mean attempts 25.5 ± 14.4" in support of the
+acceptance claim; that statistic was the mean of the cumulative seed counter 1…50 — a loop
+index, not a resampling statistic.)
 
 **Population vectors:** Peak central-cell voltage per cell type (65-dim) extracted via
-`LayerActivity.central[ct].squeeze().numpy().max()`, matching Experiments 1–3 exactly.
+`LayerActivity.central[ct].squeeze().numpy().max()`, **cast to float64 immediately** and
+accumulated in float64 thereafter.
 
-**Metrics:** RSA (Spearman r, Kendall τ), permutation test (Nili et al. 2014, 10,000
-permutations), biological reference correlation (Maisak et al. 2013 T4/T5 von Mises
-tuning), within-ensemble consistency.
+**Metrics:** float64 cosine RDM (chord form, `1 − cos θ = ‖â − b̂‖²/2`);
+Euclidean-normalized RDM as a cancellation-free cross-check; **a precision guard** that
+compares the RDM's dynamic range against the float32 round-off floor of the responses and
+aborts rather than computing statistics on an unresolvable matrix; circularity control
+against an explicit circular-distance reference; Spearman r and Kendall τ_A with both
+analytical and permutation p-values. The biological reference is computed but not
+interpreted as a fidelity measure (see Experiment 3).
 
 ---
 
@@ -376,25 +398,109 @@ the raw gap it reports is a circularity gap. See Results for full interpretation
 
 ### Experiment 4: Untrained Networks — n=50 per condition
 
-| Comparison | Spearman r | p_perm |
-|------------|-----------|--------|
-| CC vs Rand-syn (RDM similarity) | 0.260 | 0.041 |
-| CC vs Rand-sign (RDM similarity) | 0.215 | 0.048 |
-| CC vs Bio (von Mises T4/T5) | −0.015 | 0.561 |
-| Rand-syn vs Bio | 0.471 | < 0.0001 |
-| Rand-sign vs Bio | 0.585 | < 0.0001 |
-| Within-CC consistency | 0.006 ± 0.133 | — |
+**The experiment terminates at a precision guard. No RSA statistic is reported.**
 
-The mean untrained CC RDM shows a directional block-diagonal / anti-diagonal structure
-that is progressively degraded by syn shuffle and sign shuffle — visible in the RDM panels
-and confirmed by permutation tests. Individual seed geometry is near-zero consistent
-(within-CC r ≈ 0.006), confirming the directional signal is a property of the ensemble
-mean, not any individual instantiation. The biological reference comparison is
-uninformative in this setting — the von Mises reference captures only 8 of 65 cell types,
-insufficient for untrained networks where training has not compressed the geometry toward
-T4/T5-dominant responses. Both p-values are marginal (p = 0.041 and 0.048); replication
-with larger ensemble sizes would strengthen the conclusion. See Results for full
-interpretation.
+| quantity | value |
+|---|---|
+| CC mean RDM off-diagonal span | 1.66×10⁻⁸ |
+| response magnitude, max\|v\| | 1.615 |
+| float32 round-off floor (ε_f32 × max\|v\|) | 1.93×10⁻⁷ |
+| **span / floor** | **0.09×** (threshold ≥ 10×) |
+| resolvable | **False** |
+
+The float32 round-off floor of the responses is eleven times larger than the entire
+dynamic range of the RDM derived from them. Population vectors are float32 with magnitude
+≈ 0.5; `scipy.spatial.distance.cosine` preserves input dtype, so `1 − dot/(‖a‖‖b‖)` places
+the quotient within one ULP of 1.0 for the near-identical responses untrained networks
+produce, and the subtraction retains no significant digits.
+
+A cancellation-free cross-check confirms this is not a metric artifact. Each population
+matrix builds two RDMs — cosine (chord form) and Euclidean-normalized. **Per-model Kendall
+τ between the two rank orders is exactly 1.0000 for all 150 models.** Both metrics agree
+perfectly; what they agree on is rounding. This test does not depend on the guard's
+threshold.
+
+**Retracted.** The following were reported in an earlier version of this experiment and in
+the preprint. All are permutation tests on floating-point rounding. None should be cited.
+
+| reported quantity | reported value | status |
+|---|---|---|
+| CC vs Rand-syn | r = 0.260, p_perm = 0.041 | void |
+| CC vs Rand-sign | r = 0.215, p_perm = 0.048 | void |
+| CC vs Bio | r = −0.015, p_perm = 0.561 | void |
+| Rand-syn vs Bio | r = 0.471, p_perm < 0.0001 | void |
+| Rand-sign vs Bio | r = 0.585, p_perm < 0.0001 | void |
+| Within-CC consistency | r = 0.006 ± 0.133 | void |
+
+The stored CC mean RDM correlates with a circular-distance reference at −0.046.
+Recomputing the identical mean RDM through a float64 path gives +0.463; a second float64
+path gives +0.175. The three disagree because there is no correct value to recover.
+
+Two candidate explanations were checked and excluded: the `+1e-10` epsilon in the original
+`build_rdm` is inert (`float32(0.53) + 1e-10 == float32(0.53)`), and given float64 inputs
+`scipy.cosine` agrees with the chord identity to six significant figures. **The dtype of
+the input — not the formula, not the epsilon — destroys the result.**
+
+**What survives.** 0 rejections and 50/50 first-try acceptance in all three conditions.
+Untrained networks at the Flyvis prior are uniformly dynamically stable, confirming that
+the instability documented in Experiments 1–2 is a property of the trained parameter
+regime, not the architecture. This depends only on whether activations remained finite and
+bounded, which is a robust check.
+
+### Experiment 4b: Perturbation-Sensitivity Sweep — n=5 per condition
+
+The original's limitations section proposed larger perturbations as the remedy. Two sweeps
+test it, one axis at a time.
+
+**Bias noise destroys the geometry it was meant to reveal.**
+
+| σ (BIAS_NOISE) | CC span | ratio | CC \|resp\| |
+|---|---|---|---|
+| 0.05 | 1.03×10⁻⁸ | 0.05× | 1.59 |
+| 0.2 | 8.71×10⁻⁹ | 0.04× | 1.88 |
+| 0.8 | 3.23×10⁻⁹ | 0.01× | 3.13 |
+| 3.2 | 2.53×10⁻¹⁰ | 0.00× | 11.08 |
+
+CC's span falls monotonically by a factor of forty while response magnitude rises
+sevenfold. `nodes_bias` is a per-node additive constant: a large common offset drives all
+twelve population vectors toward the same bias-dominated direction. Cosine distance is
+scale-invariant — it does not see that the vectors grew, only that the angle between them
+shrank.
+
+**Synapse-strength noise moves in the right direction and still fails.**
+
+| σ (SYN_STRENGTH_NOISE) | CC span | ratio | CC \|resp\| | rejections | edges pruned to 0 |
+|---|---|---|---|---|---|
+| 0.002 | 1.03×10⁻⁸ | 0.05× | 1.59 | 0 | **8.8%** |
+| 0.008 | 4.07×10⁻⁷ | **1.20×** | 2.85 | 0 | 27.2% |
+| 0.032 | 3.23×10⁻⁵ | 1.10× | 245.55 | 2 | 42.6% |
+| 0.128 | 1.92×10⁻⁷ | 0.00× | 498.03 | 87 | 48.2% |
+
+CC's span rises — the right direction — and the ratio reaches 1.20×, twenty-four times
+better than bias noise achieved. Then it stalls, never approaching the threshold, while
+response magnitude reaches 498, rejections climb to 87 per 5 acceptances, and nearly half
+the synapses are clamped to zero. **By the time the perturbation could clear the guard,
+the network is no longer a connectome-constrained network.**
+
+**The control.** The only condition that ever cleared the guard, in either sweep, is
+Rand-sign — E/I identity scrambled. Bias σ=0.8: ratio 15.28×, r(circ) = +0.495,
+|resp| = 15.37. Synapse σ=0.032: ratio 27.80×, r(circ) = +0.499, |resp| = 193.40. Two
+unrelated axes, the same circularity to three decimals, at response magnitudes an order of
+magnitude above CC's. This is saturation geometry from broken E/I balance, not a wiring
+prior. Without this control the sweep would have been a mechanism for manufacturing
+whichever answer was sought.
+
+**The baseline was never what it was described as.** `edges_syn_strength` initializes to
+`0.01 × syn_count` and is clamped at `min=0.0` after perturbation. At σ = 0.002 — the
+Flyvis prior, used by every untrained CC model in this work — **8.8% of edges are clamped
+to exactly zero.** Untrained CC networks are pruned as well as perturbed.
+
+**Conclusion.** Untrained connectome-constrained networks have no measurable
+representational geometry, along either perturbation axis, across four orders of
+magnitude, within the regime where they remain connectome-constrained networks. This does
+not yet license "training creates the geometry" — that claim requires a trained-versus-
+untrained comparison ruling out the trivial explanation that trained networks have larger,
+more varied responses whose RDMs clear the floor for that reason alone.
 
 ### CKA Validation — Experiments 1 and 2 (n=50, stability-constrained, full Shiu-style shuffle)
 
@@ -431,10 +537,11 @@ and n=50 (Experiment 1: r = 0.686 at n=50 canonical, r = 0.749 at n=10 compariso
 Experiment 2: r = 0.846 at n=50 canonical, r = 0.783 at n=10 comparison; all
 p_perm < 0.0001), and stability-constrained and matched-instability baselines converge
 at n=10 (Experiment 1: r = 0.749 vs 0.757; Experiment 2: r = 0.783 vs 0.862).
-Experiment 4 shows that the directional signal is present in the mean untrained CC
-ensemble before any task training (CC vs Rand-syn: r = 0.260, p_perm = 0.041; CC vs
-Rand-sign: r = 0.215, p_perm = 0.048), establishing that connectome wiring shapes
-ensemble geometry before optimization.
+Experiment 4 finds no directional signal in untrained networks — not because none exists,
+but because none can be measured: the RDM's dynamic range falls an order of magnitude below
+the float32 round-off floor of the responses. Two perturbation sweeps (Experiment 4b) show
+this holds along both free-parameter axes across four orders of magnitude, within the
+regime where the network remains connectome-constrained.
 
 ![Experiment 1 RDM figure — n=50](figures/moving_edge_on_rdms_50models_full_shiu.png)
 
@@ -551,32 +658,37 @@ stability-constrained baseline). Left: biological reference RDM (Maisak 2013 T4/
 off-diagonal range 0.046–0.989) — on the ON-only stimulus set this reduces to four
 cardinal curves of identical width, and correlates with a pure angular-distance matrix
 at r = 0.978. Center: CC mean cosine RDM (raw r vs bio = 0.927; r vs circular = 0.937).
-Right: random mean cosine RDM (raw r vs bio = 0.596; r vs circular = 0.599). The gap
-an earlier version reported Δr = 0.327 as the fidelity attributable to the connectome constraint beyond
-circular stimulus structure.*
+Right: random mean cosine RDM (raw r vs bio = 0.596; r vs circular = 0.599). For both
+networks the raw biological correlation falls within 0.01 of the circular correlation, so
+the raw CC-vs-random gap (0.330) is the circularity gap (0.338). An earlier version
+reported this as Δr = 0.327, "the additional fidelity attributable to the connectome
+constraint beyond circular stimulus structure." That interpretation is inverted.*
 
 ![Experiment 3 permutation test — Experiment 1](figures/bio_reference_exp1_permtest.png)
 
 *Experiment 3 permutation test for CC vs Biology comparison (Experiment 1, n=50
-stability-constrained baseline, 10,000 permutations). Observed r = 0.930 and τ = 0.783
-both fall far outside the null distribution; p_perm < 0.0001.*
+stability-constrained baseline, 10,000 permutations). Observed raw r = 0.927 and τ = 0.772
+fall far outside the null distribution (p_perm < 0.0001) — but the reference is 97.8%
+circular, so this tests circular organization rather than biological fidelity. The partial
+correlation controlling for circular structure is r = 0.145 (p_perm = 0.120), not
+significant.*
 
 ![Experiment 4 RDMs — untrained networks](figures/exp4_untrained_rdms.png)
 
 *Experiment 4 (n=50 per condition) — left to right: untrained CC mean cosine RDM,
 Rand-syn mean cosine RDM, Rand-sign mean cosine RDM, biological reference (von Mises
-T4/T5). The untrained CC RDM shows a directional block-diagonal / anti-diagonal structure
-progressively degraded by both shuffles. All network RDMs are on the order of
-10⁻⁸–10⁻⁷ in absolute scale; relative geometry is the meaningful quantity. CC vs
-Rand-syn: r = 0.260, p_perm = 0.041; CC vs Rand-sign: r = 0.215, p_perm = 0.048
-(10,000 permutations).*
+T4/T5). **This figure is retained for the record and should not be read as showing
+structure.** All network RDMs are on the order of 10⁻⁸–10⁻⁷, an order of magnitude below
+the float32 round-off floor of the responses they derive from (1.93×10⁻⁷). Their rank
+order is rounding. The correlations formerly reported from these matrices (r = 0.260,
+p_perm = 0.041; r = 0.215, p_perm = 0.048) are void.*
 
 ![Experiment 4 permutation test — untrained networks](figures/exp4_untrained_permtest.png)
 
-*Experiment 4 permutation test (n=50 per condition, 10,000 permutations). Left: CC vs
-Rand-syn null distribution with observed r = 0.260 (red line); p_perm = 0.041. Right:
-CC vs Rand-sign null distribution with observed r = 0.215 (red line); p_perm = 0.048.
-Both null distributions centered near zero and approximately symmetric.*
+*Experiment 4 permutation test (n=50 per condition, 10,000 permutations). **Retained for
+the record; both tests are void.** The observed values (r = 0.260 and r = 0.215) were
+computed from RDMs whose dynamic range lies below the numerical resolution of their inputs.
+That both p-values landed just under 0.05 is what random rank vectors do.*
 
 ---
 
@@ -720,9 +832,10 @@ CC vs Biology: **raw Spearman r = 0.927, τ = 0.772**; Random vs Biology: raw r 
 raw biological correlation falls within 0.01 of its circular correlation (CC 0.937,
 random 0.599). The raw gap (0.330) is the circularity gap (0.338). Partialling out
 circular structure leaves CC at 0.145 (p_perm = 0.120) and random at 0.061
-(p_perm = 0.323) — neither significant. An earlier version reported Δr = 0.327 as
-the additional fidelity
-attributable to the connectome constraint beyond circular stimulus structure alone.
+(p_perm = 0.323) — neither significant. An earlier version reported Δr = 0.327 as "the
+additional fidelity attributable to the connectome constraint beyond circular stimulus
+structure alone." That interpretation is inverted: the gap *is* the circular structure it
+claimed to control for. No biological-fidelity claim is made from this experiment.
 
 #### Experiment 2 Comparison (ON+OFF edges, 24 conditions)
 CC vs Biology: **Spearman r = 0.049, p_perm = 0.159** (not significant); Random vs
@@ -747,36 +860,50 @@ the Flyvis prior initialization are uniformly stable — the stability constrain
 effective filtering. This confirms that dynamic instability in trained random baselines is
 a property of the trained parameter regime, not the architecture.
 
-#### CC RDM Structure: Directional Geometry Before Training
-The mean untrained CC cosine RDM reveals a clear block-diagonal / anti-diagonal structure:
-nearby directions are most similar, opposing directions most dissimilar. This circular
-direction gradient is present before any gradient-based optimization. The Rand-syn RDM
-shows a degraded version; the Rand-sign RDM degrades it further. All three network RDMs
-are on the order of 10⁻⁸ to 10⁻⁷ in absolute scale — the tiny voltage deflections of
-untrained networks. What matters is relative geometry, not scale, and that geometry is
-meaningfully preserved in CC and progressively lost under randomization.
+#### The RDMs are not resolvable
+The mean untrained CC cosine RDM spans 1.66×10⁻⁸ against a float32 round-off floor of
+1.93×10⁻⁷ — the floor is eleven times the signal (span/floor = 0.09×). No Spearman,
+Kendall, or permutation statistic derived from it carries information. A cancellation-free
+cross-check gives per-model Kendall τ = 1.0000 between the cosine and Euclidean-normalized
+rank orders for all 150 models: the metric is irrelevant, and both metrics see rounding.
+The experiment aborts at the precision guard before computing any RSA statistic.
 
-#### CC vs Random RDM Correlation
-**CC vs Rand-syn: Spearman r = 0.260, p_perm = 0.0408 | Kendall τ = 0.184, p_perm =
-0.0403.** **CC vs Rand-sign: Spearman r = 0.215, p_perm = 0.0483 | Kendall τ = 0.156,
-p_perm = 0.0430.** Both null distributions are centered near zero and approximately
-symmetric. The observed values replicate across two independent null conditions with two
-independent permutation tests each. Both p-values are marginal (p = 0.041 and 0.048);
-replication with larger ensemble sizes would strengthen the conclusion.
+Three earlier claims are withdrawn.
 
-#### Within-Ensemble Consistency
-**r = 0.006 ± 0.133** — near-zero. The directional signal is a property of the
-connectome prior operating on the ensemble mean, not a property shared by individual
-instantiations.
+**"The mean untrained CC cosine RDM reveals a clear block-diagonal / anti-diagonal
+structure… present before any gradient-based optimization."** The stored CC mean RDM
+correlates with a circular reference at −0.046. Recomputing the identical mean RDM in
+float64 gives +0.463 by one path and +0.175 by another. The three disagree because there
+is no correct value to recover.
 
-#### Biological Reference (Maisak et al. 2013 T4/T5)
-CC vs Bio: r = −0.015, p_perm = 0.561 (not significant). Rand-syn vs Bio: r = 0.471,
-p_perm < 0.0001. Rand-sign vs Bio: r = 0.585, p_perm < 0.0001. Δr (CC − Rand-syn) =
-−0.486. The biological reference inversion is a reference scope limitation — the von Mises
-model captures 8 of 65 cell types, insufficient for untrained networks where training has
-not compressed the geometry toward T4/T5-dominant responses. This result motivates
-acquisition of full per-cell-type calcium recordings as a more complete biological ground
-truth. See Results for full interpretation.
+**"What matters is the relative geometry within each RDM, not the absolute scale."** At
+10⁻⁸, computed from float32 responses, there is no relative geometry. The scale is the
+reason the matrix is empty.
+
+**"Progressive degradation from CC through syn-shuffle to sign-shuffle."** The three
+conditions' spans are 1.03×10⁻⁸, 2.47×10⁻⁷, and 3.50×10⁻⁶ — a 340-fold range. The claimed
+progression is that conditioning gradient, reversed. Rand-sign was not less degraded; it
+was less ill-conditioned, because scrambling E/I balance inflates responses tenfold.
+
+#### The biological reference comparison was the circularity confound
+CC vs Bio: r = −0.015. Rand-syn vs Bio: r = 0.471. Rand-sign vs Bio: r = 0.585. Those
+RDMs' correlations with a circular reference are −0.046, +0.427, and +0.600 — tracking the
+biological correlations to within 0.05. The reference is 97.8% circular (Experiment 3), so
+this comparison measured circular organization, not biological fidelity. The earlier
+scope-limitation explanation is withdrawn. All three values are in any case void, computed
+from unresolvable matrices.
+
+#### Stability and acceptance
+0 rejections; 50/50 first-try acceptance in all three conditions. Untrained networks at the
+Flyvis prior are uniformly dynamically stable, confirming that the instability documented
+in Experiments 1–2 is a property of the trained parameter regime, not the architecture.
+This depends only on whether activations remained finite and bounded — a robust check,
+unaffected by the numerical problem above.
+
+*Two corrections.* The original reported "mean attempts 25.5 ± 14.4"; that was the mean of
+the cumulative seed counter 1…50, a loop index, not a resampling statistic. And the
+original `is_stable` wrapped the forward pass in `try/except Exception: return False`,
+which would have counted a CUDA error or shape mismatch as instability, silently.
 
 ---
 
@@ -797,26 +924,31 @@ wiring at the population level, without requiring a behavioral decoder.
   at n=10 comparison; all p_perm < 0.0001)
 - The fidelity result holds across ensemble sizes: stability-constrained sampling succeeds
   at both n=10 and n=50 with all models accepted and no ceiling failures
-- The biological reference (Experiment 3, n=50 baseline) provides strong additional
-  support: the T4/T5 biological reference is degenerate on the ON-only stimulus set (four
-  cardinal von Mises curves of identical width; r = 0.978 against a pure angular-distance
-  matrix), so the raw CC-vs-random gap (0.330) is the circularity gap (0.338), not a
-  fidelity gap. An earlier version reported Δr = 0.327 as attributable to the connectome
-  constraint above and beyond circular stimulus structure
-- Experiment 4 establishes that the mean untrained CC RDM carries a directional prior
-  that is progressively degraded by shuffling (CC vs Rand-syn: r = 0.260, p_perm = 0.041;
-  CC vs Rand-sign: r = 0.215, p_perm = 0.048), confirming the connectome wiring shapes
-  ensemble geometry before training; both p-values are marginal and replication with larger
-  ensemble sizes would strengthen the conclusion
-- The biological reference inversion in Experiment 4 (Rand-syn vs Bio: r = 0.471 vs CC
-  vs Bio: r = −0.015) is a reference scope limitation — the von Mises T4/T5 model is
-  insufficient for untrained networks where training has not compressed the geometry
-  toward T4/T5-dominant responses; acquisition of full per-cell-type calcium recordings
-  is the next step
-- Experiments 1–3 and Experiment 4 together tell a coherent two-part story: the
-  connectome wiring encodes a directional prior that training amplifies and focuses onto
-  the T4/T5-relevant geometry captured by the biological reference; the fidelity signal
-  in Experiments 1–3 reflects both the wiring and the training
+- The biological reference (Experiment 3) provides no support, because it cannot: the
+  T4/T5 reference is degenerate on the ON-only stimulus set (four cardinal von Mises
+  curves of identical width; r = 0.978 against a pure angular-distance matrix), so the raw
+  CC-vs-random gap (0.330) is the circularity gap (0.338), not a fidelity gap. An earlier
+  version reported Δr = 0.327 as attributable to the connectome constraint above and beyond
+  circular stimulus structure; that interpretation is inverted, and the claim is withdrawn
+- Experiment 4 finds that untrained CC networks have no measurable representational
+  geometry. Their RDM's dynamic range falls an order of magnitude below the float32
+  round-off floor of the responses it derives from (span 1.66×10⁻⁸, floor 1.93×10⁻⁷), and
+  a cancellation-free metric cross-check (per-model Kendall τ = 1.0000 across 150 models)
+  confirms this is a resolution failure rather than a metric artifact. The previously
+  reported statistics (r = 0.260, p_perm = 0.041; r = 0.215, p_perm = 0.048) are
+  permutation tests on rounding and are withdrawn
+- Experiment 4b forecloses the remedy the original proposed. Two perturbation sweeps show
+  that bias noise makes the population vectors parallel (CC span falls fortyfold as
+  responses rise sevenfold) while synapse-strength noise separates them but inflates
+  responses, prunes half the synapses, and destabilizes the network before the RDM clears
+  its own floor. The only resolvable point in either sweep belongs to the E/I-scrambled
+  condition and returns r(circ) ≈ 0.50 under two unrelated axes — saturation geometry, not
+  a wiring prior
+- What this licenses, and what it does not: the connectome imposes no detectable
+  directional structure on population responses at initialization. It does not yet license
+  "training creates the geometry" — that requires a trained-versus-untrained comparison
+  ruling out the trivial explanation that trained networks have larger, more varied
+  responses whose RDMs clear the floor for that reason alone
 - Within-CC consistency at n=50 (Exp 2: r = 0.838 ± 0.059) is substantially higher and
   tighter than Experiment 1 at n=50 (r = 0.721 ± 0.150), supporting polarity as a
   stronger organizer of representational geometry than direction alone; UMAP of individual
