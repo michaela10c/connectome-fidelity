@@ -297,44 +297,82 @@ tuning), within-ensemble consistency.
 
 ### Experiment 3: Biological Reference — Experiment 1 comparison (ON edges, 12 conditions, n=50 baseline)
 
-| Comparison | Spearman r | Kendall τ | p_perm (r) |
-|------------|-----------|-----------|------------|
-| CC vs Biology | 0.930 | 0.783 | < 0.0001 |
-| Random vs Biology | 0.603 | 0.449 | < 0.0001 |
-| CC vs Random | 0.686 | 0.515 | < 0.0001 |
+**The reference is degenerate; this comparison cannot measure biological fidelity.**
 
-The CC geometry (r = 0.930 vs biology) substantially exceeds the random geometry
-(r = 0.603 vs biology). The gap r(CC vs Bio) − r(Rand vs Bio) = 0.327 represents the
-additional fidelity attributable to the connectome constraint beyond what circular
-stimulus structure alone provides.
+Experiment 1 uses ON edges exclusively, and Maisak et al. report that T5 cells respond
+selectively to OFF edges and "mostly failed to respond to moving ON edges" (Fig. 3c/3d).
+On this stimulus set T5 contributes nothing. Because T5a–d were assigned the same
+preferred directions and tuning width as T4a–d, they are exact duplicates: the maximum
+difference between the T4 and T5 tuning columns is 0.0, and removing T5 entirely changes
+the biological RDM by 2.2×10⁻¹⁶. The effective reference is **four cardinal von Mises
+curves of identical width**.
+
+A cosine RDM over four same-width curves at 90° spacing is necessarily near-identical to
+a pure angular-distance matrix. The reference correlates with min(|i−j|, 12−|i−j|) at
+**r = 0.978** (τ_A = 0.915). This is arithmetic, not coincidence. A model that merely
+orders directions by angle — with no T4/T5-specific structure — scores ≈ 0.96 against it.
+
+| model | r(circ) | raw r(bio) | r(bio \| circ) | p_perm |
+|---|---|---|---|---|
+| CC (n=50) | 0.937 | 0.927 | 0.145 | 0.120 |
+| Stability-constrained random (n=50) | 0.599 | 0.596 | 0.061 | 0.323 |
+| **gap** | **0.338** | **0.330** | 0.084 | — |
+
+For every condition, the raw correlation with the biological reference falls within 0.01
+of that network's correlation with the circular reference. **The raw CC-versus-random gap
+(0.330) is the circularity gap (0.338).** An earlier version of this work reported it as
+Δr = 0.327, "the additional fidelity attributable to the connectome constraint beyond what
+circular stimulus structure alone provides." That interpretation is inverted: the gap
+*is* the circular structure it claimed to control for.
+
+After partialling out circular structure, the CC residual (0.145) exceeds the random
+residual (0.061) in the predicted direction, but neither reaches significance at n = 50
+(p_perm = 0.120 and 0.323). With 66 RDM pairs and one degree of freedom expended on the
+control, the readout has limited power.
+
+**No biological-fidelity claim is made from this experiment.** The interpretable evidence
+is the within-polarity direction-structure test (Experiment 2), which compares each
+polarity block against an *explicit* circular reference rather than through a
+nearly-circular biological proxy.
 
 ### Experiment 3: Biological Reference — Experiment 2 comparison (ON+OFF edges, 24 conditions, n=50 baseline)
 
 | Comparison | Spearman r | Kendall τ | p_perm (r) |
 |------------|-----------|-----------|------------|
-| CC vs Biology | 0.824 | 0.640 | < 0.0001 |
-| Random vs Biology | 0.752 | 0.531 | < 0.0001 |
+| CC vs Biology | 0.049 | 0.040 | 0.159 |
+| Random vs Biology | −0.038 | −0.028 | — |
 
-**Note on stimulus ordering (corrected).** An earlier version of this comparison
-reported a near-null result (CC vs Biology r = 0.049), which was an artifact of a
-stimulus-ordering mismatch: the 24-condition responses are stored in
-direction-interleaved order (OFF 0°, ON 0°, OFF 30°, ...) while the biological
-reference RDM had been built in polarity-blocked order (all OFF, then all ON).
-With the biological reference rebuilt in matching interleaved order, both networks
-correlate strongly with biology (values above), but the CC advantage over random
-narrows to Δr = 0.072 — far below the Experiment 1 gap of Δr = 0.327.
+**This comparison is not interpretable, and is not reported as a result.**
 
-This compression is informative and localizes the fidelity signal. ON/OFF pathway
-segregation dominates the 24-condition geometry and is captured by both CC and
-random networks, so it accounts for most of the full-matrix correlation with
-biology and dilutes finer distinctions. The CC advantage is instead concentrated
-in within-polarity direction tuning: correlating each within-polarity block
-against a circular-direction reference, the CC network shows strong direction
-structure (ON-ON r = 0.94, OFF-OFF r = 0.80) while random does not (ON-ON r =
-0.38, OFF-OFF r = 0.49). The distinctive biological match is carried by
-fine-grained direction tuning — the signal Experiment 1 (ON edges, Δr = 0.327)
-isolates directly — rather than by the coarse ON/OFF axis that random networks
-also reproduce. See Results for full interpretation.
+The biological 24×24 reference encodes strict ON/OFF pathway segregation: T4 subtypes
+are assigned zero response to OFF conditions and T5 subtypes zero response to ON
+conditions (Maisak et al. Fig. 3c/3d). Same-direction ON/OFF population vectors are
+therefore orthogonal by construction (cosine distance ≈ 1.0). The CC network instead
+assigns moderate cross-polarity dissimilarity (≈ 0.099–0.103) with shared directional
+structure. This is a mismatch between the reference construction and the network's
+representational geometry, not a fidelity failure of the network. The observed
+correlation falls within the bulk of the permutation null.
+
+A matched 24-condition reference would require T4/T5 direction tuning measured with
+moving edges at matched velocity, which Maisak et al. do not report.
+
+*Correction note.* An earlier version of this README reported CC vs Biology r = 0.824 and
+Random vs Biology r = 0.752 for this comparison, attributing the near-null r = 0.049 to a
+stimulus-ordering mismatch. No code in this repository produces those values;
+`biological_reference.ipynb`, executed, prints r = 0.049 with p_perm = 0.159. The
+construction-mismatch explanation above is the correct one, and the Δr = 0.072 "CC
+advantage" derived from those values does not exist.
+
+The interpretable biological evidence is the within-polarity direction structure.
+Correlating each within-polarity block against an *explicit* circular-direction
+reference, the CC network shows strong direction structure (ON-ON r = 0.94, OFF-OFF
+r = 0.80) while random does not (ON-ON r = 0.38, OFF-OFF r = 0.49). This comparison
+names circular structure as the hypothesis rather than smuggling it in through a
+nearly-circular biological proxy, and is therefore not subject to the confound above.
+The distinctive biological match is carried by fine-grained direction tuning rather than
+by the coarse ON/OFF axis that random networks also reproduce. Note that Experiment 1's
+raw biological comparison cannot isolate this signal: its reference is 97.8% circular, so
+the raw gap it reports is a circularity gap. See Results for full interpretation.
 
 ### Experiment 4: Untrained Networks — n=50 per condition
 
@@ -510,9 +548,11 @@ peaks at one of the four cardinal directions (0°, 90°, 180°, 270°).*
 
 *Experiment 3 three-way RDM comparison for Experiment 1 (ON edges, 12 conditions, n=50
 stability-constrained baseline). Left: biological reference RDM (Maisak 2013 T4/T5,
-off-diagonal range 0.046–0.989). Center: CC mean cosine RDM (r vs bio = 0.930,
-τ = 0.783). Right: random mean cosine RDM (r vs bio = 0.603, τ = 0.449). The gap
-Δr = 0.327 quantifies the fidelity attributable to the connectome constraint beyond
+off-diagonal range 0.046–0.989) — on the ON-only stimulus set this reduces to four
+cardinal curves of identical width, and correlates with a pure angular-distance matrix
+at r = 0.978. Center: CC mean cosine RDM (raw r vs bio = 0.927; r vs circular = 0.937).
+Right: random mean cosine RDM (raw r vs bio = 0.596; r vs circular = 0.599). The gap
+an earlier version reported Δr = 0.327 as the fidelity attributable to the connectome constraint beyond
 circular stimulus structure.*
 
 ![Experiment 3 permutation test — Experiment 1](figures/bio_reference_exp1_permtest.png)
@@ -675,18 +715,23 @@ coherent representational strategy across the full ensemble.
 ### Experiment 3: Biological Reference
 
 #### Experiment 1 Comparison (ON edges, 12 conditions)
-CC vs Biology: **Spearman r = 0.930, p < 0.0001 | Kendall τ = 0.783, p < 0.0001**;
-p_perm < 0.0001. Random vs Biology: r = 0.603. Gap Δr = 0.327 — the additional fidelity
+CC vs Biology: **raw Spearman r = 0.927, τ = 0.772**; Random vs Biology: raw r = 0.596,
+τ = 0.439. Both p_perm < 0.0001. But the reference is 97.8% circular, and each network's
+raw biological correlation falls within 0.01 of its circular correlation (CC 0.937,
+random 0.599). The raw gap (0.330) is the circularity gap (0.338). Partialling out
+circular structure leaves CC at 0.145 (p_perm = 0.120) and random at 0.061
+(p_perm = 0.323) — neither significant. An earlier version reported Δr = 0.327 as
+the additional fidelity
 attributable to the connectome constraint beyond circular stimulus structure alone.
 
 #### Experiment 2 Comparison (ON+OFF edges, 24 conditions)
-CC vs Biology: **Spearman r = 0.824, p_perm < 0.0001**; Random vs Biology: r = 0.752,
-p_perm < 0.0001. (An earlier version reported r = 0.049, an artifact of a stimulus-ordering
-mismatch — interleaved response data vs a polarity-blocked biological reference — now
-corrected by rebuilding the reference in matching interleaved order.) The CC advantage over
-random narrows to Δr = 0.072, far below the Experiment 1 gap of Δr = 0.327. ON/OFF pathway
-segregation dominates the 24-condition geometry and is captured by both networks, diluting
-the full-matrix distinction; the CC advantage is instead concentrated in within-polarity
+CC vs Biology: **Spearman r = 0.049, p_perm = 0.159** (not significant); Random vs
+Biology: r = −0.038. The comparison is a construction mismatch: the biological reference
+forces same-direction ON/OFF vectors to be orthogonal (cosine ≈ 1.0), while the CC network
+assigns moderate cross-polarity dissimilarity (≈ 0.099–0.103). It is not reported as a
+result. (An earlier version of this README reported r = 0.824 and r = 0.752 here,
+attributing the 0.049 to a stimulus-ordering mismatch. No code in this repository produces
+those values; the notebook prints 0.049.) The interpretable evidence is within-polarity
 direction tuning (CC ON-ON r = 0.94 vs random 0.38). The distinctive biological match is
 carried by fine direction tuning — the signal Experiment 1 isolates directly — not by the
 coarse ON/OFF axis that random networks also reproduce.
@@ -753,8 +798,10 @@ wiring at the population level, without requiring a behavioral decoder.
 - The fidelity result holds across ensemble sizes: stability-constrained sampling succeeds
   at both n=10 and n=50 with all models accepted and no ceiling failures
 - The biological reference (Experiment 3, n=50 baseline) provides strong additional
-  support: CC geometry (r = 0.930 vs T4/T5 biology) substantially exceeds random geometry
-  (r = 0.603 vs T4/T5 biology), with gap Δr = 0.327 attributable to the connectome
+  support: the T4/T5 biological reference is degenerate on the ON-only stimulus set (four
+  cardinal von Mises curves of identical width; r = 0.978 against a pure angular-distance
+  matrix), so the raw CC-vs-random gap (0.330) is the circularity gap (0.338), not a
+  fidelity gap. An earlier version reported Δr = 0.327 as attributable to the connectome
   constraint above and beyond circular stimulus structure
 - Experiment 4 establishes that the mean untrained CC RDM carries a directional prior
   that is progressively degraded by shuffling (CC vs Rand-syn: r = 0.260, p_perm = 0.041;
