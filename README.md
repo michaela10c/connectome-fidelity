@@ -190,11 +190,18 @@ Experiment 1 exactly.
 
   Because the densest cell-type connections carry the *smallest* factors, a σ = 0.002
   perturbation drives those below zero first. Across 20 seeds this silences **8.1% of the
-  604 cell-type pairs (range 5.8–10.3%)**, with silencing probability falling monotonically
-  from **42.0% in the lowest-factor decile (11–144 synapses/instance) to 0% in the top four
-  deciles (0.27–1.5)** — Mann–Whitney p = 3×10⁻²². Untrained CC networks are therefore
-  **sparsified by removal of their highest-synapse-count cell-type connections**, not merely
-  perturbed. The fraction rises to 48.2% at σ = 0.128 (see Experiment 4b).
+  604 cell-type pairs (range 5.6–10.3%, n=50 seeds)**, with silencing probability falling
+  monotonically from **40.7% in the lowest-factor decile (11–144 synapses/instance) to 0% in
+  the top four deciles (0.27–1.5)** — Mann–Whitney p = 3×10⁻²². Untrained CC networks are
+  therefore **sparsified by removal of their highest-synapse-count cell-type connections**,
+  not merely perturbed.
+
+  **The bias is a small-σ phenomenon.** As σ grows the noise exceeds even the largest
+  scaling factor (3.7×10⁻²) and the clamp becomes a coin flip: at σ = 0.128 every decile is
+  silenced at ~48% (decile 1: 40.7→48.9%; decile 10: 0.0→47.0%), the median synapse count of
+  silenced pairs falls from 11.4 to 2.0 (population median 1.99), and 48.2% of pairs are
+  gone. The manipulation changes character along the sweep: at the prior it removes the
+  connectome's densest projections; at the top it deletes half of them at random.
 
   Task training also zeroes factors (31/604 in the reference model — the clamp is an active
   mechanism, not a dormant rail), but selects a nearly disjoint set (overlap 3; 2.5 expected
@@ -484,8 +491,8 @@ shrank.
 | σ (SYN_STRENGTH_NOISE) | CC span | ratio | CC \|resp\| | rejections | edges pruned to 0 |
 |---|---|---|---|---|---|
 | 0.002 | 1.03×10⁻⁸ | 0.05× | 1.59 | 0 | **8.1%** |
-| 0.008 | 4.07×10⁻⁷ | **1.20×** | 2.85 | 0 | 27.2% |
-| 0.032 | 3.23×10⁻⁵ | 1.10× | 245.55 | 2 | 42.6% |
+| 0.008 | 4.07×10⁻⁷ | **1.20×** | 2.85 | 0 | 26.7% |
+| 0.032 | 3.23×10⁻⁵ | 1.10× | 245.55 | 2 | 43.3% |
 | 0.128 | 1.92×10⁻⁷ | 0.00× | 498.03 | 87 | 48.2% |
 
 CC's span rises — the right direction — and the ratio reaches 1.20×, twenty-four times
@@ -506,11 +513,24 @@ whichever answer was sought.
 `0.01 / mean_syn_count` — **inverse** to synapse count, so the densest cell-type pairs
 carry the smallest factors — and is clamped `non_negative` after perturbation. At σ = 0.002
 — the Flyvis prior, used by every untrained CC model in this work — **8.1% of the 604
-cell-type pairs are silenced (range 5.8–10.3%, n=20 seeds)**, and the selection is strongly
-density-biased: 42.0% of the lowest-factor decile (11–144 synapses/instance), 0% of the top
+cell-type pairs are silenced (range 5.6–10.3%, n=50 seeds)**, and the selection is strongly
+density-biased: 40.7% of the lowest-factor decile (11–144 synapses/instance), 0% of the top
 four deciles (Mann–Whitney p = 3×10⁻²²). Untrained CC networks are **sparsified by removal
 of their densest cell-type connections**, not merely perturbed. (Training also zeroes 31/604
 factors, but a nearly disjoint, not-detectably-biased set.)
+
+**Two diagnostics locate where the regime ends.** The deletion loses its density selectivity
+— at σ = 0.128 every decile is silenced at ~48%, because the noise exceeds even the largest
+scaling factor and the clamp becomes a coin flip. And the stability-check acceptance rate
+collapses: **100%, 100%, 68%, 5%** across the four levels (n = 25, 25, 40, 60 seeds). At
+σ = 0.128, 57 of 60 seeds are dynamically unstable; the models the sweep evaluated there are
+a 5% tail.
+
+**The stability filter does not bias the silencing estimate.** At σ = 0.032, accepted and
+rejected models are silenced at 43.3% and 43.7% (Mann–Whitney p = 0.38), with identical
+median synapse counts among silenced pairs (2.1 vs 2.1); at σ = 0.128, 48.5% vs 48.1%
+(p = 0.57, n = 3 accepted). At the two lowest levels no seed was rejected. Reported fractions
+and RDM spans are therefore **not** conditioned on survival.
 
 **Conclusion.** Untrained connectome-constrained networks have no measurable
 representational geometry, along either perturbation axis, across four orders of
