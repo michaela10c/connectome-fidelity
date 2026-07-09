@@ -738,7 +738,6 @@ That both p-values landed just under 0.05 is what random rank vectors do.*
 | S3 | [`figures/bootstrap_on_off_asymmetry_50models_full_shiu.png`](https://github.com/michaela10c/connectome-fidelity/blob/main/figures/bootstrap_on_off_asymmetry_50models_full_shiu.png) |
 | S4 | [`figures/bio_reference_exp1_permtest.png`](https://github.com/michaela10c/connectome-fidelity/blob/main/figures/bio_reference_exp1_permtest.png) |
 | S5 | [`figures/within_polarity_blocks_whitened_exp2_50models.png`](https://github.com/michaela10c/connectome-fidelity/blob/main/figures/within_polarity_blocks_whitened_exp2_50models.png) |
-| S6 | [`figures/exp4_untrained_permtest.png`](https://github.com/michaela10c/connectome-fidelity/blob/main/figures/exp4_untrained_permtest.png) |
 
 ---
 
