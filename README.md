@@ -183,11 +183,23 @@ Experiment 1 exactly.
   the connectome and unchanged throughout.
 
   **Note on the synapse-strength clamp.** `edges_syn_strength` initializes to
-  `0.01 × syn_count` and is clamped at `min=0.0` after perturbation. Because σ = 0.002
-  exceeds many of these values, **8.8% of edges are clamped to exactly zero at the prior
-  noise level.** Untrained CC networks are therefore pruned as well as perturbed. The
-  fraction rises to 48.2% at σ = 0.128 (see Experiment 4b), at which point the
-  manipulation is sparsification rather than perturbation.
+  `0.01 / mean_syn_count` — one scaling factor per (source, target) cell-type pair, 604
+  in total, **inverse** to synapse count (verified: Pearson r = 1.0000, max residual
+  2.4×10⁻⁷). Factors span 6.9×10⁻⁵ (144 synapses/instance) to 3.7×10⁻² (0.27), and are
+  clamped `non_negative` after perturbation.
+
+  Because the densest cell-type connections carry the *smallest* factors, a σ = 0.002
+  perturbation drives those below zero first. Across 20 seeds this silences **8.1% of the
+  604 cell-type pairs (range 5.8–10.3%)**, with silencing probability falling monotonically
+  from **42.0% in the lowest-factor decile (11–144 synapses/instance) to 0% in the top four
+  deciles (0.27–1.5)** — Mann–Whitney p = 3×10⁻²². Untrained CC networks are therefore
+  **sparsified by removal of their highest-synapse-count cell-type connections**, not merely
+  perturbed. The fraction rises to 48.2% at σ = 0.128 (see Experiment 4b).
+
+  Task training also zeroes factors (31/604 in the reference model — the clamp is an active
+  mechanism, not a dormant rail), but selects a nearly disjoint set (overlap 3; 2.5 expected
+  under independence) that is not detectably density-biased (p = 0.080, limited power). The
+  bias is specific to the untrained protocol.
 - *Untrained Random (syn shuffle):* Same untrained CC networks with `edges_syn_strength`
   shuffled in a sign-preserving manner after perturbation. Absolute values shuffled within
   each sign class, preserving E/I identity. Matches the Shiu-style baseline design from
@@ -471,7 +483,7 @@ shrank.
 
 | σ (SYN_STRENGTH_NOISE) | CC span | ratio | CC \|resp\| | rejections | edges pruned to 0 |
 |---|---|---|---|---|---|
-| 0.002 | 1.03×10⁻⁸ | 0.05× | 1.59 | 0 | **8.8%** |
+| 0.002 | 1.03×10⁻⁸ | 0.05× | 1.59 | 0 | **8.1%** |
 | 0.008 | 4.07×10⁻⁷ | **1.20×** | 2.85 | 0 | 27.2% |
 | 0.032 | 3.23×10⁻⁵ | 1.10× | 245.55 | 2 | 42.6% |
 | 0.128 | 1.92×10⁻⁷ | 0.00× | 498.03 | 87 | 48.2% |
@@ -491,9 +503,14 @@ prior. Without this control the sweep would have been a mechanism for manufactur
 whichever answer was sought.
 
 **The baseline was never what it was described as.** `edges_syn_strength` initializes to
-`0.01 × syn_count` and is clamped at `min=0.0` after perturbation. At σ = 0.002 — the
-Flyvis prior, used by every untrained CC model in this work — **8.8% of edges are clamped
-to exactly zero.** Untrained CC networks are pruned as well as perturbed.
+`0.01 / mean_syn_count` — **inverse** to synapse count, so the densest cell-type pairs
+carry the smallest factors — and is clamped `non_negative` after perturbation. At σ = 0.002
+— the Flyvis prior, used by every untrained CC model in this work — **8.1% of the 604
+cell-type pairs are silenced (range 5.8–10.3%, n=20 seeds)**, and the selection is strongly
+density-biased: 42.0% of the lowest-factor decile (11–144 synapses/instance), 0% of the top
+four deciles (Mann–Whitney p = 3×10⁻²²). Untrained CC networks are **sparsified by removal
+of their densest cell-type connections**, not merely perturbed. (Training also zeroes 31/604
+factors, but a nearly disjoint, not-detectably-biased set.)
 
 **Conclusion.** Untrained connectome-constrained networks have no measurable
 representational geometry, along either perturbation axis, across four orders of
@@ -940,7 +957,7 @@ wiring at the population level, without requiring a behavioral decoder.
 - Experiment 4b forecloses the remedy the original proposed. Two perturbation sweeps show
   that bias noise makes the population vectors parallel (CC span falls fortyfold as
   responses rise sevenfold) while synapse-strength noise separates them but inflates
-  responses, prunes half the synapses, and destabilizes the network before the RDM clears
+  responses, silences up to half the cell-type connections, and destabilizes the network before the RDM clears
   its own floor. The only resolvable point in either sweep belongs to the E/I-scrambled
   condition and returns r(circ) ≈ 0.50 under two unrelated axes — saturation geometry, not
   a wiring prior
