@@ -127,10 +127,66 @@ BIO_TUNING_MATRIX = np.stack([
 ], axis=0)
 
 # Population matrix over stimuli: (12 directions x 8 subtypes)
+# Retained for the 24-condition (ON+OFF) case, where the T4/T5 polarity
+# segregation is the point of the reference.
 BIO_POP_MATRIX_12x8 = BIO_TUNING_MATRIX.T
 
 
+# ── ON-ONLY (12-CONDITION) REFERENCE: T4 SUBTYPES ONLY ───────────────────────
+# CORRECTION. Experiment 1 uses ON edges exclusively. Maisak et al. 2013 Fig. 3c/3d
+# report that T5 cells "selectively responded to moving OFF edges and mostly
+# failed to respond to moving ON edges." The 12x8 reference above therefore
+# assigns T5a-d full von Mises responses to a stimulus they do not respond to.
+#
+# This changes NO published value, because T5a-d were assigned the same preferred
+# directions and tuning width as T4a-d and are consequently exact duplicates:
+#
+#     max |T4 columns - T5 columns|        = 0.0
+#     max |RDM(12x8) - RDM(12x4)|          = 3.3e-16
+#     off-diagonal range, both             = 0.0460 .. 0.9886
+#     CC vs bio    : 0.929 (8 subtypes) -> 0.926 (4 subtypes)
+#     Random vs bio: 0.601 (8 subtypes) -> 0.594 (4 subtypes)
+#
+# It is corrected here because the 12x8 form DISGUISES the reference's structure.
+# The effective ON-edge population is FOUR cardinal von Mises curves of identical
+# width. A cosine RDM over such a population is necessarily near-identical to a
+# pure angular-distance matrix: r = 0.978 (Spearman, against
+# min(|i-j|, 12-|i-j|)). That is arithmetic, not coincidence -- four same-width
+# curves at 90-degree spacing cannot produce anything else.
+#
+# CONSEQUENCE FOR INTERPRETATION. A raw correlation against this reference
+# measures how circularly organized a model's geometry is, not whether it
+# reproduces T4/T5 direction tuning. A model with no T4/T5-specific structure
+# that merely orders directions by angle scores ~0.96. The reported CC-vs-random
+# gap (0.930 - 0.603 = 0.327) is, to within 0.01, the gap in circularity
+# (0.937 - 0.599 = 0.338). Report the PARTIAL correlation controlling for the
+# circular reference; see the diagnostic printed by run_biological_reference().
+BIO_CELL_TYPES_ON = ["T4a", "T4b", "T4c", "T4d"]
+
+BIO_TUNING_MATRIX_ON = np.stack([
+    von_mises_tuning(SUBTYPE_PREFERRED_DIRS[ct])
+    for ct in BIO_CELL_TYPES_ON
+], axis=0)                                   # (4 subtypes x 12 directions)
+
+BIO_POP_MATRIX_12x4 = BIO_TUNING_MATRIX_ON.T  # (12 directions x 4 subtypes)
+
+
 # ── HELPERS ───────────────────────────────────────────────────────────────────
+
+def circular_reference(n_dirs=None):
+    """Pure angular-distance matrix: C[i,j] = min(|i-j|, n-|i-j|).
+
+    This is the structure the stimulus set imposes on ANY representation that
+    orders directions by angle, independent of biology. It is the control the
+    biological reference must be compared against -- see the circularity
+    diagnostic in run_biological_reference().
+    """
+    n = n_dirs if n_dirs is not None else N_DIRS
+    i = np.arange(n)[:, None]
+    j = np.arange(n)[None, :]
+    d = np.abs(i - j)
+    return np.minimum(d, n - d).astype(float)
+
 
 def build_rdm_from_pop_matrix(pop_matrix):
     """
@@ -146,6 +202,52 @@ def build_rdm_from_pop_matrix(pop_matrix):
             if i != j:
                 rdm[i, j] = cosine(pop_matrix[i], pop_matrix[j])
     return rdm
+
+
+def partial_spearman_rdm(rdm_model, rdm_ref, rdm_control):
+    """Spearman partial correlation of (model, ref) controlling for (control).
+
+    Rank-transform all three upper triangles, regress model and ref on control,
+    and correlate the residuals. This isolates the model-reference agreement
+    that is NOT attributable to the control structure.
+
+    Here the control is the circular-distance reference. Because the biological
+    reference is itself ~0.978 circular, the raw correlation is dominated by
+    circular ordering; the partial is the quantity that speaks to direction-
+    tuning fidelity.
+    """
+    from scipy.stats import rankdata
+    n = rdm_model.shape[0]
+    idx = np.triu_indices(n, k=1)
+    a = rankdata(rdm_model[idx])
+    b = rankdata(rdm_ref[idx])
+    c = rankdata(rdm_control[idx])
+    C = np.column_stack([np.ones_like(c), c])
+    res_a = a - C @ np.linalg.lstsq(C, a, rcond=None)[0]
+    res_b = b - C @ np.linalg.lstsq(C, b, rcond=None)[0]
+    den = np.linalg.norm(res_a) * np.linalg.norm(res_b)
+    return np.nan if den == 0 else float(res_a @ res_b / den)
+
+
+def permutation_test_partial(rdm_model, rdm_ref, rdm_control,
+                             n_permutations=10000, seed=SEED):
+    """Permutation test on the partial correlation.
+
+    The reference and the control are permuted TOGETHER, so the null is
+    "this model's geometry is unrelated to the biological direction assignment,"
+    holding the circular structure of the stimulus set fixed.
+    """
+    rng = np.random.default_rng(seed)
+    n = rdm_model.shape[0]
+    obs = partial_spearman_rdm(rdm_model, rdm_ref, rdm_control)
+    count = 0
+    for _ in range(n_permutations):
+        p = rng.permutation(n)
+        ref_p = rdm_ref[np.ix_(p, p)]
+        ctl_p = rdm_control[np.ix_(p, p)]
+        if partial_spearman_rdm(rdm_model, ref_p, ctl_p) >= obs:
+            count += 1
+    return obs, (count + 1) / (n_permutations + 1)
 
 
 def rdm_similarity(rdm1, rdm2):
@@ -274,11 +376,37 @@ def run_biological_reference(results_exp1, results_exp2=None,
     plt.show()
 
     # ── 2. Build biological 12x12 stimulus RDM ────────────────────────────────
-    print("\n--- BIOLOGICAL 12x12 STIMULUS RDM ---")
-    bio_rdm_12 = build_rdm_from_pop_matrix(BIO_POP_MATRIX_12x8)
+    # ON-only stimulus set => T4 subtypes only (Maisak Fig. 3c/3d: T5 does not
+    # respond to ON edges). Numerically identical to the 12x8 form because
+    # T5a-d duplicate T4a-d exactly; see the comment at BIO_CELL_TYPES_ON.
+    print("\n--- BIOLOGICAL 12x12 STIMULUS RDM (T4 subtypes, ON edges) ---")
+    bio_rdm_12 = build_rdm_from_pop_matrix(BIO_POP_MATRIX_12x4)
     print(f"  Shape: {bio_rdm_12.shape}")
     print(f"  Off-diagonal range: "
           f"{bio_rdm_12[bio_rdm_12 > 0].min():.4f} to {bio_rdm_12.max():.4f}")
+
+    # Demonstrate the equivalence rather than asserting it.
+    bio_rdm_12_8subtypes = build_rdm_from_pop_matrix(BIO_POP_MATRIX_12x8)
+    print(f"  max |RDM(4 T4 subtypes) - RDM(8 T4/T5 subtypes)| = "
+          f"{np.abs(bio_rdm_12 - bio_rdm_12_8subtypes).max():.2e}")
+    print(f"  max |T4 tuning - T5 tuning| = "
+          f"{np.abs(BIO_TUNING_MATRIX[0:4] - BIO_TUNING_MATRIX[4:8]).max():.2e}"
+          f"   (T5a-d duplicate T4a-d)")
+
+    # ── 2b. CIRCULARITY DIAGNOSTIC ────────────────────────────────────────────
+    # The check whose absence allowed a circularity gap to be reported as a
+    # fidelity gap.
+    circ_rdm = circular_reference(N_DIRS)
+    r_bio_circ, p_bio_circ, tau_bio_circ, _ = rdm_similarity(bio_rdm_12, circ_rdm)
+    print("\n--- CIRCULARITY OF THE BIOLOGICAL REFERENCE ---")
+    print(f"  r(biological reference, circular distance) = {r_bio_circ:.4f}"
+          f"  (tau = {tau_bio_circ:.4f})")
+    print("  The reference is four cardinal von Mises curves of identical width.")
+    print("  A cosine RDM over that population is necessarily near-angular-distance.")
+    print("  A model that merely orders directions by angle scores ~0.96 against it.")
+    print("  Raw correlations with this reference therefore measure CIRCULAR")
+    print("  ORGANIZATION, not direction-tuning fidelity. Partial correlations")
+    print("  controlling for the circular reference are reported below.")
 
     # ── 3. Experiment 1: three-way comparison ─────────────────────────────────
     print("\n--- EXPERIMENT 1 (ON edges, 12 conditions) vs BIOLOGY ---")
@@ -295,6 +423,30 @@ def run_biological_reference(results_exp1, results_exp2=None,
           f" | tau={rk_rand_bio1:.3f}, p={pk_rand_bio1:.4f}  [analytical]")
     print(f"  CC vs Random:    r={r_cc_rand1:.3f}, p={p_cc_rand1:.4f}"
           f" | tau={rk_cc_rand1:.3f}, p={pk_cc_rand1:.4f}  [analytical]")
+
+    # ── RAW vs PARTIAL: what survives once circular structure is removed ──────
+    r_cc_circ,   _, _, _ = rdm_similarity(cc_rdm1,   circ_rdm)
+    r_rand_circ, _, _, _ = rdm_similarity(rand_rdm1, circ_rdm)
+
+    pr_cc,   p_pr_cc   = permutation_test_partial(cc_rdm1,   bio_rdm_12, circ_rdm,
+                                                  n_permutations)
+    pr_rand, p_pr_rand = permutation_test_partial(rand_rdm1, bio_rdm_12, circ_rdm,
+                                                  n_permutations)
+
+    print("\n  RAW vs PARTIAL (controlling for circular stimulus structure):")
+    print(f"    {'model':<10} {'r(circ)':>9} {'r(bio) raw':>12} "
+          f"{'r(bio|circ)':>13} {'p_perm':>9}")
+    print(f"    {'CC':<10} {r_cc_circ:>9.3f} {r_cc_bio1:>12.3f} "
+          f"{pr_cc:>13.3f} {p_pr_cc:>9.4f}")
+    print(f"    {'Random':<10} {r_rand_circ:>9.3f} {r_rand_bio1:>12.3f} "
+          f"{pr_rand:>13.3f} {p_pr_rand:>9.4f}")
+    print(f"    {'gap':<10} {r_cc_circ - r_rand_circ:>9.3f} "
+          f"{r_cc_bio1 - r_rand_bio1:>12.3f} {pr_cc - pr_rand:>13.3f}")
+    print()
+    print("    For every model, raw r-vs-biology tracks r-vs-circular to within")
+    print("    ~0.01. The raw CC-random gap is therefore the CIRCULARITY gap, not")
+    print("    a fidelity gap. The partial correlation is the residual biological")
+    print("    structure; report that, with its permutation p-value.")
 
     print(f"\n  Permutation test: CC vs Biology ({n_permutations} permutations):")
     obs_r1, p_r1, obs_tau1, p_tau1, null_r1, null_tau1 = permutation_test_rdm(
@@ -464,9 +616,15 @@ def run_biological_reference(results_exp1, results_exp2=None,
         print(f"    Rand vs Bio:  r={r_rand_bio2:.3f}, tau={rk_rand_bio2:.3f}  [analytical]")
     print()
     print("  Interpretation guide:")
-    print("  r(CC vs Bio) > r(Rand vs Bio) means CC geometry more consistent with")
-    print("    biological T4/T5 direction tuning than random geometry")
-    print("  p_perm < 0.05 means CC vs Biology correlation exceeds chance")
+    print("  The biological reference is ~0.978 circular. Raw r-vs-Bio therefore")
+    print("    measures circular organization, NOT direction-tuning fidelity, and")
+    print("    r(CC vs Bio) > r(Rand vs Bio) does not by itself establish greater")
+    print("    biological fidelity: the raw gap equals the circularity gap.")
+    print("  Report r(model, bio | circular) with its permutation p-value.")
+    print("  The interpretable biological evidence is the within-polarity")
+    print("    direction-structure test (Experiment 2), which compares each")
+    print("    polarity block against an EXPLICIT circular reference rather than")
+    print("    through a proxy that is 98% that reference.")
     print()
     print("  CAVEAT: gratings vs edges mismatch; T4/T5 subspace only.")
     print("  Frame as qualitative reference, not quantitative validation.")
