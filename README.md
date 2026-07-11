@@ -6,6 +6,7 @@ with the same architecture — using representational similarity analysis (RSA) 
 the [Flyvis](https://github.com/TuragaLab/flyvis) Drosophila visual system model.
 
 **Preprint:** [https://doi.org/10.64898/2026.06.10.731214](https://doi.org/10.64898/2026.06.10.731214)
+*(a revision correcting Experiments 3 and 4 is pending co-author review — see this README for the corrected analysis in the meantime; the DOI will reflect the update once posted)*
 
 ---
 
