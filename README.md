@@ -41,7 +41,8 @@ networks produce no measurable representational geometry at all.
 **Scope:** This work establishes representational geometry as a fidelity metric for
 connectome-constrained networks, using four experiments on the pretrained Flyvis ensemble
 (Lappalainen et al. 2024). Experiments 1–3 compare trained CC networks against
-weight-shuffled random baselines and a T4/T5 biological reference. Experiment 4 tests whether the geometry signal persists before any task training, and
+weight-shuffled random baselines and a T4/T5 biological reference. Experiment 4 tests
+whether the geometry signal persists before any task training, and
 finds that untrained networks' RDMs fall below the numerical resolution of the responses
 they derive from — at any perturbation of the free parameters within the regime where the
 network remains connectome-constrained (Experiment 4b). Fully answering the
@@ -466,7 +467,14 @@ the instability documented in Experiments 1–2 is a property of the trained par
 regime, not the architecture. This depends only on whether activations remained finite and
 bounded, which is a robust check.
 
-### Experiment 4b: Perturbation-Sensitivity Sweep — n=5 per condition
+*Two corrections.* The original reported "mean attempts 25.5 ± 14.4"; that was the mean of
+the cumulative seed counter 1…50, a loop index, not a resampling statistic. And the
+original `is_stable` wrapped the forward pass in `try/except Exception: return False`,
+which would have counted a CUDA error or shape mismatch as instability, silently.
+
+---
+
+## Experiment 4b: Perturbation-Sensitivity Sweep — n=5 per condition
 
 The original's limitations section proposed larger perturbations as the remedy. Two sweeps
 test it, one axis at a time.
@@ -490,16 +498,20 @@ shrank.
 
 | σ (SYN_STRENGTH_NOISE) | CC span | ratio | CC \|resp\| | rejections | edges pruned to 0 |
 |---|---|---|---|---|---|
-| 0.002 | 1.03×10⁻⁸ | 0.05× | 1.59 | 0 | **8.1%** |
-| 0.008 | 4.07×10⁻⁷ | **1.20×** | 2.85 | 0 | 26.7% |
-| 0.032 | 3.23×10⁻⁵ | 1.10× | 245.55 | 2 | 43.3% |
-| 0.128 | 1.92×10⁻⁷ | 0.00× | 498.03 | 87 | 48.2% |
+| 0.002 | 1.03×10⁻⁸ | 0.05× | 1.59   | 0  | **8.2%** |
+| 0.008 | 4.07×10⁻⁷ | **1.20×** | 2.85   | 0  | 26.6% |
+| 0.032 | 3.23×10⁻⁵ | 1.10× | 245.55 | 2  | 43.1% |
+| 0.128 | 1.92×10⁻⁷ | 0.00× | 498.03 | 87 | 48.0% |
 
 CC's span rises — the right direction — and the ratio reaches 1.20×, twenty-four times
 better than bias noise achieved. Then it stalls, never approaching the threshold, while
 response magnitude reaches 498, rejections climb to 87 per 5 acceptances, and nearly half
 the synapses are clamped to zero. **By the time the perturbation could clear the guard,
 the network is no longer a connectome-constrained network.**
+
+*Pairs-pruned percentages above are from a fixed budget of n=100 independently-drawn seeds
+per level (superseding an earlier, less-powered characterization; the two agree to within
+one percentage point at every level).*
 
 **The control.** The only condition that ever cleared the guard, in either sweep, is
 Rand-sign — E/I identity scrambled. Bias σ=0.8: ratio 15.28×, r(circ) = +0.495,
@@ -508,6 +520,12 @@ unrelated axes, the same circularity to three decimals, at response magnitudes a
 magnitude above CC's. This is saturation geometry from broken E/I balance, not a wiring
 prior. Without this control the sweep would have been a mechanism for manufacturing
 whichever answer was sought.
+
+**Confirmed directly, not inferred, at σ = 0.128.** Across a fixed budget of 100
+independently-drawn seeds, zero Rand-sign configurations passed the stability check at
+this level (compare CC's properly measured 5/100 acceptance rate at the same σ). No
+geometry statistic is reported for Rand-sign here — it is not merely hard to stabilize,
+it is never stable within this budget.
 
 **The baseline was never what it was described as.** `edges_syn_strength` initializes to
 `0.01 / mean_syn_count` — **inverse** to synapse count, so the densest cell-type pairs
@@ -522,15 +540,18 @@ factors, but a nearly disjoint, not-detectably-biased set.)
 **Two diagnostics locate where the regime ends.** The deletion loses its density selectivity
 — at σ = 0.128 every decile is silenced at ~48%, because the noise exceeds even the largest
 scaling factor and the clamp becomes a coin flip. And the stability-check acceptance rate
-collapses: **100%, 100%, 68%, 5%** across the four levels (n = 25, 25, 40, 60 seeds). At
-σ = 0.128, 57 of 60 seeds are dynamically unstable; the models the sweep evaluated there are
-a 5% tail.
+collapses: **100%, 100%, 67%, 5%** across the four levels, measured with a fixed budget of
+n=100 independently-drawn seeds per level (superseding an earlier n=25/25/40/60-seed
+characterization; the two agree to within one percentage point at every level). At
+σ = 0.128, 95 of 100 fixed-budget seeds are dynamically unstable; the models the geometry
+sweep evaluated there are a 5% tail.
 
-**The stability filter does not bias the silencing estimate.** At σ = 0.032, accepted and
-rejected models are silenced at 43.3% and 43.7% (Mann–Whitney p = 0.38), with identical
-median synapse counts among silenced pairs (2.1 vs 2.1); at σ = 0.128, 48.5% vs 48.1%
-(p = 0.57, n = 3 accepted). At the two lowest levels no seed was rejected. Reported fractions
-and RDM spans are therefore **not** conditioned on survival.
+**The stability filter does not bias the silencing estimate.** Verified with a fixed
+budget of n=100 independently-drawn seeds per level. At σ = 0.032, accepted and rejected
+models are silenced at 42.9% and 43.4% (Mann–Whitney U=976.5, p = 0.346); at σ = 0.128,
+48.2% versus 48.0% (U=254.5, p = 0.794, now well-powered at n=5 accepted / 95 rejected).
+At the two lowest levels no seed was rejected (0/100 at both). Reported fractions and RDM
+spans are therefore **not** conditioned on survival.
 
 **Conclusion.** Untrained connectome-constrained networks have no measurable
 representational geometry, along either perturbation axis, across four orders of
@@ -870,8 +891,9 @@ random 0.599). The raw gap (0.330) is the circularity gap (0.338). Partialling o
 circular structure leaves CC at 0.145 (p_perm = 0.120) and random at 0.061
 (p_perm = 0.323) — neither significant. An earlier version reported Δr = 0.327 as "the
 additional fidelity attributable to the connectome constraint beyond circular stimulus
-structure alone." That interpretation is inverted: the gap *is* the circular structure it
-claimed to control for. No biological-fidelity claim is made from this experiment.
+structure alone provides." That interpretation is inverted: the gap *is* the circular
+structure it claimed to control for. No biological-fidelity claim is made from this
+experiment.
 
 #### Experiment 2 Comparison (ON+OFF edges, 24 conditions)
 CC vs Biology: **Spearman r = 0.049, p_perm = 0.159** (not significant); Random vs
@@ -979,7 +1001,9 @@ wiring at the population level, without requiring a behavioral decoder.
   responses, silences up to half the cell-type connections, and destabilizes the network before the RDM clears
   its own floor. The only resolvable point in either sweep belongs to the E/I-scrambled
   condition and returns r(circ) ≈ 0.50 under two unrelated axes — saturation geometry, not
-  a wiring prior
+  a wiring prior. At the highest synapse-noise level (σ = 0.128), a fixed budget of 100
+  independently-drawn seeds finds zero stable Rand-sign configurations at all, confirming
+  its non-resolution directly rather than by inference from a partial sweep
 - What this licenses, and what it does not: the connectome imposes no detectable
   directional structure on population responses at initialization. It does not yet license
   "training creates the geometry" — that requires a trained-versus-untrained comparison
@@ -1053,6 +1077,8 @@ connectome-fidelity/
 │   ├── moving_edge_on_off.py          ← Experiment 2: ON+OFF edges
 │   ├── biological_reference.py        ← Experiment 3: biological reference
 │   ├── untrained_networks.py          ← Experiment 4: untrained networks
+│   ├── exp4_perturbation_sweep.py     ← Experiment 4b: bias-noise sweep
+│   ├── exp4_synapse_sweep.py          ← Experiment 4b: synapse-noise sweep
 │   ├── cka_validation.py              ← CKA secondary validation
 │   └── posthoc_mds_whitened_rdms.py   ← MDS visualization and noise-whitened RDMs
 ├── notebooks/
@@ -1068,6 +1094,8 @@ connectome-fidelity/
 │   ├── results_exp2_10models_full_shiu.npz
 │   ├── results_exp2_50models_full_shiu.npz
 │   ├── results_exp4_untrained.npz             
+│   ├── exp4_sweep.npz                 ← bias-noise sweep results
+│   ├── exp4_synapse_sweep.npz         ← synapse-noise sweep results (n=100/level)
 │   ├── cka_validation_50models_full_shiu.npz
 │   └── posthoc_mds_whitened_50models_full_shiu.npz
 ├── figures/
@@ -1089,6 +1117,8 @@ connectome-fidelity/
 │   ├── umap_cc_ensemble_exp2.png
 │   ├── exp4_untrained_rdms.png               
 │   ├── exp4_untrained_permtest.png           
+│   ├── exp4_sweep.png                 ← bias-noise sweep figure
+│   ├── exp4_synapse_sweep.png         ← synapse-noise sweep figure (n=100/level)
 │   ├── cka_validation_exp1_exp2.png
 │   ├── mds_exp1_on_edges_50models.png
 │   ├── mds_exp2_on_off_edges_50models.png
