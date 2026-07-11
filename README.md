@@ -734,15 +734,13 @@ significant.*
 *Experiment 4's untrained-network RDM figure is not walked through here for the same
 reason its former statistics were withdrawn: at span/floor ≈ 0.09×, any heatmap of these
 matrices is a heatmap of float32 rounding, and a colormap can make rounding look like
-structure regardless of the caption underneath it. It remains in the repository — see
-Data and Code Availability — but is not presented as evidence of anything.*
-
-![Experiment 4 permutation test — untrained networks](figures/exp4_untrained_permtest.png)
-
-*Experiment 4 permutation test (n=50 per condition, 10,000 permutations). **Retained for
-the record; both tests are void.** The observed values (r = 0.260 and r = 0.215) were
-computed from RDMs whose dynamic range lies below the numerical resolution of their inputs.
-That both p-values landed just under 0.05 is what random rank vectors do.*
+structure regardless of the caption underneath it. Nor is the accompanying
+permutation-test figure walked through: a null-distribution plot with an observed-value
+marker sitting outside the null is a direct visual assertion of significance — exactly
+the claim (r = 0.260, p_perm = 0.041; r = 0.215, p_perm = 0.048) that is now withdrawn,
+and displaying that plot restates the withdrawn claim visually regardless of what the
+caption says around it. Both figures remain in the repository — see Data and Code
+Availability — but neither is presented as evidence of anything.*
 
 ---
 
@@ -1133,15 +1131,13 @@ https://github.com/TuragaLab/flyvis under the terms of its original license. Res
 fully reproducible from the provided scripts using seed=42 on Google Colab with a T4 GPU
 runtime.
 
-The Experiment 4 RDM figure (`exp4_untrained_rdms_annotated.png`) remains in the
-repository but is not walked through above: its statistics are withdrawn (see
-Experiment 4), and a colormap heatmap of float32 rounding risks visually implying
-structure the data does not carry regardless of caption text. The Experiment 4
-permutation-test figure (`exp4_untrained_permtest.png`) is still shown above, with
-its own caption stating both tests it depicts are void — retained there rather
-than demoted to this section only because a null-distribution plot with an
-observed-value marker is less prone to being misread as showing structure than a
-raw RDM heatmap is.
+The Experiment 4 RDM figure (`exp4_untrained_rdms_annotated.png`) and permutation-test
+figure (`exp4_untrained_permtest.png`) both remain in the repository but are not walked
+through above: the statistics they depict are withdrawn (see Experiment 4), and both
+carry the same risk — a heatmap can make rounding look like structure, and a
+null-distribution plot with an observed-value marker outside the null is a direct visual
+restatement of the significance claim that is now withdrawn — regardless of what caption
+text sits underneath either figure.
 
 ---
 
