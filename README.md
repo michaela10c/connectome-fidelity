@@ -731,15 +731,20 @@ circular, so this tests circular organization rather than biological fidelity. T
 correlation controlling for circular structure is r = 0.145 (p_perm = 0.120), not
 significant.*
 
-![Experiment 4 RDMs — untrained networks](figures/exp4_untrained_rdms.png)
+![Experiment 4 RDMs — untrained networks](figures/exp4_untrained_rdms_annotated.png)
 
-*Experiment 4 (n=50 per condition) — left to right: untrained CC mean cosine RDM,
-Rand-syn mean cosine RDM, Rand-sign mean cosine RDM, biological reference (von Mises
-T4/T5). **This figure is retained for the record and should not be read as showing
-structure.** All network RDMs are on the order of 10⁻⁸–10⁻⁷, an order of magnitude below
-the float32 round-off floor of the responses they derive from (1.93×10⁻⁷). Their rank
-order is rounding. The correlations formerly reported from these matrices (r = 0.260,
-p_perm = 0.041; r = 0.215, p_perm = 0.048) are void.*
+*Untrained network RDMs, retained for the record. This figure should not be read
+as showing structure. Left to right: untrained CC mean cosine RDM, Rand-syn mean
+cosine RDM, Rand-sign mean cosine RDM, biological reference (von Mises T4/T5;
+degenerate on this stimulus set — see Experiment 3). All three network RDMs have
+off-diagonal entries of order 10⁻⁸–10⁻⁷, below the float32 round-off floor of the
+responses from which they are computed (1.93×10⁻⁷). Their rank order is determined
+by rounding. The apparent progression from CC through syn-shuffle to sign-shuffle
+is a conditioning gradient: the three spans differ by a factor of 340, because
+scrambling excitatory/inhibitory balance inflates responses tenfold. The
+correlations formerly reported from these matrices (CC vs Rand-syn r = 0.260,
+p_perm = 0.041; CC vs Rand-sign r = 0.215, p_perm = 0.048) are withdrawn. N = 50
+per condition, seed = 42.*
 
 ![Experiment 4 permutation test — untrained networks](figures/exp4_untrained_permtest.png)
 
@@ -1115,7 +1120,7 @@ connectome-fidelity/
 │   ├── bio_reference_exp1_permtest.png
 │   ├── umap_cc_ensemble_exp1.png
 │   ├── umap_cc_ensemble_exp2.png
-│   ├── exp4_untrained_rdms.png               
+│   ├── exp4_untrained_rdms_annotated.png     
 │   ├── exp4_untrained_permtest.png           
 │   ├── exp4_sweep.png                 ← bias-noise sweep figure
 │   ├── exp4_synapse_sweep.png         ← synapse-noise sweep figure (n=100/level)
