@@ -6,7 +6,6 @@ with the same architecture — using representational similarity analysis (RSA) 
 the [Flyvis](https://github.com/TuragaLab/flyvis) Drosophila visual system model.
 
 **Preprint:** [https://doi.org/10.64898/2026.06.10.731214](https://doi.org/10.64898/2026.06.10.731214)
-*(a revision correcting Experiments 3 and 4 is pending co-author review — see this README for the corrected analysis in the meantime; the DOI will reflect the update once posted)*
 
 ---
 
@@ -34,7 +33,7 @@ This project tests that hypothesis using the pretrained Flyvis ensemble (Lappala
 al. 2024), applying RSA (Kriegeskorte et al. 2008) to compare population codes across
 connectome-constrained models versus sign-preserving random weight shuffles. Experiment 3
 extends the comparison to a biological reference derived from T4/T5 direction tuning data
-(Maisak et al. 2013) — which proves degenerate on the ON-only stimulus set and cannot
+(Maisak et al. 2013) — which proves confounded with circular distance on the ON-only stimulus set and cannot
 measure biological fidelity. Experiment 4 addresses the training confound by testing
 whether the geometry signal is present before any task training; it finds that untrained
 networks produce no measurable representational geometry at all.
@@ -340,7 +339,7 @@ interpreted as a fidelity measure (see Experiment 3).
 
 ### Experiment 3: Biological Reference — Experiment 1 comparison (ON edges, 12 conditions, n=50 baseline)
 
-**The reference is degenerate; this comparison cannot measure biological fidelity.**
+**The reference is confounded with circular distance; this comparison cannot measure biological fidelity.**
 
 Experiment 1 uses ON edges exclusively, and Maisak et al. report that T5 cells respond
 selectively to OFF edges and "mostly failed to respond to moving ON edges" (Fig. 3c/3d).
@@ -978,8 +977,8 @@ wiring at the population level, without requiring a behavioral decoder.
 - The fidelity result holds across ensemble sizes: stability-constrained sampling succeeds
   at both n=10 and n=50 with all models accepted and no ceiling failures
 - The biological reference (Experiment 3) provides no support, because it cannot: the
-  T4/T5 reference is degenerate on the ON-only stimulus set (four cardinal von Mises
-  curves of identical width; r = 0.978 against a pure angular-distance matrix), so the raw
+  T4/T5 reference reduces, on the ON-only stimulus set, to four cardinal von Mises
+  curves of identical width (r = 0.978 against a pure angular-distance matrix), so the raw
   CC-vs-random gap (0.330) is the circularity gap (0.338), not a fidelity gap. An earlier
   version reported Δr = 0.327 as attributable to the connectome constraint above and beyond
   circular stimulus structure; that interpretation is inverted, and the claim is withdrawn
