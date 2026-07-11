@@ -731,20 +731,11 @@ circular, so this tests circular organization rather than biological fidelity. T
 correlation controlling for circular structure is r = 0.145 (p_perm = 0.120), not
 significant.*
 
-![Experiment 4 RDMs — untrained networks](figures/exp4_untrained_rdms_annotated.png)
-
-*Untrained network RDMs, retained for the record. This figure should not be read
-as showing structure. Left to right: untrained CC mean cosine RDM, Rand-syn mean
-cosine RDM, Rand-sign mean cosine RDM, biological reference (von Mises T4/T5;
-degenerate on this stimulus set — see Experiment 3). All three network RDMs have
-off-diagonal entries of order 10⁻⁸–10⁻⁷, below the float32 round-off floor of the
-responses from which they are computed (1.93×10⁻⁷). Their rank order is determined
-by rounding. The apparent progression from CC through syn-shuffle to sign-shuffle
-is a conditioning gradient: the three spans differ by a factor of 340, because
-scrambling excitatory/inhibitory balance inflates responses tenfold. The
-correlations formerly reported from these matrices (CC vs Rand-syn r = 0.260,
-p_perm = 0.041; CC vs Rand-sign r = 0.215, p_perm = 0.048) are withdrawn. N = 50
-per condition, seed = 42.*
+*Experiment 4's untrained-network RDM figure is not walked through here for the same
+reason its former statistics were withdrawn: at span/floor ≈ 0.09×, any heatmap of these
+matrices is a heatmap of float32 rounding, and a colormap can make rounding look like
+structure regardless of the caption underneath it. It remains in the repository — see
+Data and Code Availability — but is not presented as evidence of anything.*
 
 ![Experiment 4 permutation test — untrained networks](figures/exp4_untrained_permtest.png)
 
@@ -1141,6 +1132,16 @@ https://github.com/TuragaLab/flyvis under the terms of its original license. Res
 (`results/`) and figures (`figures/`) are included in this repository. All analyses are
 fully reproducible from the provided scripts using seed=42 on Google Colab with a T4 GPU
 runtime.
+
+The Experiment 4 RDM figure (`exp4_untrained_rdms_annotated.png`) remains in the
+repository but is not walked through above: its statistics are withdrawn (see
+Experiment 4), and a colormap heatmap of float32 rounding risks visually implying
+structure the data does not carry regardless of caption text. The Experiment 4
+permutation-test figure (`exp4_untrained_permtest.png`) is still shown above, with
+its own caption stating both tests it depicts are void — retained there rather
+than demoted to this section only because a null-distribution plot with an
+observed-value marker is less prone to being misread as showing structure than a
+raw RDM heatmap is.
 
 ---
 
