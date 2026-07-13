@@ -516,54 +516,6 @@ which would have counted a CUDA error or shape mismatch as instability, silently
 
 ---
 
-### Experiment 5: Trained-Random Null-Through-Simulation — N=10 per scheme
-
-**The reference is the same one retracted in Experiment 3; this comparison inherits the
-identical confound and is not interpretable as reported.**
-
-Both null schemes were trained to full N=10 and evaluated against the Maisak et al. 2013
-biological reference — the same reference shown in Experiment 3 to be **97.8% circular**
-on this stimulus set (correlates with pure angular distance at **r = 0.978**; the
-corrected values below were re-verified against this reference at **r = 0.979**,
-matching closely). Any raw correlation against it is dominated by circular ordering, not
-direction-tuning fidelity, regardless of what produced the compared RDM.
-
-| scheme | raw r (vs. biology) | corrected r (partial, circularity removed) | p (corrected) |
-|---|---|---|---|
-| `degree_preserving_swap` | 0.832 | **−0.033** | 0.79 |
-| `erdos_renyi` | 0.738 | **−0.011** | 0.93 |
-
-Correction applied identically to Experiment 3: both the trained-random ensemble mean RDM
-and the biological RDM were rank-residualized against the explicit circular-distance
-reference, then correlated. **Both schemes collapse to statistical noise.** The
-degree-preserving scheme's raw r = 0.832 and the degree-breaking scheme's raw r = 0.738
-looked meaningfully different — a real-looking 0.094 gap — but that gap itself rode
-entirely on the shared circular-stimulus artifact both schemes inherit from the same
-reference; once removed, neither retains a resolvable correlation with biology, and the
-two are statistically indistinguishable from each other as well as from zero.
-
-**No claim is made from this experiment about whether degree-preserving wiring differs
-from degree-breaking wiring in biological fidelity, or whether either differs from real
-wiring's own (also-retracted, see the MICrONS mouse work) null-through-simulation
-result.** The degree-preserving-vs-degree-breaking contrast this experiment was designed
-to resolve is not answerable with this biological reference, for the same structural
-reason Experiment 3 and Experiment 4's biological comparison are not interpretable: the
-instrument cannot perform the measurement being asked of it, and returns a number anyway.
-
-**What is not retracted:** the structural result (Experiments 1–2, CC geometry distinct
-from untrained random, r = 0.686/0.846) and the within-polarity direction-structure test
-(Experiment 2, immune to this confound because it uses an *explicit* circular reference
-rather than the near-circular biological proxy) both stand independently of this
-retraction — this experiment's failure is specific to the Maisak-based biological
-reference, not to representational-geometry methodology generally.
-
-**Scripts:** `correct_exp5_circularity.py` (the correction, reusing `build_bio_rdm()`
-directly from `production.py` rather than reconstructing it, to guarantee an exact match
-to the reference already established as confounded); raw ensemble results in
-`pilot_out_250k/{degree_preserving_swap,erdos_renyi}/exp5_result.json`.
-
----
-
 ## Experiment 4b: Perturbation-Sensitivity Sweep — n=5 per condition
 
 The original's limitations section proposed larger perturbations as the remedy. Two sweeps
@@ -831,6 +783,54 @@ the claim (r = 0.260, p_perm = 0.041; r = 0.215, p_perm = 0.048) that is now wit
 and displaying that plot restates the withdrawn claim visually regardless of what the
 caption says around it. Both figures remain in the repository — see Data and Code
 Availability — but neither is presented as evidence of anything.*
+
+---
+
+### Experiment 5: Trained-Random Null-Through-Simulation — N=10 per scheme
+
+**The reference is the same one retracted in Experiment 3; this comparison inherits the
+identical confound and is not interpretable as reported.**
+
+Both null schemes were trained to full N=10 and evaluated against the Maisak et al. 2013
+biological reference — the same reference shown in Experiment 3 to be **97.8% circular**
+on this stimulus set (correlates with pure angular distance at **r = 0.978**; the
+corrected values below were re-verified against this reference at **r = 0.979**,
+matching closely). Any raw correlation against it is dominated by circular ordering, not
+direction-tuning fidelity, regardless of what produced the compared RDM.
+
+| scheme | raw r (vs. biology) | corrected r (partial, circularity removed) | p (corrected) |
+|---|---|---|---|
+| `degree_preserving_swap` | 0.832 | **−0.033** | 0.79 |
+| `erdos_renyi` | 0.738 | **−0.011** | 0.93 |
+
+Correction applied identically to Experiment 3: both the trained-random ensemble mean RDM
+and the biological RDM were rank-residualized against the explicit circular-distance
+reference, then correlated. **Both schemes collapse to statistical noise.** The
+degree-preserving scheme's raw r = 0.832 and the degree-breaking scheme's raw r = 0.738
+looked meaningfully different — a real-looking 0.094 gap — but that gap itself rode
+entirely on the shared circular-stimulus artifact both schemes inherit from the same
+reference; once removed, neither retains a resolvable correlation with biology, and the
+two are statistically indistinguishable from each other as well as from zero.
+
+**No claim is made from this experiment about whether degree-preserving wiring differs
+from degree-breaking wiring in biological fidelity, or whether either differs from real
+wiring's own (also-retracted, see the MICrONS mouse work) null-through-simulation
+result.** The degree-preserving-vs-degree-breaking contrast this experiment was designed
+to resolve is not answerable with this biological reference, for the same structural
+reason Experiment 3 and Experiment 4's biological comparison are not interpretable: the
+instrument cannot perform the measurement being asked of it, and returns a number anyway.
+
+**What is not retracted:** the structural result (Experiments 1–2, CC geometry distinct
+from untrained random, r = 0.686/0.846) and the within-polarity direction-structure test
+(Experiment 2, immune to this confound because it uses an *explicit* circular reference
+rather than the near-circular biological proxy) both stand independently of this
+retraction — this experiment's failure is specific to the Maisak-based biological
+reference, not to representational-geometry methodology generally.
+
+**Scripts:** `correct_exp5_circularity.py` (the correction, reusing `build_bio_rdm()`
+directly from `production.py` rather than reconstructing it, to guarantee an exact match
+to the reference already established as confounded); raw ensemble results in
+`pilot_out_250k/{degree_preserving_swap,erdos_renyi}/exp5_result.json`.
 
 ---
 
