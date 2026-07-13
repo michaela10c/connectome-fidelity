@@ -21,13 +21,19 @@ Representational geometry — the structure of pairwise distances between popula
 responses to different stimuli — offers a candidate answer. If connectome-constrained
 networks produce a representational geometry that random networks cannot replicate, then
 geometry is a fidelity-discriminating signal that operates at the population level,
-without requiring a behavioral decoder. Critically, RSA on representational geometry
-provides a fidelity signal that behavioral benchmarks cannot: null models that would
-produce equally good behavior given sufficient training are nonetheless discriminable
-from real biological wiring by their population geometry. This makes representational
-geometry a practical fidelity detector — one that operates without a behavioral decoder
-and without single-unit recordings, requiring only population responses to a structured
-stimulus set.
+without requiring a behavioral decoder. **The hypothesis this project set out to test:
+RSA on representational geometry might provide a fidelity signal that behavioral
+benchmarks cannot — specifically, that null models trained to equally good behavior would
+still be discriminable from real biological wiring by their population geometry.**
+Experiments 1–2 support a related, narrower claim: connectome-constrained geometry is
+distinct from *untrained* random wiring. **The literal trained-random test of the
+hypothesis as originally stated is Experiment 5, and it does not support it** — both
+trained-random null schemes tested collapse to statistical noise against the available
+biological reference once corrected for a confound shared with Experiment 3 (see
+Experiment 5 and the Discussion). This makes representational geometry, on the evidence
+gathered here, a demonstrated fidelity detector for *untrained* wiring differences,
+operating without a behavioral decoder — not yet a demonstrated detector for the
+trained-random case Brunton's finding actually makes urgent.
 
 This project tests that hypothesis using the pretrained Flyvis ensemble (Lappalainen et
 al. 2024), applying RSA (Kriegeskorte et al. 2008) to compare population codes across
@@ -36,19 +42,24 @@ extends the comparison to a biological reference derived from T4/T5 direction tu
 (Maisak et al. 2013) — which proves confounded with circular distance on the ON-only stimulus set and cannot
 measure biological fidelity. Experiment 4 addresses the training confound by testing
 whether the geometry signal is present before any task training; it finds that untrained
-networks produce no measurable representational geometry at all.
+networks produce no measurable representational geometry at all. Experiment 5 addresses
+the trained-random case directly and inherits the same circularity confound as
+Experiment 3, discussed above.
 
 **Scope:** This work establishes representational geometry as a fidelity metric for
-connectome-constrained networks, using four experiments on the pretrained Flyvis ensemble
-(Lappalainen et al. 2024). Experiments 1–3 compare trained CC networks against
-weight-shuffled random baselines and a T4/T5 biological reference. Experiment 4 tests
-whether the geometry signal persists before any task training, and
+*untrained* connectome-constrained networks, using five experiments on the pretrained
+Flyvis ensemble (Lappalainen et al. 2024). Experiments 1–3 compare trained CC networks
+against weight-shuffled random baselines and a T4/T5 biological reference. Experiment 4
+tests whether the geometry signal persists before any task training, and
 finds that untrained networks' RDMs fall below the numerical resolution of the responses
 they derive from — at any perturbation of the free parameters within the regime where the
-network remains connectome-constrained (Experiment 4b). Fully answering the
+network remains connectome-constrained (Experiment 4b). Experiment 5 tests the literal
+trained-random case (Brunton's actual scenario) and is retracted for the same reference
+confound as Experiment 3. Fully answering the
 Brunton/Eon fidelity question would additionally require comparing simulation outputs
 directly against simultaneously recorded neural activity — a next-project dependency on
-raw per-cell-type calcium recordings not currently in the public Flyvis release.
+raw per-cell-type calcium recordings not currently in the public Flyvis release, and/or a
+biological reference not confounded with circular stimulus structure.
 
 ---
 
@@ -237,6 +248,37 @@ aborts rather than computing statistics on an unresolvable matrix; circularity c
 against an explicit circular-distance reference; Spearman r and Kendall τ_A with both
 analytical and permutation p-values. The biological reference is computed but not
 interpreted as a fidelity measure (see Experiment 3).
+
+---
+
+### Experiment 5: Trained-Random Null-Through-Simulation
+
+**Question:** Brunton et al. (2026) showed that a randomly-wired connectome, given enough
+training, can recover realistic behavior. Experiments 1–2 establish that connectome-
+constrained (CC) geometry is distinct from *untrained* random wiring. Experiment 5 asks
+the harder, Brunton-relevant question directly: is CC geometry still distinguishable from
+random wiring *after* that wiring has been trained to task adequacy — the literal
+trained-random control.
+
+**Null schemes:**
+- *`degree_preserving_swap`:* Maslov–Sneppen double-edge-swap on the real connectome,
+  preserving each neuron's exact in/out degree and preserving experimentally-fixed signs;
+  only *who* connects to whom is randomized.
+- *`erdos_renyi`:* degree-breaking random graph, parameter-budget-matched to the real
+  network (same 605 cell-type-pair count) but not degree-matched; fixed signs held
+  constant, Dale's law otherwise not enforced. The deliberate floor case — the
+  degree-preserving-vs-degree-breaking contrast is the interpretable quantity, not either
+  scheme's r alone.
+
+**Protocol:** N=10 independent networks per scheme, each trained through the full
+250,000-iteration recipe (matching Experiments 1–2's task and training setup exactly),
+then evaluated through the same RSA pipeline against the same biological reference used
+in Experiment 3 (Maisak et al. 2013 T4/T5 tuning). Ensemble mean RDM per scheme compared
+against the biological RDM via Spearman r.
+
+**Note on scale:** each network requires ~6–8 GPU-hours; the full 20-network ensemble
+(both schemes) ran on a single RTX 4090 over approximately 60 hours of wall-clock time,
+via `production.py`'s resume-aware, checkpoint-based training/evaluation split.
 
 ---
 
@@ -471,6 +513,54 @@ bounded, which is a robust check.
 the cumulative seed counter 1…50, a loop index, not a resampling statistic. And the
 original `is_stable` wrapped the forward pass in `try/except Exception: return False`,
 which would have counted a CUDA error or shape mismatch as instability, silently.
+
+---
+
+### Experiment 5: Trained-Random Null-Through-Simulation — N=10 per scheme
+
+**The reference is the same one retracted in Experiment 3; this comparison inherits the
+identical confound and is not interpretable as reported.**
+
+Both null schemes were trained to full N=10 and evaluated against the Maisak et al. 2013
+biological reference — the same reference shown in Experiment 3 to be **97.8% circular**
+on this stimulus set (correlates with pure angular distance at **r = 0.978**; the
+corrected values below were re-verified against this reference at **r = 0.979**,
+matching closely). Any raw correlation against it is dominated by circular ordering, not
+direction-tuning fidelity, regardless of what produced the compared RDM.
+
+| scheme | raw r (vs. biology) | corrected r (partial, circularity removed) | p (corrected) |
+|---|---|---|---|
+| `degree_preserving_swap` | 0.832 | **−0.033** | 0.79 |
+| `erdos_renyi` | 0.738 | **−0.011** | 0.93 |
+
+Correction applied identically to Experiment 3: both the trained-random ensemble mean RDM
+and the biological RDM were rank-residualized against the explicit circular-distance
+reference, then correlated. **Both schemes collapse to statistical noise.** The
+degree-preserving scheme's raw r = 0.832 and the degree-breaking scheme's raw r = 0.738
+looked meaningfully different — a real-looking 0.094 gap — but that gap itself rode
+entirely on the shared circular-stimulus artifact both schemes inherit from the same
+reference; once removed, neither retains a resolvable correlation with biology, and the
+two are statistically indistinguishable from each other as well as from zero.
+
+**No claim is made from this experiment about whether degree-preserving wiring differs
+from degree-breaking wiring in biological fidelity, or whether either differs from real
+wiring's own (also-retracted, see the MICrONS mouse work) null-through-simulation
+result.** The degree-preserving-vs-degree-breaking contrast this experiment was designed
+to resolve is not answerable with this biological reference, for the same structural
+reason Experiment 3 and Experiment 4's biological comparison are not interpretable: the
+instrument cannot perform the measurement being asked of it, and returns a number anyway.
+
+**What is not retracted:** the structural result (Experiments 1–2, CC geometry distinct
+from untrained random, r = 0.686/0.846) and the within-polarity direction-structure test
+(Experiment 2, immune to this confound because it uses an *explicit* circular reference
+rather than the near-circular biological proxy) both stand independently of this
+retraction — this experiment's failure is specific to the Maisak-based biological
+reference, not to representational-geometry methodology generally.
+
+**Scripts:** `correct_exp5_circularity.py` (the correction, reusing `build_bio_rdm()`
+directly from `production.py` rather than reconstructing it, to guarantee an exact match
+to the reference already established as confounded); raw ensemble results in
+`pilot_out_250k/{degree_preserving_swap,erdos_renyi}/exp5_result.json`.
 
 ---
 
@@ -961,13 +1051,19 @@ which would have counted a CUDA error or shape mismatch as instability, silently
 
 ## Discussion
 
-The core practical implication of these results: Brunton et al. (2026) showed that a
-randomly-wired connectome can recover realistic behavior with enough training. The results
-here show the real connectome produces representational geometry closer to biology than
-all null models — including null models that would produce equally good behavior given
-sufficient training. RSA on representational geometry is therefore a fidelity detector
-that behavioral benchmarks are not: it discriminates real biological wiring from arbitrary
-wiring at the population level, without requiring a behavioral decoder.
+**The core practical implication, corrected.** Brunton et al. (2026) showed that a
+randomly-wired connectome can recover realistic behavior with enough training. The
+results here show the real connectome produces representational geometry distinct from
+*untrained* random wiring (Experiments 1–2) — but the literal trained-random test this
+claim would need to extend to Brunton's actual case, Experiment 5, has been retracted:
+both null schemes' raw correlation against the biological reference collapsed to
+statistical noise once corrected for the same circularity confound that already
+invalidated Experiment 3. **RSA on representational geometry is demonstrated here to
+discriminate real wiring from *untrained* random wiring; it has not been shown, with
+this biological reference, to discriminate real (or trained-random) wiring from
+*trained* random wiring — the comparison Brunton's finding actually makes urgent.**
+That is a materially narrower claim than the one this paragraph originally made, and I
+want it stated plainly rather than softened.
 
 - Across Experiments 1 and 2, the cosine RDM correlation is significant by analytical
   p-values, Kendall τ, and stimulus-label permutation test — three independent inference
@@ -982,6 +1078,15 @@ wiring at the population level, without requiring a behavioral decoder.
   CC-vs-random gap (0.330) is the circularity gap (0.338), not a fidelity gap. An earlier
   version reported Δr = 0.327 as attributable to the connectome constraint above and beyond
   circular stimulus structure; that interpretation is inverted, and the claim is withdrawn
+- **Experiment 5 (trained-random null-through-simulation) inherits the identical
+  confound and is also withdrawn.** Both `degree_preserving_swap` (raw r = 0.832) and
+  `erdos_renyi` (raw r = 0.738) collapse to statistical noise (r = −0.033, r = −0.011)
+  once corrected for circularity against the same Experiment 3 reference. The
+  degree-preserving-vs-degree-breaking contrast this experiment was designed to resolve
+  — whether wiring beyond degree carries biological signal in trained networks — is not
+  answerable with this reference. This is the third independent confirmation of the same
+  underlying failure mode (Experiment 3, Experiment 4's biological comparison, now
+  Experiment 5): the instrument cannot perform the measurement being asked of it
 - Experiment 4 finds that untrained CC networks have no measurable representational
   geometry. Their RDM's dynamic range falls an order of magnitude below the float32
   round-off floor of the responses it derives from (span 1.66×10⁻⁸, floor 1.93×10⁻⁷), and
@@ -1075,6 +1180,10 @@ connectome-fidelity/
 │   ├── exp4_synapse_sweep.py          ← Experiment 4b: synapse-noise sweep
 │   ├── cka_validation.py              ← CKA secondary validation
 │   └── posthoc_mds_whitened_rdms.py   ← MDS visualization and noise-whitened RDMs
+├── exp5/                              ← Experiment 5: trained-random null-through-simulation
+│   ├── production.py                  ← training/evaluation orchestration, both null schemes
+│   ├── randomize_connectome_schemes.py ← degree_preserving_swap / erdos_renyi generation
+│   └── correct_exp5_circularity.py    ← circularity correction (retraction), per scheme
 ├── notebooks/
 │   ├── moving_edge_on.ipynb
 │   ├── moving_edge_on_off.ipynb
