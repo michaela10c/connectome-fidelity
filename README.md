@@ -27,13 +27,21 @@ benchmarks cannot — specifically, that null models trained to equally good beh
 still be discriminable from real biological wiring by their population geometry.**
 Experiments 1–2 support a related, narrower claim: connectome-constrained geometry is
 distinct from *untrained* random wiring. **The literal trained-random test of the
-hypothesis as originally stated is Experiment 5, and it does not support it** — both
-trained-random null schemes tested collapse to statistical noise against the available
-biological reference once corrected for a confound shared with Experiment 3 (see
-Experiment 5 and the Discussion). This makes representational geometry, on the evidence
+hypothesis as originally stated is Experiment 5, and it does not support it on either
+biological reference tested** — both trained-random null schemes collapse to statistical
+noise against the original Maisak-derived reference once corrected for a confound shared
+with Experiment 3, and the same degree-preserving-vs-degree-breaking contrast remains
+unresolved against a second, independently-validated non-circular reference (Henning et
+al. 2022) evaluated later (see Experiment 5). That second evaluation does, however,
+surface a distinct and unanticipated pattern: every population of Flyvis networks that
+was task-trained — the real connectome, both Experiment 5 null schemes — shows a
+significant negative correlation with the Henning reference, while the only untrained
+population tested (weight-shuffled random) does not; see Experiment 5 for the full
+result and its caveats. This makes representational geometry, on the evidence
 gathered here, a demonstrated fidelity detector for *untrained* wiring differences,
 operating without a behavioral decoder — not yet a demonstrated detector for the
-trained-random case Brunton's finding actually makes urgent.
+trained-random case Brunton's finding actually makes urgent, though the training-vs-wiring
+pattern above is a live, only partially-explored lead in that direction.
 
 This project tests that hypothesis using the pretrained Flyvis ensemble (Lappalainen et
 al. 2024), applying RSA (Kriegeskorte et al. 2008) to compare population codes across
@@ -43,8 +51,10 @@ extends the comparison to a biological reference derived from T4/T5 direction tu
 measure biological fidelity. Experiment 4 addresses the training confound by testing
 whether the geometry signal is present before any task training; it finds that untrained
 networks produce no measurable representational geometry at all. Experiment 5 addresses
-the trained-random case directly and inherits the same circularity confound as
-Experiment 3, discussed above.
+the trained-random case directly; it inherits the same circularity confound as
+Experiment 3 against the original reference, and remains inconclusive on the
+degree-preserving-vs-degree-breaking question against a second, non-circular reference,
+though that second evaluation surfaces the training-vs-wiring pattern noted above.
 
 **Scope:** This work establishes representational geometry as a fidelity metric for
 *untrained* connectome-constrained networks, using five experiments on the pretrained
@@ -54,12 +64,13 @@ tests whether the geometry signal persists before any task training, and
 finds that untrained networks' RDMs fall below the numerical resolution of the responses
 they derive from — at any perturbation of the free parameters within the regime where the
 network remains connectome-constrained (Experiment 4b). Experiment 5 tests the literal
-trained-random case (Brunton's actual scenario) and is retracted for the same reference
-confound as Experiment 3. Fully answering the
+trained-random case (Brunton's actual scenario) against two independent biological
+references and does not resolve the degree-preserving-vs-degree-breaking contrast on
+either, though the second reference surfaces a separate, unanticipated training-vs-wiring
+pattern discussed in that section. Fully answering the
 Brunton/Eon fidelity question would additionally require comparing simulation outputs
 directly against simultaneously recorded neural activity — a next-project dependency on
-raw per-cell-type calcium recordings not currently in the public Flyvis release, and/or a
-biological reference not confounded with circular stimulus structure.
+raw per-cell-type calcium recordings not currently in the public Flyvis release.
 
 ---
 
@@ -834,6 +845,90 @@ to the reference already established as confounded); raw ensemble results in
 
 ---
 
+### Experiment 5, re-evaluated: Henning non-circular reference — N=10 per scheme
+
+The Maisak-derived reference above is 97.8% circular by construction, so Experiment 5's
+result against it establishes nothing about degree-vs-degree-breaking wiring one way or
+the other. A second, independently-validated non-circular T4/T5 reference (Henning et al.
+2022; see Experiment 3's biological-reference discussion for its construction and
+validation) makes a real test possible. The same already-trained N=10-per-scheme
+checkpoints were re-evaluated — no retraining — on the 8-direction, 45°-increment
+stimulus set matching Henning's protocol exactly (separately validated: this stimulus set
+reproduces the CC-vs-random structural signal cleanly, cosine RDM r = 0.691,
+p_perm = 0.0001).
+
+**All p-values below are from a 10,000-permutation stimulus-label test (Nili et al.
+2014), not an analytic approximation.** At n=8 stimuli (28 RDM pairs) the analytic
+`scipy.stats.spearmanr` p-value is not trustworthy — confirmed directly: one of the four
+comparisons below had an analytic p nearly 16× smaller than its properly-computed
+permutation p (0.0004 vs. 0.0061).
+
+| scheme | reference | partial r | permutation p |
+|---|---|---|---|
+| `degree_preserving_swap` | Henning, von Mises reconstruction | −0.624 | **0.006** |
+| `degree_preserving_swap` | Henning, raw (no curve-fitting) | −0.251 | 0.154 |
+| `erdos_renyi` | Henning, von Mises reconstruction | −0.437 | **0.044** |
+| `erdos_renyi` | Henning, raw (no curve-fitting) | +0.149 | 0.389 |
+
+**The degree-preserving-vs-degree-breaking contrast remains unresolved.** Mann-Whitney on
+the two schemes' per-network partial correlations: p = 0.62 (von Mises), p = 0.52 (raw).
+This is now the third biological reference (Maisak; Henning, two construction methods) to
+fail to separate the two null schemes — either this design cannot resolve the contrast at
+N=10 per scheme regardless of reference quality, or the contrast is not present.
+
+**An unanticipated pattern emerged instead: both null schemes correlate negatively with
+the Henning reference, and this negativity tracks whether a population was trained, not
+which connectome constrained it.** Checked by extending the same evaluation to every
+Flyvis population with results against this reference — the Experiment 1 CC ensemble
+(N=50), the Experiment 1 weight-shuffled random baseline (N=50, the only *untrained*
+population in the comparison), and both Experiment 5 schemes (N=10 each) — all built via
+the identical RDM construction so the comparison is apples-to-apples:
+
+| population | trained? | per-network % negative | binomial p vs. 50/50 |
+|---|---|---|---|
+| CC (N=50) | yes | 78% | 0.0001 |
+| weight-shuffled random (N=50) | **no** | 54% | 0.672 (chance) |
+| `degree_preserving_swap` (N=10) | yes | 70% | 0.344 (not individually significant at this n, but consistent in sign/magnitude with the other trained populations) |
+| `erdos_renyi` (N=10) | yes | 100% | 0.002 |
+
+Every trained population trends negative; the only untrained population sits at chance.
+Independent corroboration on the raw reference, where no single population individually
+reaches significance: the CC-vs-weight-shuffled-random per-network distributions still
+differ significantly from each other (Mann-Whitney p = 0.008) — consistent with a
+trained/untrained effect that the raw reference is underpowered to detect at the level of
+any single population's absolute deviation from zero (see Experiment 3's power analysis
+for why this reference has limited sensitivity at this stimulus count).
+
+**One methodological note this comparison depends on:** the *ensemble-mean* statistic
+(residualize the averaged RDM, then correlate) and the *per-network mean* statistic
+(average many individually-computed correlations) are not the same quantity and can
+disagree substantially — they did, badly, for the weight-shuffled-random population,
+where the ensemble-mean partial r (−0.575) has the opposite sign from the per-network
+mean (+0.028). The per-network numbers in the table above are the ones to trust for that
+population; its ensemble-mean value is not a valid summary and is not reported as a
+result anywhere in this document.
+
+**This is a real, multi-angle-consistent lead resting on exactly one untrained
+population as the comparator — not yet a finding.** If it holds up with more untrained
+populations, it would mean the negative-correlation pattern is substantially about what
+task-training does to a Flyvis network's representational geometry, independent of which
+connectome constrained it during training — a distinct claim from anything about wiring
+fidelity specifically, and one that would matter for how the whole geometry-as-fidelity
+framework should be interpreted. A pooled trained-random comparison
+(`degree_preserving_swap` + `erdos_renyi`, N=20) against weight-shuffled random would
+sharpen this with real statistical power and requires no new computation — the
+recommended next step, not yet run as of this writing.
+
+**Scripts:** `exp5_henning_evaluate.py` (re-evaluation of trained Exp5 checkpoints on the
+8-direction stimulus set, against both Henning reference constructions);
+`validate_exp5_henning_pvalues.py` (the permutation-test correction to the analytic
+p-values above, reusing `exp5_henning_evaluate.py`'s exact statistic by import);
+`compare_all_populations_henning.py` (the cross-population trained-vs-untrained
+comparison, including the binomial sign test and the ensemble-mean/per-network divergence
+check that caught the weight-shuffled-random artifact above).
+
+---
+
 ## Supplementary Figures
 
 | Label | File |
@@ -1055,15 +1150,22 @@ which would have counted a CUDA error or shape mismatch as instability, silently
 randomly-wired connectome can recover realistic behavior with enough training. The
 results here show the real connectome produces representational geometry distinct from
 *untrained* random wiring (Experiments 1–2) — but the literal trained-random test this
-claim would need to extend to Brunton's actual case, Experiment 5, has been retracted:
-both null schemes' raw correlation against the biological reference collapsed to
+claim would need to extend to Brunton's actual case, Experiment 5, does not support it on
+either biological reference tested: both null schemes' raw correlation against the
+original biological reference collapsed to
 statistical noise once corrected for the same circularity confound that already
-invalidated Experiment 3. **RSA on representational geometry is demonstrated here to
-discriminate real wiring from *untrained* random wiring; it has not been shown, with
-this biological reference, to discriminate real (or trained-random) wiring from
-*trained* random wiring — the comparison Brunton's finding actually makes urgent.**
+invalidated Experiment 3, and the same degree-preserving-vs-degree-breaking contrast
+remains unresolved against a second, independently-validated non-circular reference.
+**RSA on representational geometry is demonstrated here to
+discriminate real wiring from *untrained* random wiring; it has not been shown to
+discriminate real (or trained-random) wiring from *trained* random wiring — the
+comparison Brunton's finding actually makes urgent.**
 That is a materially narrower claim than the one this paragraph originally made, and I
-want it stated plainly rather than softened.
+want it stated plainly rather than softened. The second reference does surface a
+distinct, unanticipated pattern — every task-trained population correlates negatively
+with it while the one untrained population tested does not — which is a live lead on a
+training-vs-wiring distinction, not yet a resolution of the wiring question itself; see
+Experiment 5 for the full result and its caveats.
 
 - Across Experiments 1 and 2, the cosine RDM correlation is significant by analytical
   p-values, Kendall τ, and stimulus-label permutation test — three independent inference
@@ -1079,7 +1181,7 @@ want it stated plainly rather than softened.
   version reported Δr = 0.327 as attributable to the connectome constraint above and beyond
   circular stimulus structure; that interpretation is inverted, and the claim is withdrawn
 - **Experiment 5 (trained-random null-through-simulation) inherits the identical
-  confound and is also withdrawn.** Both `degree_preserving_swap` (raw r = 0.832) and
+  confound and is also withdrawn against the original reference.** Both `degree_preserving_swap` (raw r = 0.832) and
   `erdos_renyi` (raw r = 0.738) collapse to statistical noise (r = −0.033, r = −0.011)
   once corrected for circularity against the same Experiment 3 reference. The
   degree-preserving-vs-degree-breaking contrast this experiment was designed to resolve
@@ -1087,6 +1189,21 @@ want it stated plainly rather than softened.
   answerable with this reference. This is the third independent confirmation of the same
   underlying failure mode (Experiment 3, Experiment 4's biological comparison, now
   Experiment 5): the instrument cannot perform the measurement being asked of it
+- **Re-evaluating Experiment 5 against a second, independently-validated non-circular
+  reference (Henning et al. 2022) does not resolve the degree-preserving-vs-degree-breaking
+  contrast either** (Mann-Whitney p = 0.62 and 0.52 across the reference's two
+  construction methods) — the third reference, after Maisak and this project's own
+  circularity-corrected version of it, to fail at this specific comparison. It does,
+  however, surface an unanticipated pattern worth separate note: every task-trained
+  Flyvis population evaluated against this reference (the real connectome, both
+  Experiment 5 null schemes) shows a significant negative partial correlation with it,
+  while the only untrained population evaluated (the Experiment 1 weight-shuffled random
+  baseline) does not, sitting at chance (54% of individual networks negative, binomial
+  p = 0.67, vs. 78-100% negative and p ≤ 0.002 for the trained populations). This rests on
+  a single untrained population as the comparator and is reported as a lead, not a
+  finding — see Experiment 5 for the full result, the permutation-corrected p-values (an
+  analytic p-value here was off by 16× at this sample size), and the methodological
+  caveat about ensemble-mean statistics that this comparison surfaced along the way
 - Experiment 4 finds that untrained CC networks have no measurable representational
   geometry. Their RDM's dynamic range falls an order of magnitude below the float32
   round-off floor of the responses it derives from (span 1.66×10⁻⁸, floor 1.93×10⁻⁷), and
@@ -1184,13 +1301,26 @@ connectome-fidelity/
 │   ├── production.py                  ← training/evaluation orchestration, both null schemes
 │   ├── randomize_connectome_schemes.py ← degree_preserving_swap / erdos_renyi generation
 │   └── correct_exp5_circularity.py    ← circularity correction (retraction), per scheme
+├── henning_reference/                 ← non-circular T4/T5 biological reference (Henning et al. 2022)
+│   ├── build_henning_reference.py     ← von Mises reconstruction from per-cell fitted parameters
+│   ├── build_reference_from_raw.py    ← direct average of raw per-direction data, no curve-fitting
+│   ├── build_reference_from_raw_with_fly_id.py ← same, with per-cell fly-ID tracking for leave-one-fly-out
+│   ├── analyze_raw_reference.py       ← circularity + split-half reliability checks, raw version
+│   ├── check_reconstruction_robustness.py ← sensitivity to curve-fitting choices (von Mises variants)
+│   ├── check_residual_reliability_T4_T5.py ← split-half check using ON/OFF pathways as replicates
+│   ├── correct_henning_reference.py   ← circularity correction applied to CC/random vs. this reference
+│   ├── check_per_model_consistency_raw.py ← per-model (n=100) CC-vs-random check, raw reference
+│   ├── exp5_henning_evaluate.py       ← re-evaluates trained Exp5 checkpoints on this reference
+│   ├── validate_exp5_henning_pvalues.py ← permutation-test correction to the above's analytic p-values
+│   └── compare_all_populations_henning.py ← cross-population (CC/random/both Exp5 schemes) comparison
 ├── notebooks/
 │   ├── moving_edge_on.ipynb
 │   ├── moving_edge_on_off.ipynb
 │   ├── biological_reference.ipynb
 │   ├── untrained_networks.ipynb      
 │   ├── cka_validation.ipynb
-│   └── posthoc_mds_whitened_rdms.ipynb
+│   ├── posthoc_mds_whitened_rdms.ipynb
+│   └── moving_edge_on_8dir.ipynb      ← Experiment 1 replication at the Henning-matched 8-direction stimulus set
 ├── results/
 │   ├── results_exp1_10models_full_shiu.npz
 │   ├── results_exp1_50models_full_shiu.npz
@@ -1201,6 +1331,18 @@ connectome-fidelity/
 │   ├── exp4_synapse_sweep.npz         ← synapse-noise sweep results (n=100/level)
 │   ├── cka_validation_50models_full_shiu.npz
 │   └── posthoc_mds_whitened_50models_full_shiu.npz
+├── henning_reference_data/
+│   ├── henning_population_matrix.npy  ← von Mises reconstruction, 8 directions × 8 T4/T5 subtypes
+│   ├── henning_reference_rdm.npy      ← corresponding RDM
+│   ├── raw_population_matrix.npy      ← raw R_teta average, no curve-fitting, 8×8
+│   ├── raw_r_teta_progress.npz        ← per-cell raw response data, all 117 recording sessions
+│   ├── raw_r_teta_progress_with_fly.npz ← same, with fly-ID tags for leave-one-fly-out
+│   ├── results_exp1_8dir_50models_full_shiu.npz ← CC/random population vectors and RDMs, 8-direction stimulus set
+│   ├── exp5_henning_results.json      ← Exp5-vs-Henning-reference results, both schemes, both reference versions
+│   ├── exp5_henning_permutation_results.json ← permutation-corrected p-values for the above
+│   ├── exp5_henning_rdms_degree_preserving_swap.npy ← per-network RDMs, 8-direction stimulus, this scheme
+│   ├── exp5_henning_rdms_erdos_renyi.npy ← per-network RDMs, 8-direction stimulus, this scheme
+│   └── compare_all_populations_results.json ← the cross-population trained-vs-untrained comparison
 ├── figures/
 │   ├── moving_edge_on_rdms_10models_full_shiu.png
 │   ├── moving_edge_on_permtest_10models_full_shiu.png
@@ -1273,6 +1415,8 @@ If you use this work, please cite:
 - Lappalainen et al. 2024. Connectome-constrained networks predict neural activity across the fly visual system. *Nature* 634, 1132–1140. https://www.nature.com/articles/s41586-024-07939-3
 
 - Maisak et al. 2013. A directional tuning map of *Drosophila* elementary motion detectors. *Nature* 500, 212–216. https://www.nature.com/articles/nature12320
+
+- Henning, Ramos-Traslosheros, Gür & Silies 2022. Populations of local direction-selective cells encode global motion patterns generated by self-motion. *Science Advances* 8, eabi7112. https://doi.org/10.1126/sciadv.abi7112
 
 - Shiu et al. 2024. A *Drosophila* computational brain model reveals sensorimotor processing. *Nature* 634, 210–219. https://www.nature.com/articles/s41586-024-07763-9
 
