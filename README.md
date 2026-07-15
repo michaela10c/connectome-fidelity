@@ -908,16 +908,32 @@ mean (+0.028). The per-network numbers in the table above are the ones to trust 
 population; its ensemble-mean value is not a valid summary and is not reported as a
 result anywhere in this document.
 
-**This is a real, multi-angle-consistent lead resting on exactly one untrained
-population as the comparator — not yet a finding.** If it holds up with more untrained
-populations, it would mean the negative-correlation pattern is substantially about what
-task-training does to a Flyvis network's representational geometry, independent of which
-connectome constrained it during training — a distinct claim from anything about wiring
-fidelity specifically, and one that would matter for how the whole geometry-as-fidelity
-framework should be interpreted. A pooled trained-random comparison
-(`degree_preserving_swap` + `erdos_renyi`, N=20) against weight-shuffled random would
-sharpen this with real statistical power and requires no new computation — the
-recommended next step, not yet run as of this writing.
+**This has since been confirmed with real statistical power, not just as a
+suggestive pattern at n=10 per scheme.** Pooling the two Experiment 5 schemes into a
+single N=20 trained-random group and comparing against the N=50 untrained
+(weight-shuffled-random) population:
+
+| comparison | reference | % negative | sign test (binomial p) | Mann-Whitney vs. untrained |
+|---|---|---|---|---|
+| pooled trained-random (N=20) | von_mises | 85% | **0.0026** | **0.0014** |
+| pooled trained-random (N=20) | raw | 55% | 0.82 (n.s.) | **0.045** |
+| all trained: CC + both schemes (N=70) | von_mises | 80% | **<0.000001** | **0.0011** |
+| all trained: CC + both schemes (N=70) | raw | 56% | 0.40 (n.s.) | **0.0040** |
+
+On the von Mises reference the pooled group is unambiguously majority-negative on its
+own. On the raw reference the sign test alone still doesn't clear significance even
+pooled — consistent with this reference's established lower power at this stimulus
+count — but the Mann-Whitney comparison of the full distributions is significant in
+every version tested, including the maximum-power all-trained-vs-untrained comparison.
+
+**This still rests on exactly one *type* of untrained population (weight-shuffled
+random) as the comparator, so it remains a lead rather than an independent replication
+— but it is no longer resting on a comparison small enough to plausibly be noise.** If
+it holds up under further scrutiny, it would mean the negative-correlation pattern is
+substantially about what task-training does to a Flyvis network's representational
+geometry, independent of which connectome constrained it during training — a distinct
+claim from anything about wiring fidelity specifically, and one that would matter for
+how the whole geometry-as-fidelity framework should be interpreted.
 
 **Scripts:** `exp5_henning_evaluate.py` (re-evaluation of trained Exp5 checkpoints on the
 8-direction stimulus set, against both Henning reference constructions);
@@ -925,7 +941,9 @@ recommended next step, not yet run as of this writing.
 p-values above, reusing `exp5_henning_evaluate.py`'s exact statistic by import);
 `compare_all_populations_henning.py` (the cross-population trained-vs-untrained
 comparison, including the binomial sign test and the ensemble-mean/per-network divergence
-check that caught the weight-shuffled-random artifact above).
+check that caught the weight-shuffled-random artifact above); `pool_trained_vs_untrained.py`
+(the pooled-power version above, reusing `compare_all_populations_henning.py`'s saved
+per-network correlations rather than recomputing anything).
 
 ---
 
@@ -1199,10 +1217,17 @@ Experiment 5 for the full result and its caveats.
   Experiment 5 null schemes) shows a significant negative partial correlation with it,
   while the only untrained population evaluated (the Experiment 1 weight-shuffled random
   baseline) does not, sitting at chance (54% of individual networks negative, binomial
-  p = 0.67, vs. 78-100% negative and p ≤ 0.002 for the trained populations). This rests on
-  a single untrained population as the comparator and is reported as a lead, not a
-  finding — see Experiment 5 for the full result, the permutation-corrected p-values (an
-  analytic p-value here was off by 16× at this sample size), and the methodological
+  p = 0.67, vs. 78-100% negative and p ≤ 0.002 for the trained populations). Pooling the
+  two Experiment 5 schemes (N=20) against the untrained population confirms this with
+  real power rather than a small-sample suggestion: 85% negative on the von Mises
+  reference (binomial p = 0.0026, Mann-Whitney vs. untrained p = 0.0014), and while the
+  raw reference's sign test alone still falls short (55% negative, consistent with this
+  reference's established lower power), the Mann-Whitney distributional comparison
+  reaches significance there too (p = 0.045), and overwhelmingly so when all trained
+  populations are pooled (N=70, p = 0.0011 and p = 0.0040 respectively). This still rests
+  on one *type* of untrained comparator, so it remains a lead rather than an independent
+  replication — see Experiment 5 for the full result, the permutation-corrected p-values
+  (an analytic p-value here was off by 16× at this sample size), and the methodological
   caveat about ensemble-mean statistics that this comparison surfaced along the way
 - Experiment 4 finds that untrained CC networks have no measurable representational
   geometry. Their RDM's dynamic range falls an order of magnitude below the float32
@@ -1312,7 +1337,8 @@ connectome-fidelity/
 │   ├── check_per_model_consistency_raw.py ← per-model (n=100) CC-vs-random check, raw reference
 │   ├── exp5_henning_evaluate.py       ← re-evaluates trained Exp5 checkpoints on this reference
 │   ├── validate_exp5_henning_pvalues.py ← permutation-test correction to the above's analytic p-values
-│   └── compare_all_populations_henning.py ← cross-population (CC/random/both Exp5 schemes) comparison
+│   ├── compare_all_populations_henning.py ← cross-population (CC/random/both Exp5 schemes) comparison
+│   └── pool_trained_vs_untrained.py   ← pooled N=20/N=70 trained-vs-untrained power analysis
 ├── notebooks/
 │   ├── moving_edge_on.ipynb
 │   ├── moving_edge_on_off.ipynb
