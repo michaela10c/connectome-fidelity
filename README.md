@@ -947,6 +947,72 @@ per-network correlations rather than recomputing anything).
 
 ---
 
+### Experiment 5, further test: does the trained-vs-untrained difference emerge as a within-network dose-response?
+
+The pooled result above establishes that final-trained networks differ from an
+untrained population on average. A stricter, complementary question: within a single
+network's own training run, does its correlation with the Henning reference trend
+progressively more negative as training proceeds — a genuine dose-response, immune to
+any concern about comparing across different *types* of untrained baseline, since the
+"untrained" and "trained" observations here are the same network's own weights at
+different points in the same run.
+
+**16 Experiment 5 networks (8 per scheme, both `degree_preserving_swap` and
+`erdos_renyi`) were evaluated at 6 checkpoints each, spanning their own
+250,000-iteration training trajectories**, using the identical 8-direction Henning-matched
+evaluation pipeline as the rest of this section.
+
+**A precision guard (reused directly from Experiment 4b's `resolvability()` function,
+not reimplemented) correctly excluded 24 of 96 checkpoint evaluations** as numerically
+unresolvable (RDM span below 10× the float32 round-off floor) — including one network's
+entire trajectory (`erdos_renyi/0000`, all 6 checkpoints), and every network's
+pre-training checkpoint except 4. This is the same precision failure mode documented in
+Experiment 4, now confirmed to recur specifically at the near-initialization regime of
+these null-connectome networks too, as expected given they share Flyvis's prior
+initialization scheme.
+
+**Of the 14 networks with enough resolvable checkpoints for a trend test, 9/14 (64%)
+show a negative trend** (sign test p = 0.42 on both references — not significant).
+**A methodological note that materially changed this result**: the per-network trend
+p-values must use an exact permutation test, not `scipy.stats.spearmanr`'s default —
+confirmed unreliable at n=4–5 (scipy's own documentation states its p-value "is only
+accurate for very large samples (>500 observations)"; a perfect correlation at n=4
+registers as scipy's asymptotic p≈0.000 against a true exact permutation p-value of
+0.042). Using the correct exact p-values, Fisher's combined test gives **p = 0.19 (von
+Mises)** and **p = 0.17 (raw)** — neither significant. (An earlier version of this
+analysis, before the exact-permutation fix, reported an erroneous Fisher's p≈0.0000 —
+a numerical artifact of the scipy default, not a real result, and is withdrawn.)
+
+**A bootstrap power analysis, using the actual observed effect sizes rather than an
+assumed one, shows this specific test design has a low ceiling**: even at N=30 networks
+per scheme (roughly 4× the current sample), Fisher's method reaches only 26–37% power.
+Further investment in more networks of this exact design is not expected to resolve the
+question either way, and is not planned.
+
+**The pre-training checkpoint anchor corroborates the pooled result's untrained side
+independently**: mean r ≈ 0 on both references (von Mises: −0.029, n=4 resolvable; raw:
++0.013, n=4 resolvable), consistent with the pooled weight-shuffled-random population's
+own near-zero per-network mean (+0.028 and +0.107 respectively) — two different
+representations of "untrained" (a network's own literal pre-training state, and a
+separate population's post-hoc weight shuffle) landing in the same place.
+
+**Net reading:** the pooled trained-vs-untrained difference established above is not
+shown, by this test, to emerge as a gradual within-network dose-response. This does not
+weaken the pooled finding — it is a distinct, harder question that remains genuinely
+open: the effect may be real but too weak to detect at this scale, may manifest as an
+early step-change rather than a gradual trend, or may not appear as a smooth trajectory
+at all even if the pooled endpoint difference is real.
+
+**Scripts:** `training_trajectory_henning.py` (checkpoint-trajectory evaluation,
+including the precision guard and the corrected checkpoint-count/iteration-mapping
+logic — checkpoint file count must be read from the real file list via
+`checkpoint_index_to_path_map`, never from `chkpt_iter.h5`'s length, which logs
+validation events at roughly 2× the rate checkpoints are actually saved);
+`analyze_training_trajectory.py` (the per-network-first statistical treatment, the
+exact-permutation p-value fix, and the bootstrap power analysis).
+
+---
+
 ## Supplementary Figures
 
 | Label | File |
@@ -1229,6 +1295,31 @@ Experiment 5 for the full result and its caveats.
   replication — see Experiment 5 for the full result, the permutation-corrected p-values
   (an analytic p-value here was off by 16× at this sample size), and the methodological
   caveat about ensemble-mean statistics that this comparison surfaced along the way
+- **A more stringent, within-subject test — does fidelity trend progressively more
+  negative across a single network's own 250,000-iteration training run, rather than
+  only differing between the trained and untrained endpoints — does not add further
+  support, and does not contradict the pooled result either.** 16 Experiment 5 networks
+  (8 per scheme) were evaluated at 6 checkpoints spanning their own training trajectories.
+  A precision guard (reused directly from Experiment 4b) correctly excluded 24 of 96
+  checkpoint evaluations as numerically unresolvable, including one network's entire
+  trajectory. Of the 14 remaining networks, 9/14 trend negative (sign test p = 0.42,
+  not significant on either reference) and Fisher's combined test (using an exact
+  permutation p-value per network, not scipy's default — confirmed unreliable at this
+  n=4–5 sample size: a perfect correlation at n=4 registers as scipy's asymptotic
+  p≈0.000 against a true exact value of 0.042) gives p = 0.19 (von Mises) and p = 0.17
+  (raw), neither significant. A bootstrap power analysis using the actual observed
+  effect sizes shows this specific test has a low ceiling: even at N=30 networks per
+  scheme, Fisher's method reaches only 26–37% power, so further investment in more
+  networks of this design is not expected to resolve it. The pre-training checkpoint
+  anchor (mean r ≈ 0 on both references) remains consistent with the pooled
+  weight-shuffled-random population's own near-zero mean, corroborating the untrained
+  side of the pooled result independently. Net reading: the trained-vs-untrained
+  difference established by the pooled comparison above is not shown here to emerge as
+  a gradual, within-network dose-response — it may be real but too weak to detect at
+  this scale, may appear as a step change early in training rather than gradually, or
+  the pooled difference may not manifest as a smooth trajectory at all. This does not
+  weaken the pooled finding; it is a distinct, harder question that remains open
+
 - Experiment 4 finds that untrained CC networks have no measurable representational
   geometry. Their RDM's dynamic range falls an order of magnitude below the float32
   round-off floor of the responses it derives from (span 1.66×10⁻⁸, floor 1.93×10⁻⁷), and
@@ -1338,7 +1429,9 @@ connectome-fidelity/
 │   ├── exp5_henning_evaluate.py       ← re-evaluates trained Exp5 checkpoints on this reference
 │   ├── validate_exp5_henning_pvalues.py ← permutation-test correction to the above's analytic p-values
 │   ├── compare_all_populations_henning.py ← cross-population (CC/random/both Exp5 schemes) comparison
-│   └── pool_trained_vs_untrained.py   ← pooled N=20/N=70 trained-vs-untrained power analysis
+│   ├── pool_trained_vs_untrained.py   ← pooled N=20/N=70 trained-vs-untrained power analysis
+│   ├── training_trajectory_henning.py ← per-network training-trajectory dose-response evaluation
+│   └── analyze_training_trajectory.py ← per-network-first trend analysis, exact-permutation p-values, power analysis
 ├── notebooks/
 │   ├── moving_edge_on.ipynb
 │   ├── moving_edge_on_off.ipynb
