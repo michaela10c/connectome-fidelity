@@ -1059,11 +1059,20 @@ networks trained from the same starting point but with different SGD noise (data
 order, minibatch composition) can converge to genuinely different, non-interchangeable
 loss-landscape basins — not noisy variation on one shared answer — and identify a
 specific "stability point" in training before which small perturbations can redirect
-the outcome, after which it is essentially locked in.
-[Entezari, Sedghi, Saukh & Neyshabur (2022)](https://arxiv.org/abs/2110.06296) add a
-relevant wrinkle: independently-trained networks may land in the *same* basin once
-permutation symmetry is accounted for — given wiring differences here are themselves a
-structural permutation, this is a close conceptual match, not just an analogy.
+the outcome, after which it is essentially locked in. This is the paper whose
+experimental design directly matches this project's instability-analysis experiment
+(same wiring held fixed, only training-noise seeds varied).
+[Entezari, Sedghi, Saukh & Neyshabur (2022)](https://arxiv.org/abs/2110.06296) is
+cited here too, but the connection needs to be stated precisely rather than
+overstated: their permutation-invariance argument concerns relabeling hidden units
+*within one fixed architecture* — their own empirical method takes a single trained
+solution and generates comparisons by permuting which neuron is labeled which, not
+by comparing networks with genuinely different underlying structure. That is not
+what this project's different wiring realizations are — independently-drawn graphs
+with genuinely different connectivity, not relabeled versions of one pattern. Cited
+as thematically adjacent (part of the broader "different starting points can still
+converge" literature, alongside Huh et al. 2024), not as a technically precise
+mechanism match for this specific experiment.
 
 **The direct test, adapted from Frankle et al.'s own "instability analysis" method**:
 for a subset of seed networks with the strongest original trend signals (chosen to
