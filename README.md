@@ -1062,17 +1062,6 @@ specific "stability point" in training before which small perturbations can redi
 the outcome, after which it is essentially locked in. This is the paper whose
 experimental design directly matches this project's instability-analysis experiment
 (same wiring held fixed, only training-noise seeds varied).
-[Entezari, Sedghi, Saukh & Neyshabur (2022)](https://arxiv.org/abs/2110.06296) is
-cited here too, but the connection needs to be stated precisely rather than
-overstated: their permutation-invariance argument concerns relabeling hidden units
-*within one fixed architecture* — their own empirical method takes a single trained
-solution and generates comparisons by permuting which neuron is labeled which, not
-by comparing networks with genuinely different underlying structure. That is not
-what this project's different wiring realizations are — independently-drawn graphs
-with genuinely different connectivity, not relabeled versions of one pattern. Cited
-as thematically adjacent (part of the broader "different starting points can still
-converge" literature, alongside Huh et al. 2024), not as a technically precise
-mechanism match for this specific experiment.
 
 **The direct test, adapted from Frankle et al.'s own "instability analysis" method**:
 for a subset of seed networks with the strongest original trend signals (chosen to
@@ -1648,8 +1637,6 @@ If you use this work, please cite:
 - Nili et al. 2014. A toolbox for representational similarity analysis. *PLOS Computational Biology* 10(4): e1003553. https://doi.org/10.1371/journal.pcbi.1003553
 
 - Kornblith et al. 2019. Similarity of neural network representations revisited. *Proceedings of the 36th International Conference on Machine Learning (ICML)*, PMLR 97, 3519–3529. https://arxiv.org/abs/1905.00414
-
-- Entezari, Sedghi, Saukh & Neyshabur 2022. The role of permutation invariance in linear mode connectivity of neural networks. *International Conference on Learning Representations (ICLR)*. https://arxiv.org/abs/2110.06296
 
 - Frankle, Dziugaite, Roy & Carbin 2020. Linear mode connectivity and the lottery ticket hypothesis. *Proceedings of the 37th International Conference on Machine Learning (ICML)*, PMLR 119, 3259–3269. https://arxiv.org/abs/1912.05671
 
