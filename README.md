@@ -963,59 +963,146 @@ any concern about comparing across different *types* of untrained baseline, sinc
 "untrained" and "trained" observations here are the same network's own weights at
 different points in the same run.
 
-**16 Experiment 5 networks (8 per scheme, both `degree_preserving_swap` and
-`erdos_renyi`) were evaluated at 6 checkpoints each, spanning their own
-250,000-iteration training trajectories**, using the identical 8-direction Henning-matched
-evaluation pipeline as the rest of this section.
+**All 20 Experiment 5 networks (10 per scheme, both `degree_preserving_swap` and
+`erdos_renyi`) were evaluated at every available checkpoint** (up to 72 per network,
+not an evenly-spaced subsample) **spanning their own 250,000-iteration training
+trajectories**, using the identical 8-direction Henning-matched evaluation pipeline as
+the rest of this section. Checkpoint spacing was verified directly from file
+metadata before trusting the iteration-position mapping (coefficient of variation
+0.21–0.25 across all 20 network/scheme combinations checked — moderately above a
+0.15 rule-of-thumb, most plausibly explained by pause/resume artifacts on the training
+infrastructure rather than genuine irregularity in checkpoint cadence).
 
-**A precision guard (reused directly from Experiment 4b's `resolvability()` function,
-not reimplemented) correctly excluded 24 of 96 checkpoint evaluations** as numerically
-unresolvable (RDM span below 10× the float32 round-off floor) — including one network's
-entire trajectory (`erdos_renyi/0000`, all 6 checkpoints), and every network's
-pre-training checkpoint except 4. This is the same precision failure mode documented in
-Experiment 4, now confirmed to recur specifically at the near-initialization regime of
-these null-connectome networks too, as expected given they share Flyvis's prior
-initialization scheme.
+**Result: most individual networks show a strong, statistically robust trend in
+fidelity over the course of training — but the direction is idiosyncratic per
+network, not shared across the population.** Per-network Spearman correlations
+(iteration vs. fidelity) are frequently large and highly significant at these sample
+sizes (n=50–70 checkpoints per network after the precision guard): several networks
+show |ρ| above 0.7–0.9 at p<0.0001 — genuine effects, not small-sample artifacts (these
+sample sizes route through a Monte Carlo permutation test, not the exact-enumeration
+branch that previously failed at n=4–5; see the methodological note below). Within
+`degree_preserving_swap` alone, four networks trend strongly negative (ρ = −0.63,
+−0.42, −0.83, −0.82) while five trend strongly positive (ρ = +0.42, +0.95, +0.47,
++0.34, +0.74) — same scheme, same training recipe, opposite directions, each
+individually solid. **The sign test across all 20 networks is not significant on
+either reference** (11/20 negative, p=0.82 von Mises; 13/20 negative, p=0.26 raw) —
+no consistent population-level direction. **Fisher's combined test is overwhelmingly
+significant on both** (χ²=260.4, p<0.0001 von Mises; χ²=250.3, p<0.0001 raw) —
+strong evidence that *something real* happens within nearly every individual network,
+just not the same something.
 
-**Of the 14 networks with enough resolvable checkpoints for a trend test, 9/14 (64%)
-show a negative trend** (sign test p = 0.42 on both references — not significant).
-**A methodological note that materially changed this result**: the per-network trend
-p-values must use an exact permutation test, not `scipy.stats.spearmanr`'s default —
-confirmed unreliable at n=4–5 (scipy's own documentation states its p-value "is only
-accurate for very large samples (>500 observations)"; a perfect correlation at n=4
-registers as scipy's asymptotic p≈0.000 against a true exact permutation p-value of
-0.042). Using the correct exact p-values, Fisher's combined test gives **p = 0.19 (von
-Mises)** and **p = 0.17 (raw)** — neither significant. (An earlier version of this
-analysis, before the exact-permutation fix, reported an erroneous Fisher's p≈0.0000 —
-a numerical artifact of the scipy default, not a real result, and is withdrawn.)
+**A methodological note carried forward from the earlier n=16 pilot of this same
+test, still correct and still load-bearing**: per-network trend p-values must use an
+exact or Monte Carlo permutation test, not `scipy.stats.spearmanr`'s default —
+confirmed unreliable at small n (scipy's own documentation states its p-value "is
+only accurate for very large samples (>500 observations)"; a perfect correlation at
+n=4 registers as scipy's asymptotic p≈0.000 against a true exact permutation p-value
+of 0.042). The n=16 pilot's own Fisher's statistic (χ²≈2792, an obvious numerical
+artifact) was caught and corrected this way before it was ever reported as a finding.
 
-**A bootstrap power analysis, using the actual observed effect sizes rather than an
-assumed one, shows this specific test design has a low ceiling**: even at N=30 networks
-per scheme (roughly 4× the current sample), Fisher's method reaches only 26–37% power.
-Further investment in more networks of this exact design is not expected to resolve the
-question either way, and is not planned.
+**A separate, real bug was caught in the plotting code for this result and is worth
+documenting**: unresolved-checkpoint markers were originally positioned via
+`ax.get_ylim()` re-queried inside the plotting loop — since matplotlib autoscales the
+axis as data is added, each batch of markers pushed the next batch's position lower,
+compounding into a runaway artifact (descending "shelves" down to y≈−9 that looked
+like data but were not). Fixed by computing one marker position per panel from the
+actual resolvable data's range, computed once, not re-queried mid-loop.
 
-**The pre-training checkpoint anchor corroborates the pooled result's untrained side
-independently**: mean r ≈ 0 on both references (von Mises: −0.029, n=4 resolvable; raw:
-+0.013, n=4 resolvable), consistent with the pooled weight-shuffled-random population's
-own near-zero per-network mean (+0.028 and +0.107 respectively) — two different
-representations of "untrained" (a network's own literal pre-training state, and a
-separate population's post-hoc weight shuffle) landing in the same place.
+**This rules out a single, shared "critical learning period" as the story for this
+result**, and motivates a new, more targeted experiment described immediately below.
+What's actually happening looks like: training does something real and substantial to
+each network's relationship with the biological reference, but which direction that
+goes depends on something specific to the individual network — not the wiring scheme,
+not the training recipe.
 
-**Net reading:** the pooled trained-vs-untrained difference established above is not
-shown, by this test, to emerge as a gradual within-network dose-response. This does not
-weaken the pooled finding — it is a distinct, harder question that remains genuinely
-open: the effect may be real but too weak to detect at this scale, may manifest as an
-early step-change rather than a gradual trend, or may not appear as a smooth trajectory
-at all even if the pooled endpoint difference is real.
+**The pre-training checkpoint anchor still corroborates the pooled result's untrained
+side independently**: mean r ≈ 0 on both references (von Mises: +0.011, n=5
+resolvable; raw: +0.051, n=5 resolvable), consistent with the pooled
+weight-shuffled-random population's own near-zero per-network mean (+0.028 and +0.107
+respectively) — though this specific check now rests on only 5 of 20 networks with a
+resolvable pre-training checkpoint, thinner than would be ideal, and shouldn't be
+leaned on heavily.
 
 **Scripts:** `training_trajectory_henning.py` (checkpoint-trajectory evaluation,
 including the precision guard and the corrected checkpoint-count/iteration-mapping
 logic — checkpoint file count must be read from the real file list via
-`checkpoint_index_to_path_map`, never from `chkpt_iter.h5`'s length, which logs
-validation events at roughly 2× the rate checkpoints are actually saved);
-`analyze_training_trajectory.py` (the per-network-first statistical treatment, the
-exact-permutation p-value fix, and the bootstrap power analysis).
+`checkpoint_index_to_path_map`, never from `chkpt_iter.h5`'s length, which is not a
+reliable proxy for checkpoint count — an earlier version of this note described a
+"2:1 ratio" between the two as a general property of this experiment; checked
+directly across all 20 network/scheme combinations in use and confirmed to hold for
+only 1 of 20 (`degree_preserving_swap/0001`), the other 19 showing ratio=1.00, so
+that framing was retracted, though the underlying point — never trust
+`chkpt_iter.h5`'s length for checkpoint count — stands regardless of which ratio
+holds); `verify_checkpoint_spacing.py` (the file-metadata spacing check described
+above); `analyze_training_trajectory.py` (the per-network-first statistical
+treatment, the exact-permutation p-value fix, and the bootstrap power analysis);
+`plot_training_trajectory.py` (the per-network trajectory figure, including the
+marker-position bug fix above).
+
+### Training-instability analysis: does wiring realization or training noise determine trend direction?
+
+*(Distinct from the dynamical instability discussed in Experiments 1–2 throughout
+this document — this section concerns loss-landscape/training-trajectory
+instability in the machine-learning sense, i.e. sensitivity of a trained outcome to
+training-process randomness, not numerical instability of a network's response
+dynamics.)*
+
+The idiosyncratic per-network divergence above raises a specific, testable question:
+does the *direction* of a network's fidelity trend depend on the specific realization
+of its null wiring (some random draws landing structurally closer to "real-like" than
+others by chance), or on training-process randomness unrelated to wiring at all
+(different loss-landscape basins, different effective optimization trajectories)?
+
+**This maps onto a real, established line of work in the deep learning literature.**
+[Frankle, Dziugaite, Roy & Carbin (2020)](https://arxiv.org/abs/1912.05671) show that
+networks trained from the same starting point but with different SGD noise (data
+order, minibatch composition) can converge to genuinely different, non-interchangeable
+loss-landscape basins — not noisy variation on one shared answer — and identify a
+specific "stability point" in training before which small perturbations can redirect
+the outcome, after which it is essentially locked in.
+[Entezari, Sedghi, Saukh & Neyshabur (2022)](https://arxiv.org/abs/2110.06296) add a
+relevant wrinkle: independently-trained networks may land in the *same* basin once
+permutation symmetry is accounted for — given wiring differences here are themselves a
+structural permutation, this is a close conceptual match, not just an analogy.
+
+**The direct test, adapted from Frankle et al.'s own "instability analysis" method**:
+for a subset of seed networks with the strongest original trend signals (chosen to
+maximize the informativeness of any observed replicate disagreement), retrain from the
+*exact same wiring*, held fixed, varying only training-noise seeds
+(`task.seed`, `network.node_config.bias.seed` — confirmed via the real Hydra config
+that neither is set anywhere in the original training pipeline, so all 20 original
+networks share identical task and bias-initialization randomness, differing only in
+`network.connectome.file`). Each seed network gets 3 total trajectories: the original
+(seed=0) plus 2 new replicates (seed=1, seed=2).
+
+**Current design (K=3, in progress as of this writing)**: `degree_preserving_swap/0002`
+(original ρ=−0.827 von Mises, −0.636 raw), `0003` (−0.816, −0.641), and `0005` (+0.945,
++0.702) — chosen to span both the strongest negative and strongest positive original
+trends within one scheme. Trained sequentially in pairs (empirically, running more
+than 2 replicates concurrently on this hardware produced a severe, non-linear
+throughput collapse — combined throughput dropped from ~7.1 iter/sec at 2 concurrent
+jobs to ~0.58 iter/sec at 5, an 11× degradation not explained by simple GPU-sharing
+math — so concurrency is capped at 2). Analysis via a permutation-based one-way-ANOVA
+test on the compiled per-replicate rho values (`analyze_instability_experiment.py`,
+verified against synthetic data for both hypotheses before use): if replicates of the
+same wiring cluster together significantly more than different wiring realizations
+differ from each other, that's evidence wiring determines direction; if replicates
+scatter as much as different networks do, that's evidence training noise dominates,
+independent of wiring.
+
+**Scripts:** `evaluate_instability_replicates.py` (evaluates each replicate's full
+trajectory and compiles results with each seed network's already-known original,
+reusing the validated evaluation pipeline rather than reimplementing it — not yet
+execution-tested against real checkpoints as of this writing, only checked for
+correctness against the verified real API);
+`analyze_instability_experiment.py` (the permutation test, tested against synthetic
+data for both hypotheses); `orchestrate_waves.sh` (unattended sequential-wave
+automation: waits for each wave to finish, evaluates it, launches the next, runs the
+final analysis once all waves complete).
+
+**Status: in progress, not yet resolved.** This section will need updating once K=3
+results are in hand.
+
 
 ---
 
@@ -1301,30 +1388,24 @@ Experiment 5 for the full result and its caveats.
   replication — see Experiment 5 for the full result, the permutation-corrected p-values
   (an analytic p-value here was off by 16× at this sample size), and the methodological
   caveat about ensemble-mean statistics that this comparison surfaced along the way
-- **A more stringent, within-subject test — does fidelity trend progressively more
-  negative across a single network's own 250,000-iteration training run, rather than
-  only differing between the trained and untrained endpoints — does not add further
-  support, and does not contradict the pooled result either.** 16 Experiment 5 networks
-  (8 per scheme) were evaluated at 6 checkpoints spanning their own training trajectories.
-  A precision guard (reused directly from Experiment 4b) correctly excluded 24 of 96
-  checkpoint evaluations as numerically unresolvable, including one network's entire
-  trajectory. Of the 14 remaining networks, 9/14 trend negative (sign test p = 0.42,
-  not significant on either reference) and Fisher's combined test (using an exact
-  permutation p-value per network, not scipy's default — confirmed unreliable at this
-  n=4–5 sample size: a perfect correlation at n=4 registers as scipy's asymptotic
-  p≈0.000 against a true exact value of 0.042) gives p = 0.19 (von Mises) and p = 0.17
-  (raw), neither significant. A bootstrap power analysis using the actual observed
-  effect sizes shows this specific test has a low ceiling: even at N=30 networks per
-  scheme, Fisher's method reaches only 26–37% power, so further investment in more
-  networks of this design is not expected to resolve it. The pre-training checkpoint
-  anchor (mean r ≈ 0 on both references) remains consistent with the pooled
-  weight-shuffled-random population's own near-zero mean, corroborating the untrained
-  side of the pooled result independently. Net reading: the trained-vs-untrained
-  difference established by the pooled comparison above is not shown here to emerge as
-  a gradual, within-network dose-response — it may be real but too weak to detect at
-  this scale, may appear as a step change early in training rather than gradually, or
-  the pooled difference may not manifest as a smooth trajectory at all. This does not
-  weaken the pooled finding; it is a distinct, harder question that remains open
+- **A more stringent, within-subject test — does fidelity trend across a single
+  network's own 250,000-iteration training run, rather than only differing between the
+  trained and untrained endpoints — reveals something more interesting than either
+  "yes" or "no": strong, statistically robust individual trends, but no shared
+  direction across the population.** All 20 Experiment 5 networks were evaluated at
+  every available checkpoint (up to 72 per network). Several networks show |ρ| above
+  0.7–0.9 at p<0.0001 (n=50–70 checkpoints, genuine effects at this sample size), but
+  roughly half trend positive and half negative even within the same wiring scheme and
+  training recipe — a sign test across all 20 finds no consistent direction (11/20 and
+  13/20 negative, both references, neither significant), while Fisher's combined test
+  is overwhelmingly significant on both (χ²=260.4 and χ²=250.3, both p<0.0001) —
+  strong evidence something real is happening in nearly every network, just not the
+  same something. This rules out a single shared "critical learning period" as the
+  story and motivates a new experiment (see "Training-instability analysis" above):
+  does the specific realization of a network's null wiring determine which direction
+  training pushes it, or does training-process randomness dominate independent of
+  wiring — currently being tested directly by retraining selected networks from
+  identical wiring with different training-noise seeds, in progress as of this writing
 
 - Experiment 4 finds that untrained CC networks have no measurable representational
   geometry. Their RDM's dynamic range falls an order of magnitude below the float32
@@ -1411,33 +1492,38 @@ Set `n_models=1` for a quick debug run.
 connectome-fidelity/
 ├── README.md
 ├── experiments/
-│   ├── moving_edge_on.py              ← Experiment 1: ON edges
-│   ├── moving_edge_on_off.py          ← Experiment 2: ON+OFF edges
-│   ├── biological_reference.py        ← Experiment 3: biological reference
-│   ├── untrained_networks.py          ← Experiment 4: untrained networks
-│   ├── exp4_perturbation_sweep.py     ← Experiment 4b: bias-noise sweep
-│   ├── exp4_synapse_sweep.py          ← Experiment 4b: synapse-noise sweep
-│   ├── cka_validation.py              ← CKA secondary validation
-│   └── posthoc_mds_whitened_rdms.py   ← MDS visualization and noise-whitened RDMs
-├── exp5/                              ← Experiment 5: trained-random null-through-simulation
-│   ├── production.py                  ← training/evaluation orchestration, both null schemes
-│   ├── randomize_connectome_schemes.py ← degree_preserving_swap / erdos_renyi generation
-│   └── correct_exp5_circularity.py    ← circularity correction (retraction), per scheme
-├── henning_reference/                 ← non-circular T4/T5 biological reference (Henning et al. 2022)
-│   ├── build_henning_reference.py     ← von Mises reconstruction from per-cell fitted parameters
-│   ├── build_reference_from_raw.py    ← direct average of raw per-direction data, no curve-fitting
-│   ├── build_reference_from_raw_with_fly_id.py ← same, with per-cell fly-ID tracking for leave-one-fly-out
-│   ├── analyze_raw_reference.py       ← circularity + split-half reliability checks, raw version
-│   ├── check_reconstruction_robustness.py ← sensitivity to curve-fitting choices (von Mises variants)
-│   ├── check_residual_reliability_T4_T5.py ← split-half check using ON/OFF pathways as replicates
-│   ├── correct_henning_reference.py   ← circularity correction applied to CC/random vs. this reference
-│   ├── check_per_model_consistency_raw.py ← per-model (n=100) CC-vs-random check, raw reference
-│   ├── exp5_henning_evaluate.py       ← re-evaluates trained Exp5 checkpoints on this reference
-│   ├── validate_exp5_henning_pvalues.py ← permutation-test correction to the above's analytic p-values
-│   ├── compare_all_populations_henning.py ← cross-population (CC/random/both Exp5 schemes) comparison
-│   ├── pool_trained_vs_untrained.py   ← pooled N=20/N=70 trained-vs-untrained power analysis
-│   ├── training_trajectory_henning.py ← per-network training-trajectory dose-response evaluation
-│   └── analyze_training_trajectory.py ← per-network-first trend analysis, exact-permutation p-values, power analysis
+│   ├── moving_edge_on.py                             ← Experiment 1: ON edges
+│   ├── moving_edge_on_off.py                         ← Experiment 2: ON+OFF edges
+│   ├── biological_reference.py                       ← Experiment 3: biological reference
+│   ├── untrained_networks.py                         ← Experiment 4: untrained networks
+│   ├── exp4_perturbation_sweep.py                    ← Experiment 4b: bias-noise sweep
+│   ├── exp4_synapse_sweep.py                         ← Experiment 4b: synapse-noise sweep
+│   ├── cka_validation.py                             ← CKA secondary validation
+│   └── posthoc_mds_whitened_rdms.py                  ← MDS visualization and noise-whitened RDMs
+├── exp5/                                             ← Experiment 5: trained-random null-through-simulation
+│   ├── production.py                                 ← training/evaluation orchestration, both null schemes
+│   ├── randomize_connectome_schemes.py               ← degree_preserving_swap / erdos_renyi generation
+│   └── correct_exp5_circularity.py                   ← circularity correction (retraction), per scheme
+├── henning_reference/                                ← non-circular T4/T5 biological reference (Henning et al. 2022)
+│   ├── build_henning_reference.py                    ← von Mises reconstruction from per-cell fitted parameters
+│   ├── build_reference_from_raw.py                   ← direct average of raw per-direction data, no curve-fitting
+│   ├── build_reference_from_raw_with_fly_id.py       ← same, with per-cell fly-ID tracking for leave-one-fly-out
+│   ├── analyze_raw_reference.py                      ← circularity + split-half reliability checks, raw version
+│   ├── check_reconstruction_robustness.py            ← sensitivity to curve-fitting choices (von Mises variants)
+│   ├── check_residual_reliability_T4_T5.py           ← split-half check using ON/OFF pathways as replicates
+│   ├── correct_henning_reference.py                  ← circularity correction applied to CC/random vs. this reference
+│   ├── check_per_model_consistency_raw.py            ← per-model (n=100) CC-vs-random check, raw reference
+│   ├── exp5_henning_evaluate.py                      ← re-evaluates trained Exp5 checkpoints on this reference
+│   ├── validate_exp5_henning_pvalues.py              ← permutation-test correction to the above's analytic p-values
+│   ├── compare_all_populations_henning.py            ← cross-population (CC/random/both Exp5 schemes) comparison
+│   ├── pool_trained_vs_untrained.py                  ← pooled N=20/N=70 trained-vs-untrained power analysis
+│   ├── training_trajectory_henning.py                ← per-network training-trajectory dose-response evaluation
+│   ├── analyze_training_trajectory.py                ← per-network-first trend analysis, exact-permutation p-values, power analysis
+│   ├── verify_checkpoint_spacing.py                  ← real checkpoint-spacing verification from file metadata
+│   ├── plot_training_trajectory.py                   ← per-network trajectory figure, all references
+│   ├── evaluate_instability_replicates.py            ← evaluates instability-analysis replicate checkpoints
+│   ├── analyze_instability_experiment.py             ← permutation test: does wiring or training noise determine trend direction
+│   └── orchestrate_waves.sh                          ← unattended sequential-wave training/evaluation automation
 ├── notebooks/
 │   ├── moving_edge_on.ipynb
 │   ├── moving_edge_on_off.ipynb
@@ -1445,29 +1531,29 @@ connectome-fidelity/
 │   ├── untrained_networks.ipynb      
 │   ├── cka_validation.ipynb
 │   ├── posthoc_mds_whitened_rdms.ipynb
-│   └── moving_edge_on_8dir.ipynb      ← Experiment 1 replication at the Henning-matched 8-direction stimulus set
+│   └── moving_edge_on_8dir.ipynb                     ← Experiment 1 replication at the Henning-matched 8-direction stimulus set
 ├── results/
 │   ├── results_exp1_10models_full_shiu.npz
 │   ├── results_exp1_50models_full_shiu.npz
 │   ├── results_exp2_10models_full_shiu.npz
 │   ├── results_exp2_50models_full_shiu.npz
 │   ├── results_exp4_untrained.npz             
-│   ├── exp4_sweep.npz                 ← bias-noise sweep results
-│   ├── exp4_synapse_sweep.npz         ← synapse-noise sweep results (n=100/level)
+│   ├── exp4_sweep.npz                                ← bias-noise sweep results
+│   ├── exp4_synapse_sweep.npz                        ← synapse-noise sweep results (n=100/level)
 │   ├── cka_validation_50models_full_shiu.npz
 │   └── posthoc_mds_whitened_50models_full_shiu.npz
 ├── henning_reference_data/
-│   ├── henning_population_matrix.npy  ← von Mises reconstruction, 8 directions × 8 T4/T5 subtypes
-│   ├── henning_reference_rdm.npy      ← corresponding RDM
-│   ├── raw_population_matrix.npy      ← raw R_teta average, no curve-fitting, 8×8
-│   ├── raw_r_teta_progress.npz        ← per-cell raw response data, all 117 recording sessions
-│   ├── raw_r_teta_progress_with_fly.npz ← same, with fly-ID tags for leave-one-fly-out
-│   ├── results_exp1_8dir_50models_full_shiu.npz ← CC/random population vectors and RDMs, 8-direction stimulus set
-│   ├── exp5_henning_results.json      ← Exp5-vs-Henning-reference results, both schemes, both reference versions
-│   ├── exp5_henning_permutation_results.json ← permutation-corrected p-values for the above
-│   ├── exp5_henning_rdms_degree_preserving_swap.npy ← per-network RDMs, 8-direction stimulus, this scheme
-│   ├── exp5_henning_rdms_erdos_renyi.npy ← per-network RDMs, 8-direction stimulus, this scheme
-│   └── compare_all_populations_results.json ← the cross-population trained-vs-untrained comparison
+│   ├── henning_population_matrix.npy                 ← von Mises reconstruction, 8 directions × 8 T4/T5 subtypes
+│   ├── henning_reference_rdm.npy                     ← corresponding RDM
+│   ├── raw_population_matrix.npy                     ← raw R_teta average, no curve-fitting, 8×8
+│   ├── raw_r_teta_progress.npz                       ← per-cell raw response data, all 117 recording sessions
+│   ├── raw_r_teta_progress_with_fly.npz              ← same, with fly-ID tags for leave-one-fly-out
+│   ├── results_exp1_8dir_50models_full_shiu.npz      ← CC/random population vectors and RDMs, 8-direction stimulus set
+│   ├── exp5_henning_results.json                     ← Exp5-vs-Henning-reference results, both schemes, both reference versions
+│   ├── exp5_henning_permutation_results.json         ← permutation-corrected p-values for the above
+│   ├── exp5_henning_rdms_degree_preserving_swap.npy  ← per-network RDMs, 8-direction stimulus, this scheme
+│   ├── exp5_henning_rdms_erdos_renyi.npy             ← per-network RDMs, 8-direction stimulus, this scheme
+│   └── compare_all_populations_results.json          ← the cross-population trained-vs-untrained comparison
 ├── figures/
 │   ├── moving_edge_on_rdms_10models_full_shiu.png
 │   ├── moving_edge_on_permtest_10models_full_shiu.png
@@ -1487,13 +1573,14 @@ connectome-fidelity/
 │   ├── umap_cc_ensemble_exp2.png
 │   ├── exp4_untrained_rdms_annotated.png     
 │   ├── exp4_untrained_permtest.png           
-│   ├── exp4_sweep.png                 ← bias-noise sweep figure
-│   ├── exp4_synapse_sweep.png         ← synapse-noise sweep figure (n=100/level)
+│   ├── exp4_sweep.png                                ← bias-noise sweep figure
+│   ├── exp4_synapse_sweep.png                        ← synapse-noise sweep figure (n=100/level)
 │   ├── cka_validation_exp1_exp2.png
 │   ├── mds_exp1_on_edges_50models.png
 │   ├── mds_exp2_on_off_edges_50models.png
 │   ├── whitened_rdms_exp1_exp2_50models.png
-│   └── within_polarity_blocks_whitened_exp2_50models.png
+│   ├── within_polarity_blocks_whitened_exp2_50models.png
+│   └── training_trajectory_plot.png                  ← per-network fidelity-vs-training-progress figure, both references
 ```
 
 ---
@@ -1552,6 +1639,10 @@ If you use this work, please cite:
 - Nili et al. 2014. A toolbox for representational similarity analysis. *PLOS Computational Biology* 10(4): e1003553. https://doi.org/10.1371/journal.pcbi.1003553
 
 - Kornblith et al. 2019. Similarity of neural network representations revisited. *Proceedings of the 36th International Conference on Machine Learning (ICML)*, PMLR 97, 3519–3529. https://arxiv.org/abs/1905.00414
+
+- Entezari, Sedghi, Saukh & Neyshabur 2022. The role of permutation invariance in linear mode connectivity of neural networks. *International Conference on Learning Representations (ICLR)*. https://arxiv.org/abs/2110.06296
+
+- Frankle, Dziugaite, Roy & Carbin 2020. Linear mode connectivity and the lottery ticket hypothesis. *Proceedings of the 37th International Conference on Machine Learning (ICML)*, PMLR 119, 3259–3269. https://arxiv.org/abs/1912.05671
 
 - Brunton et al. 2026. The digital sphinx: Can a worm brain control a fly body? *bioRxiv*. https://www.biorxiv.org/content/10.64898/2026.03.20.713233v1
 
