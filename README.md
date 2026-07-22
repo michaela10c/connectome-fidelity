@@ -1,8 +1,7 @@
-# Representational Geometry as a Fidelity Metric for Connectome-Constrained Neural Emulations: Evidence from Drosophila and Mouse Visual Systems
+Representational Geometry as a Fidelity Metric for Connectome-Constrained Neural Emulations: Evidence from Drosophila and Mouse Visual Systems
 
-**Author**: Michael Zhou
-
-**Current Advisor**: Prof. Jennifer Hasler
+Author: Michael Zhou
+Current Advisor: Prof. Jennifer Hasler
 
 ## Background
 
@@ -62,9 +61,17 @@ One further asymmetry surfaced by this decomposition, not yet explained: the rea
 
 Answer: Yes, geometry distinguishes real from random wiring when untrained, for both topology-randomizing null schemes items 3-5 depend on, not just the original weight-shuffled baseline. ON+OFF's smaller gap isn't a real exception, it reflects dilution by shared ON/OFF-discrimination structure, and disappears once within-polarity structure is isolated. Whether this distinction survives once random wiring is actually trained, the same question item 3 asks through a biology-mediated method, is addressed there directly, using this same individual-pairwise approach as a second, independent method.
 
+![Figure 1](figures/moving_edge_on_rdms_50models_full_shiu.png)
+
 **Figure 1.** Representational dissimilarity matrices for connectome-constrained (CC) and random-wiring networks under cosine and Euclidean distance, Experiment 1 (12 directions, ON edges only, n=50 models). CC networks show smooth, graded dissimilarity consistent with continuous direction tuning; random networks instead show a qualitatively different block structure, splitting responses into two large clusters rather than a graded direction-tuned pattern.
 
+![Figure 2](figures/moving_edge_on_rdms_50models_full_shiu.png)
+
+*(⚠️ filename above is identical to Figure 1's, likely a copy-paste error, since this figure's caption describes different content, ON+OFF/24 conditions vs. Figure 1's ON-only/12 conditions. Confirm the correct filename before this renders as intended.)*
+
 **Figure 2.** Representational dissimilarity matrices for connectome-constrained (CC) and random-wiring networks, shown under cosine distance (left two panels) and Euclidean distance (right two panels), across 24 stimulus conditions (12 directions × ON/OFF polarity, n=50 models). CC networks show a sharp, regular checkerboard pattern reflecting consistent ON/OFF discrimination across all directions; random networks show this structure only weakly (cosine) or not at all (Euclidean). Note the Euclidean color scales differ substantially between CC and random panels (0-30 vs. 0-100,000) and are not directly comparable in raw magnitude.
+
+![Figure 3](figures/untrained_rdms.png)
 
 **Figure 3.** Representational dissimilarity matrices for CC (left) and untrained degree-preserving-swap wiring (right), across three independently-built stimulus conditions. ON-only (top; 12 directions, individual-pairwise r = −0.032) and the Henning 8-direction set (bottom; 8 directions, r = −0.089) each show CC and null wiring as essentially unrelated. ON+OFF (middle; 12 directions × 2 polarities, r = 0.764) shows a much smaller gap, real wiring and null wiring look considerably more alike once OFF-polarity stimuli are included. Since ON-only and Henning were built independently and agree closely with each other, ON+OFF is the condition that stands apart, not the other way around.
 
@@ -73,6 +80,8 @@ Answer: Yes, geometry distinguishes real from random wiring when untrained, for 
 The original biological reference was built from Maisak et al. (2013). On closer inspection, it turned out to be dominated by circular stimulus structure rather than real direction-tuning signal. Maisak's own data shows T5 cells largely fail to respond to moving ON-edge stimuli specifically; on an ON-only stimulus set, this collapses the eight T4/T5 subtypes to four T4 curves, all the same width, at even 90° spacing, a shape whose pairwise distances are almost entirely explained by angular position alone (r = 0.978 against a pure circular-distance model). Raw correlations against this reference were measuring circular organization, not direction-tuning fidelity. After partialling out the circular structure, the signal that remained was no longer significant at n=50.
 
 This invalidated Experiment 3 and broke the first version of Experiment 5, which depended on the same reference.
+
+![Figure 4](figures/maisak2013_t4t5_von_mises_tuning.png)
 
 **Figure 4.** Idealized von Mises tuning curves for T4 (blue) and T5 (orange) subtypes, reconstructed from Maisak et al. (2013), Fig. 3g-h. T5a–d are assigned identical preferred directions and tuning shapes to T4a–d (T5a/T4a both PD=180°, T5b/T4b both PD=0°, T5c/T4c both PD=90°, T5d/T4d both PD=270°), leaving only four distinct tuning curves across eight nominal subtypes, evenly spaced at 90° intervals.
 
@@ -142,15 +151,21 @@ The degree-preserving result holds up, genuinely null, not just null by small sa
 
 One direction this resampling can't rule out, worth naming rather than leaving implicit: downsampling CC tests whether the reported effect was real, not whether a smaller real effect exists that n=10 simply lacks the power to detect. Erdős-Rényi's resampled p-values ranged from 0.04 to 0.21 across draws, wider than degree-preserving swap's, consistent with limited power at this sample size, not necessarily a hidden effect, but not fully ruled out either. Closing this would require training the null schemes up, not resampling CC down. Concretely: wiring files already exist for both schemes up to n=25 (no new generation needed, training only), so extending each null scheme from n=10 to n=25 is a scoped, costed option, roughly 16 days and $90 of compute on a single GPU, sequential pairs, the only configuration tested to actually work at this pace. Going the full distance to n=50 for an exact match to CC would cost closer to 42 days and $260. Neither has been run; this is flagged as a specific, ready next step if the question warrants it, not attempted here.
 
+Q: Given the resampled Erdős-Rényi p-values sit in a genuinely ambiguous range (0.04-0.21 across draws, consistent with either a real small effect or just limited power at n=10), is the ~16-day, ~$90 n=25 scale-up worth running to resolve this, or would you treat the current result as an honest, reportable null as-is, with the power caveat stated plainly? Curious how you'd weigh that tradeoff given your own experience with hierarchical null-model designs.
+
 **Method B: Direct RDM comparison, no biological reference**
 
 Item 1 already established, using individual-pairwise RDM correlation rather than a biology-mediated statistic, that real and random wiring are distinguishable when untrained (Table 0). The same method, applied now to each null scheme's final, fully-trained checkpoint instead of checkpoint 0, gives a second, independent answer to this section's question.
+
+![Figure 5](figures/training_convergence_start_end.png)
 
 **Figure 5.** Individual-pairwise CC-vs-null wiring similarity, before and after training, across three stimulus conditions and both null schemes. Each line connects one comparison's untrained value (checkpoint 0) to its trained value (final checkpoint); color indicates stimulus condition, marker shape indicates null scheme. ON-only and Henning 8-direction, the two conditions with essentially no untrained relationship, both converge sharply toward the within-CC baseline once trained. ON+OFF, already substantially converged before training, shows almost no further shift. The pattern holds nearly identically for both null schemes within each stimulus condition, indicating the size of the shift is governed by how much separation existed to begin with, not by which wiring scheme is used.
 
 Training produces real, substantial convergence, but the convergence amount depends entirely on how much separation existed beforehand, not on which null scheme is used. The two conditions that started at near-zero relationship, ON-only and Henning, both converge sharply with training (average shift +0.588). ON+OFF, already partly converged before training even began, barely moves (average shift +0.026, more than 20-fold smaller). Both null schemes behave near-identically within each stimulus condition; this is a property of training interacting with the untrained starting point, not something specific to either wiring scheme.
 
 This compares only the first and last checkpoints, not the trajectory between them, and the follow-up has since been run. Every checkpoint of every network was evaluated for the Henning 8-direction condition (n=10 networks per scheme, 71-72 checkpoints each).
+
+![Figure 6](figures/trajectory_convergence_henning.png)
 
 **Figure 6.** Individual-pairwise CC-vs-null mean r across every checkpoint, Henning 8-direction, both null schemes, against the within-CC baseline (dashed). Convergence is abrupt, not gradual: nearly the entire rise from near-zero to ~0.6 happens within the first 2-3 checkpoints. From checkpoint ~10 onward, roughly 86% of the full training run, both schemes plateau in a stable band (0.58-0.75) with no further net movement, well short of the within-CC baseline (~0.79). Both null schemes track each other closely throughout, reinforcing that this is a property of training dynamics generally, not either scheme specifically.
 
@@ -199,6 +214,8 @@ This is now a genuinely solid finding, not a partial one: the matched CC-vs-untr
 
 All 20 trained networks (both null schemes, 10 each) were evaluated at every available checkpoint across their full 250,000-iteration training run, not just at the end, to see whether the negative trend develops gradually.
 
+![Figure 7](figures/training_trajectory_plot.png)
+
 **Figure 7.** Fidelity vs. training progress for all 20 trained networks, both biological references. X marks on the lower axis indicate checkpoints excluded by a precision guard. Individual trajectories are visibly coherent, not random jitter, but fan out in both directions from near zero with no shared population-level trend.
 
 The answer is yes, but not in the way a single "training pushes fidelity down" story would predict. Individual networks show strong, statistically robust trends over their own training, several reach |ρ| above 0.7-0.9 at p < 0.0001, genuine effects, not noise. But the direction is idiosyncratic per network: within the degree-preserving scheme alone, four networks trend strongly negative while five trend strongly positive, same scheme, same recipe, opposite directions. A sign test across all 20 networks finds no consistent direction (11/20 negative, p = 0.82 von Mises; 13/20 negative, p = 0.26 raw), while a combined significance test is overwhelming on both references (χ² = 260.4, p < 0.0001 von Mises; χ² = 250.3, p < 0.0001 raw), strong evidence that something real happens within nearly every network, just not the same something.
@@ -219,6 +236,8 @@ This maps directly onto an established result in the deep learning literature. F
 
 Eight seed networks were tested: five from item 4's degree-preserving scheme (three negative, two positive), and three from Erdős–Rényi (all negative, the only direction that scheme shows). Networks were ranked by von Mises rho, the lead reference in items 3-4, though its fitting step is now known to inflate spurious correlation (item 2), so this selection carries that same caveat, both references are still evaluated in the actual comparison below, so any discrepancy would be visible. One seed was added specifically to test this: a network raw ranks as its strongest negative trend but von Mises rates as flat. The rest were chosen for having the strongest, most unambiguous original signal in each group, only a strong original trend makes the replicate comparison interpretable, and spanning both directions guards against a direction-specific confound. Each network was retrained twice from identical wiring with different training-noise seeds.
 
+![Figure 8](figures/replicate_seeds_degree_preserving_swap.png)
+
 **Figure 8.** Replicate rho per seed network, both references, all five degree-preserving networks. 0002 clusters tightly; 0003 and 0005 show real internal scatter but stay same-signed as their own original.
 
 0007 and 0009 looked like the same pattern at first, an apparent clean sign flip from original to replicates, but they turn out to be three different things once the full trajectory is examined, not just two. 0007's own original trajectory reverses direction mid-training (first-half rho −0.819, second-half +0.736), the near-zero full-trajectory value that got it selected in the first place was never a real "flat" signal, it was two opposing trends canceling out. Checking its replicates' own full trajectories reveals something sharper than a simple mismatch: seed1 also reverses, but in the opposite temporal order, positive first, then negative, the mirror image of the original, while seed2 shows no reversal at all, stable and monotonic throughout. Three qualitatively different dynamics from one wiring, not just three different endpoints.
@@ -226,6 +245,8 @@ Eight seed networks were tested: five from item 4's degree-preserving scheme (th
 0009 has no internal-instability explanation the way 0007 does: its original is consistently positive in both halves of its own trajectory (+0.618, then +0.257), no reversal. Yet both retrained replicates show the same distinctive shape, an early swing opposite the original's direction, followed by a partial recovery toward it, closely matched between replicates.
 
 Neither pattern is explained by the aggregate wiring-vs-noise test below. 0007 in particular looks less like scatter and more like a wiring sitting near a genuine bifurcation, capable of distinct dynamical regimes depending on training noise, arguably a closer match to Frankle et al.'s basin-switching framing than the population-level result itself.
+
+![Figure 9](figures/replicate_seeds_erdos_renyi.png)
 
 **Figure 9.** Replicate rho per seed network, both references, all three Erdős–Rényi networks. 0002 shows the tightest clustering of any network in the entire experiment, especially on raw. 0004 and 0006 each scatter, and in both cases the two references disagree sharply within the same network, von Mises suggesting real clustering where raw shows none.
 
@@ -240,6 +261,10 @@ Neither pattern is explained by the aggregate wiring-vs-noise test below. 0007 i
 Von Mises reaches significance twice, degree-preserving swap alone and the pooled test. Raw, the reference already established as more trustworthy where the two disagree (item 2's synthetic-noise test confirms von Mises inflates spurious correlation nearly 2x on data with zero real signal), does not reach significance in any of the three tests. Every von Mises significant result fails to replicate on raw, consistently, at every level of aggregation.
 
 Answer: on the more trustworthy reference, no significant evidence that wiring realization determines the direction of a network's fidelity trend, in either scheme, alone or combined. That leans toward training-process randomness, though genuine individual heterogeneity, some networks cluster tightly (0002 in both schemes), others scatter or flip entirely, means the test may simply remain underpowered even at n=8 rather than cleanly resolving in favor of either explanation.
+
+Q: Does the direction of a network's fidelity trend depend on the specific realization of its wiring, or on training-process randomness unrelated to wiring at all? Given your background in dynamical systems and stability analysis, does the Frankle et al. framing (same starting point, different SGD noise, distinct basins) seem like a reasonable lens for this, even though it's a different kind of dynamical system than the ones you typically work with, or is there a different mechanism you'd reach for first?
+
+Q: Separately, two individual networks show internal dynamics that don't fit either simple story above. 0009's two retrained replicates independently converge on the same distinctive shape, an early swing away from the original's direction, then a partial recovery toward it. 0007's three trajectories (original and two replicates) show three qualitatively different dynamics from identical wiring: a reversal one way, a reversal the mirror-image other way, and no reversal at all. Do either of these look like recognizable dynamical signatures to you, something closer to a genuine bifurcation or basin-switching structure, or would you want to see something else, the full trajectories rather than just these summary numbers, before reading anything into the shape itself?
 
 ## Answer to the Brunton Question
 
@@ -263,3 +288,12 @@ Note: The mouse findings above are static-wiring results, real and informative o
 
 Happy to go deeper on the mouse side separately if useful.
 
+Q: Your work (Kim & Choi 2026, Phys. Rev. E 113: 054406) shows PV self-inhibition specifically, not heterogeneity generally, is what stabilizes long-range SST projections in a spatially structured mean-field model of V1. Does that result transfer to a real, irregular, measured connectome at roughly 1/40th the scale, or would you expect it to break down in ways your framework predicts?
+
+## Logistical Questions
+
+**SfN:** Will you be at SfN in November? It would be great to connect there too, especially if the instability-analysis result and the mouse side have moved further along by then.
+
+**Brunton outreach:** I've actually been corresponding with Bing Wen Brunton since April, her Digital Sphinx finding is the whole motivation for this project. We got close to an actual call in early May but I had to reschedule for medical reasons, and despite a few follow-ups since, we haven't managed to connect live. I sent her the finished preprint in mid-June with no response yet. Would you have any advice on next steps, whether it's worth another follow-up, a different approach, or just patience given how these things go?
+
+**COSYNE:** You've been on the COSYNE program committee for the past three years, do you think this line of work, once the instability-analysis result is in and the mouse side has matured further, would be a good fit for a Cosyne submission? Curious what that community tends to value differently from SfN's broader audience.
