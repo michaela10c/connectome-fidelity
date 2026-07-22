@@ -65,7 +65,7 @@ Answer: Yes, geometry distinguishes real from random wiring when untrained, for 
 
 **Figure 1.** Representational dissimilarity matrices for connectome-constrained (CC) and random-wiring networks under cosine and Euclidean distance, Experiment 1 (12 directions, ON edges only, n=50 models). CC networks show smooth, graded dissimilarity consistent with continuous direction tuning; random networks instead show a qualitatively different block structure, splitting responses into two large clusters rather than a graded direction-tuned pattern.
 
-![Figure 2](figures/moving_edge_on_rdms_50models_full_shiu.png)
+![Figure 2](figures/moving_edge_on_off_rdms_50models_full_shiu.png)
 
 *(⚠️ filename above is identical to Figure 1's, likely a copy-paste error, since this figure's caption describes different content, ON+OFF/24 conditions vs. Figure 1's ON-only/12 conditions. Confirm the correct filename before this renders as intended.)*
 
