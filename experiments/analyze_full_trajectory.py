@@ -120,7 +120,7 @@ def main():
         if args.out_plot.endswith('henning.png'):
             stim_label = "8-Direction Henning" 
         elif args.out_plot.endswith('onoff.png'):
-            stim_label = "ON-OFF Polarity"
+            stim_label = "ON+OFF Polarity"
         else:
             stim_label = "ON Polarity"
         ax.set_title(f"Convergence trajectory: does the gap close gradually or abruptly? ({stim_label})")
