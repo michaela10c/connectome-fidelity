@@ -8,7 +8,7 @@
 
 **Preprint:** [doi.org/10.64898/2026.06.10.731214](https://doi.org/10.64898/2026.06.10.731214)
 
-⚠️ The published preprint predates most of the content in this README (item 1's untrained-null-scheme extension, item 3's Method B, the OFF-polarity Erdős–Rényi finding, item 5's full K=8 result). This README is the current, up-to-date account; treat the DOI'd version as the last formally published snapshot, not the latest results.
+⚠️ The published preprint predates most of the content in this README ([item 1](METHODS.md#1-can-geometry-tell-real-wiring-from-random-wiring)'s untrained-null-scheme extension, [item 3](METHODS.md#3-does-geometry-distinguish-real-wiring-from-trained-random-wiring)'s Method B, the OFF-polarity Erdős–Rényi finding, [item 5](METHODS.md#5-does-wiring-identity-or-training-randomness-determine-that-direction)'s full K=8 result). This README is the current, up-to-date account; treat the DOI'd version as the last formally published snapshot, not the latest results.
 
 ```bibtex
 @article{zhou2026representational,
@@ -43,7 +43,7 @@
 
 ## Quick Start
 
-Once Flyvis is installed and the required data is in place (see [Data & Reproducibility](#data--reproducibility) below), the untrained real-vs-random comparison from item 1 can be reproduced with:
+Once Flyvis is installed and the required data is in place (see [Data & Reproducibility](#data--reproducibility) below), the untrained real-vs-random comparison from [item 1](METHODS.md#1-can-geometry-tell-real-wiring-from-random-wiring) can be reproduced with:
 
 ```bash
 python test_item1_all_null_schemes.py \
@@ -61,15 +61,15 @@ Reproducing this work end to end requires two things that aren't bundled in this
 1. **The pretrained Flyvis ensemble.** `flyvis download-pretrained` does **not** provide the `flow/0000/000...049` ensemble structure this project's scripts expect, this was confirmed directly during this project (the download succeeds and passes its checksum, but unpacks connectome/rendering data, not trained model checkpoints). Where this real ensemble came from originally is not fully resolved; the practical workaround used throughout this project is the saved population-vector files below, which don't require re-deriving the ensemble at all.
 2. **The trained null-scheme networks** (degree-preserving swap, Erdős–Rényi), custom-trained for this project through Flyvis's own training pipeline. These are not currently packaged for external distribution.
 
-What *is* directly reusable without either of the above: the saved real-CC population matrices (`results_exp1_50models_full_shiu.npz`, `results_exp2_50models_full_shiu.npz`, `results_exp1_8dir_50models_full_shiu.npz`), each containing pre-computed per-model population vectors and RDMs for the pretrained ensemble under a specific stimulus condition. Any of item 1 or item 3's real-CC-side comparisons can be rerun directly against these files.
+What *is* directly reusable without either of the above: the saved real-CC population matrices (`results_exp1_50models_full_shiu.npz`, `results_exp2_50models_full_shiu.npz`, `results_exp1_8dir_50models_full_shiu.npz`), each containing pre-computed per-model population vectors and RDMs for the pretrained ensemble under a specific stimulus condition. Any of [item 1](METHODS.md#1-can-geometry-tell-real-wiring-from-random-wiring) or [item 3](METHODS.md#3-does-geometry-distinguish-real-wiring-from-trained-random-wiring)'s real-CC-side comparisons can be rerun directly against these files.
 
 ## Key Findings
 
 - **Untrained real wiring is clearly distinguishable from random wiring** by representational geometry, for every null scheme and stimulus condition tested (Table 0).
-- **Once both are actually trained**, that distinction narrows substantially, and in one specific case (Erdős–Rényi, OFF-polarity structure) closes completely to statistical indistinguishability, the direct test of Brunton et al.'s untested prediction (item 3).
+- **Once both are actually trained**, that distinction narrows substantially, and in one specific case (Erdős–Rényi, OFF-polarity structure) closes completely to statistical indistinguishability, the direct test of Brunton et al.'s untested prediction ([item 3](METHODS.md#3-does-geometry-distinguish-real-wiring-from-trained-random-wiring)).
 - **Convergence with training is abrupt, not gradual**: nearly the entire shift happens within the first few percent of a network's training run, then plateaus for the rest (Figure 6).
-- **What determines a network's individual fidelity trend remains genuinely unresolved**: no significant evidence on the more trustworthy reference that wiring realization drives the direction, which leans toward training-process randomness, but real heterogeneity across networks (some cluster tightly, others scatter or flip) means this could equally reflect the test remaining underpowered at n=8, not a clean resolution either way (item 5).
-- **The original biological reference was invalidated and replaced**: Maisak et al. (2013) turned out to be dominated by circular stimulus structure rather than real tuning signal; the Henning et al. (2022) dataset provides a validated non-circular replacement (item 2).
+- **What determines a network's individual fidelity trend remains genuinely unresolved**: no significant evidence on the more trustworthy reference that wiring realization drives the direction, which leans toward training-process randomness, but real heterogeneity across networks (some cluster tightly, others scatter or flip) means this could equally reflect the test remaining underpowered at n=8, not a clean resolution either way ([item 5](METHODS.md#5-does-wiring-identity-or-training-randomness-determine-that-direction)).
+- **The original biological reference was invalidated and replaced**: Maisak et al. (2013) turned out to be dominated by circular stimulus structure rather than real tuning signal; the Henning et al. (2022) dataset provides a validated non-circular replacement ([item 2](METHODS.md#2-is-the-biological-reference-actually-measuring-direction-tuning)).
 - **On mouse visual cortex (MICrONS)**, wiring reliably predicts functional geometry under fixed, non-trained simulation. Real connectivity beats distance-constrained and cell-type-shuffled null wiring decisively, but is not distinguishable from a degree-preserving null, suggesting degree structure specifically, not finer wiring detail, accounts for the connectome's resemblance to real neural activity. Whether excitatory/inhibitory structure carries additional signal beyond degree remains an open, unresolved question.
 
 ## Background
@@ -80,7 +80,7 @@ This project tests one candidate, **representational geometry**, asking whether 
 
 ## Full Methodology & Results
 
-The complete, item-by-item methodology, tables, and figures behind the findings above live in **[METHODS.md](METHODS.md)**: five experiments building on each other (real-vs-random wiring untrained and trained, the biological-reference validation, the training-vs-wiring analysis, and the retraining-based instability test), plus the parallel mouse-connectome work and the full answer to the Brunton question.
+The complete, item-by-item methodology, tables, and figures behind the findings above live in **[METHODS.md](METHODS.md)**: five experiments building on each other (real-vs-random wiring untrained and trained, the biological-reference validation, the training-vs-wiring analysis, and the retraining-based instability test), plus the parallel mouse-connectome work and the full answer to the Brunton question. Throughout this README, "item N" refers to the correspondingly numbered section in METHODS.md, linked below wherever it's mentioned.
 
 ## Acknowledgments
 
