@@ -69,7 +69,7 @@ What *is* directly reusable without either of the above: the saved real-CC popul
 - **Convergence with training is abrupt, not gradual**: nearly the entire shift happens within the first few percent of a network's training run, then plateaus for the rest (Figure 6).
 - **What determines a network's individual fidelity trend appears to be training-process randomness, not wiring identity**, no significant evidence on the more trustworthy reference that wiring realization drives the direction a given network's trend takes (item 5).
 - **The original biological reference was invalidated and replaced**: Maisak et al. (2013) turned out to be dominated by circular stimulus structure rather than real tuning signal; the Henning et al. (2022) dataset provides a validated non-circular replacement (item 2).
-- **On mouse visual cortex (MICrONS)**, wiring reliably predicts functional geometry under fixed, non-trained simulation, and this specificity narrows to one structural property in particular: scrambling excitatory/inhibitory composition breaks the relationship; scrambling degree, space, or cell type does not.
+- **On mouse visual cortex (MICrONS)**, wiring reliably predicts functional geometry under fixed, non-trained simulation. Real connectivity beats distance-constrained and cell-type-shuffled null wiring decisively, but is not distinguishable from a degree-preserving null, suggesting degree structure specifically, not finer wiring detail, accounts for the connectome's resemblance to real neural activity. Whether excitatory/inhibitory structure carries additional signal beyond degree remains an open, unresolved question.
 
 ## Background
 
