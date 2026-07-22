@@ -27,8 +27,8 @@
 - [Setup Requirements](#setup-requirements)
 - [Quick Start](#quick-start)
 - [Data & Reproducibility](#data--reproducibility)
-- [Key Findings](#key-findings)
 - [Background](#background)
+- [Key Findings](#key-findings)
 - [Full Methodology & Results](#full-methodology--results)
 - [Acknowledgments](#acknowledgments)
 - [References](#references)
@@ -63,6 +63,12 @@ Reproducing this work end to end requires two things that aren't bundled in this
 
 What *is* directly reusable without either of the above: the saved real-CC population matrices (`results_exp1_50models_full_shiu.npz`, `results_exp2_50models_full_shiu.npz`, `results_exp1_8dir_50models_full_shiu.npz`), each containing pre-computed per-model population vectors and RDMs for the pretrained ensemble under a specific stimulus condition. Any of [item 1](METHODS.md#1-can-geometry-tell-real-wiring-from-random-wiring) or [item 3](METHODS.md#3-does-geometry-distinguish-real-wiring-from-trained-random-wiring)'s real-CC-side comparisons can be rerun directly against these files.
 
+## Background
+
+Brunton et al. (2026) demonstrated that a connectome, taken from one species (*C. elegans*) and used to control the body of another (*Drosophila*), can produce realistic behavior even when only a downstream interface is trained. The connectome's own synaptic weights and cellular parameters were never optimized; behavior emerged entirely from training the decoder mapping its outputs to the target body. The authors note this role could be fulfilled equally well by a randomly connected network, since all the learning happens in the decoder, this shows behavioral fidelity is achievable without biological fidelity: a model can look right without its underlying structure being correct. That raises a direct question: **if behavior alone can't verify fidelity, what can?**
+
+This project tests one candidate, **representational geometry**, asking whether the structure of a population's response patterns can distinguish a real connectome from a random one, in a way behavior alone cannot.
+
 ## Key Findings
 
 - **Untrained real wiring is clearly distinguishable from random wiring** by representational geometry, for every null scheme and stimulus condition tested (Table 0).
@@ -71,12 +77,6 @@ What *is* directly reusable without either of the above: the saved real-CC popul
 - **What determines a network's individual fidelity trend remains genuinely unresolved**: no significant evidence on the more trustworthy reference that wiring realization drives the direction, which leans toward training-process randomness, but real heterogeneity across networks (some cluster tightly, others scatter or flip) means this could equally reflect the test remaining underpowered at n=8, not a clean resolution either way ([item 5](METHODS.md#5-does-wiring-identity-or-training-randomness-determine-that-direction)).
 - **The original biological reference was invalidated and replaced**: Maisak et al. (2013) turned out to be dominated by circular stimulus structure rather than real tuning signal; the Henning et al. (2022) dataset provides a validated non-circular replacement ([item 2](METHODS.md#2-is-the-biological-reference-actually-measuring-direction-tuning)).
 - **On mouse visual cortex (MICrONS)**, wiring reliably predicts functional geometry under fixed, non-trained simulation. Real connectivity beats distance-constrained and cell-type-shuffled null wiring decisively, but is not distinguishable from a degree-preserving null, suggesting degree structure specifically, not finer wiring detail, accounts for the connectome's resemblance to real neural activity. Whether excitatory/inhibitory structure carries additional signal beyond degree remains an open, unresolved question.
-
-## Background
-
-Brunton et al. (2026) demonstrated that a connectome, taken from one species (*C. elegans*) and used to control the body of another (*Drosophila*), can produce realistic behavior even when only a downstream interface is trained. The connectome's own synaptic weights and cellular parameters were never optimized; behavior emerged entirely from training the decoder mapping its outputs to the target body. The authors note this role could be fulfilled equally well by a randomly connected network, since all the learning happens in the decoder, this shows behavioral fidelity is achievable without biological fidelity: a model can look right without its underlying structure being correct. That raises a direct question: **if behavior alone can't verify fidelity, what can?**
-
-This project tests one candidate, **representational geometry**, asking whether the structure of a population's response patterns can distinguish a real connectome from a random one, in a way behavior alone cannot.
 
 ## Full Methodology & Results
 
