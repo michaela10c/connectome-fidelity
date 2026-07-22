@@ -1,7 +1,8 @@
-Representational Geometry as a Fidelity Metric for Connectome-Constrained Neural Emulations: Evidence from Drosophila and Mouse Visual Systems
+# Representational Geometry as a Fidelity Metric for Connectome-Constrained Neural Emulations: Evidence from *Drosophila* and Mouse Visual Systems
 
-Author: Michael Zhou
-Current Advisor: Prof. Jennifer Hasler
+**Author**: Michael Zhou
+
+**Current Advisor**: Prof. Jennifer Hasler
 
 ## Background
 
@@ -149,8 +150,6 @@ The degree-preserving result holds up, genuinely null, not just null by small sa
 
 One direction this resampling can't rule out, worth naming rather than leaving implicit: downsampling CC tests whether the reported effect was real, not whether a smaller real effect exists that n=10 simply lacks the power to detect. Erdős-Rényi's resampled p-values ranged from 0.04 to 0.21 across draws, wider than degree-preserving swap's, consistent with limited power at this sample size, not necessarily a hidden effect, but not fully ruled out either. Closing this would require training the null schemes up, not resampling CC down. Concretely: wiring files already exist for both schemes up to n=25 (no new generation needed, training only), so extending each null scheme from n=10 to n=25 is a scoped, costed option, roughly 16 days and $90 of compute on a single GPU, sequential pairs, the only configuration tested to actually work at this pace. Going the full distance to n=50 for an exact match to CC would cost closer to 42 days and $260. Neither has been run; this is flagged as a specific, ready next step if the question warrants it, not attempted here.
 
-Q: Given the resampled Erdős-Rényi p-values sit in a genuinely ambiguous range (0.04-0.21 across draws, consistent with either a real small effect or just limited power at n=10), is the ~16-day, ~$90 n=25 scale-up worth running to resolve this, or would you treat the current result as an honest, reportable null as-is, with the power caveat stated plainly? Curious how you'd weigh that tradeoff given your own experience with hierarchical null-model designs.
-
 **Method B: Direct RDM comparison, no biological reference**
 
 Item 1 already established, using individual-pairwise RDM correlation rather than a biology-mediated statistic, that real and random wiring are distinguishable when untrained (Table 0). The same method, applied now to each null scheme's final, fully-trained checkpoint instead of checkpoint 0, gives a second, independent answer to this section's question.
@@ -260,10 +259,6 @@ Von Mises reaches significance twice, degree-preserving swap alone and the poole
 
 Answer: on the more trustworthy reference, no significant evidence that wiring realization determines the direction of a network's fidelity trend, in either scheme, alone or combined. That leans toward training-process randomness, though genuine individual heterogeneity, some networks cluster tightly (0002 in both schemes), others scatter or flip entirely, means the test may simply remain underpowered even at n=8 rather than cleanly resolving in favor of either explanation.
 
-Q: Does the direction of a network's fidelity trend depend on the specific realization of its wiring, or on training-process randomness unrelated to wiring at all? Given your background in dynamical systems and stability analysis, does the Frankle et al. framing (same starting point, different SGD noise, distinct basins) seem like a reasonable lens for this, even though it's a different kind of dynamical system than the ones you typically work with, or is there a different mechanism you'd reach for first?
-
-Q: Separately, two individual networks show internal dynamics that don't fit either simple story above. 0009's two retrained replicates independently converge on the same distinctive shape, an early swing away from the original's direction, then a partial recovery toward it. 0007's three trajectories (original and two replicates) show three qualitatively different dynamics from identical wiring: a reversal one way, a reversal the mirror-image other way, and no reversal at all. Do either of these look like recognizable dynamical signatures to you, something closer to a genuine bifurcation or basin-switching structure, or would you want to see something else, the full trajectories rather than just these summary numbers, before reading anything into the shape itself?
-
 ## Answer to the Brunton Question
 
 At the population level, whether geometry distinguishes real from random wiring once both are trained depends on which method is used. The biology-mediated comparison finds a clean null: real and trained-random wiring are statistically indistinguishable. The direct RDM comparison finds something more qualified: training narrows the gap substantially, but real wiring stays distinguishable in every case except one, trained Erdős-Rényi on OFF-polarity structure, where it closes completely. Either way, this is a stronger test of Brunton's claim than her own paper provides, since she never trained the connectome itself, but the honest answer is "mostly no, with one clean exception," not an unqualified null.
@@ -285,13 +280,3 @@ The literal trained-wiring test from the fly work, real versus random wiring aft
 Note: The mouse findings above are static-wiring results, real and informative on their own terms, but they don't independently complete Brunton's training-specific question the way the fly work's Experiment 5 does, since nothing in this pipeline is ever trained, on either the real or null side.
 
 Happy to go deeper on the mouse side separately if useful.
-
-Q: Your work (Kim & Choi 2026, Phys. Rev. E 113: 054406) shows PV self-inhibition specifically, not heterogeneity generally, is what stabilizes long-range SST projections in a spatially structured mean-field model of V1. Does that result transfer to a real, irregular, measured connectome at roughly 1/40th the scale, or would you expect it to break down in ways your framework predicts?
-
-## Logistical Questions
-
-**SfN:** Will you be at SfN in November? It would be great to connect there too, especially if the instability-analysis result and the mouse side have moved further along by then.
-
-**Brunton outreach:** I've actually been corresponding with Bing Wen Brunton since April, her Digital Sphinx finding is the whole motivation for this project. We got close to an actual call in early May but I had to reschedule for medical reasons, and despite a few follow-ups since, we haven't managed to connect live. I sent her the finished preprint in mid-June with no response yet. Would you have any advice on next steps, whether it's worth another follow-up, a different approach, or just patience given how these things go?
-
-**COSYNE:** You've been on the COSYNE program committee for the past three years, do you think this line of work, once the instability-analysis result is in and the mouse side has matured further, would be a good fit for a Cosyne submission? Curious what that community tends to value differently from SfN's broader audience.
