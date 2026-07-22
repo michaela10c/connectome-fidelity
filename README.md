@@ -67,8 +67,6 @@ Answer: Yes, geometry distinguishes real from random wiring when untrained, for 
 
 ![Figure 2](figures/moving_edge_on_off_rdms_50models_full_shiu.png)
 
-*(⚠️ filename above is identical to Figure 1's, likely a copy-paste error, since this figure's caption describes different content, ON+OFF/24 conditions vs. Figure 1's ON-only/12 conditions. Confirm the correct filename before this renders as intended.)*
-
 **Figure 2.** Representational dissimilarity matrices for connectome-constrained (CC) and random-wiring networks, shown under cosine distance (left two panels) and Euclidean distance (right two panels), across 24 stimulus conditions (12 directions × ON/OFF polarity, n=50 models). CC networks show a sharp, regular checkerboard pattern reflecting consistent ON/OFF discrimination across all directions; random networks show this structure only weakly (cosine) or not at all (Euclidean). Note the Euclidean color scales differ substantially between CC and random panels (0-30 vs. 0-100,000) and are not directly comparable in raw magnitude.
 
 ![Figure 3](figures/untrained_rdms.png)
