@@ -1,7 +1,7 @@
-Representational Geometry as a Fidelity Metric for Connectome-Constrained Neural Emulations: Evidence from Drosophila and Mouse Visual Systems
+# Representational Geometry as a Fidelity Metric for Connectome-Constrained Neural Emulations: Evidence from Drosophila and Mouse Visual Systems
 
-Author: Michael Zhou
-Current Advisor: Prof. Jennifer Hasler
+**Author**: Michael Zhou
+**Current Advisor**: Prof. Jennifer Hasler
 
 ## Background
 
