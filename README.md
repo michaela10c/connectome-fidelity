@@ -1,6 +1,6 @@
 # Representational Geometry as a Fidelity Metric for Connectome-Constrained Neural Emulations
 
-**Evidence from Drosophila and Mouse Visual Systems.** Testing whether the pattern of similarity between a population's responses to different stimuli, representational geometry, can distinguish real connectome wiring from random wiring where behavior alone cannot, directly extending Brunton et al. (2026)'s finding that behavioral fidelity doesn't require biological fidelity.
+**Evidence from *Drosophila* and Mouse Visual Systems.** Testing whether the pattern of similarity between a population's responses to different stimuli, representational geometry, can distinguish real connectome wiring from random wiring where behavior alone cannot, directly extending Brunton et al. (2026)'s finding that behavioral fidelity doesn't require biological fidelity.
 
 **Author:** Michael Zhou · **Advisor:** Prof. Jennifer Hasler
 
