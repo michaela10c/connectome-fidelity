@@ -282,5 +282,3 @@ The literal trained-wiring test from the fly work, real versus random wiring aft
 
 Note: The mouse findings above are static-wiring results, real and informative on their own terms, but they don't independently complete Brunton's training-specific question the way the fly work's Experiment 5 does, since nothing in this pipeline is ever trained, on either the real or null side.
 
-Happy to go deeper on the mouse side separately if useful.
-
