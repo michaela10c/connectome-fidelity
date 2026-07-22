@@ -1,8 +1,82 @@
-# Representational Geometry as a Fidelity Metric for Connectome-Constrained Neural Emulations: Evidence from *Drosophila* and Mouse Visual Systems
+# Representational Geometry as a Fidelity Metric for Connectome-Constrained Neural Emulations
 
-**Author**: Michael Zhou
+**Evidence from Drosophila and Mouse Visual Systems.** Testing whether the pattern of similarity between a population's responses to different stimuli, representational geometry, can distinguish real connectome wiring from random wiring where behavior alone cannot, directly extending Brunton et al. (2026)'s finding that behavioral fidelity doesn't require biological fidelity.
 
-**Current Advisor**: Prof. Jennifer Hasler
+**Author:** Michael Zhou · **Advisor:** Prof. Jennifer Hasler
+
+## Paper Details
+
+**Preprint:** [doi.org/10.64898/2026.06.10.731214](https://doi.org/10.64898/2026.06.10.731214)
+
+⚠️ The published preprint predates most of the content in this README (item 1's untrained-null-scheme extension, item 3's Method B, the OFF-polarity Erdős–Rényi finding, item 5's full K=8 result). This README is the current, up-to-date account; treat the DOI'd version as the last formally published snapshot, not the latest results.
+
+```bibtex
+@misc{zhou2026representational,
+  title        = {Representational Geometry as a Fidelity Metric for Connectome-Constrained Neural Emulations},
+  author       = {Zhou, Michael},
+  year         = {2026},
+  doi          = {10.64898/2026.06.10.731214},
+  url          = {https://doi.org/10.64898/2026.06.10.731214}
+}
+```
+
+## Table of Contents
+
+- [Paper Details](#paper-details)
+- [Setup Requirements](#setup-requirements)
+- [Quick Start](#quick-start)
+- [Data & Reproducibility](#data--reproducibility)
+- [Key Findings](#key-findings)
+- [Background](#background)
+- [Fly Connectome](#fly-connectome)
+  - [1. Can geometry tell real wiring from random wiring?](#1-can-geometry-tell-real-wiring-from-random-wiring)
+  - [2. Is the biological reference actually measuring direction tuning?](#2-is-the-biological-reference-actually-measuring-direction-tuning)
+  - [3. Does geometry distinguish real wiring from trained random wiring?](#3-does-geometry-distinguish-real-wiring-from-trained-random-wiring)
+  - [4. Is the negative-trending pattern driven by training, or by wiring?](#4-is-the-negative-trending-pattern-driven-by-training-or-by-wiring)
+  - [5. Does wiring identity or training randomness determine that direction?](#5-does-wiring-identity-or-training-randomness-determine-that-direction)
+- [Answer to the Brunton Question](#answer-to-the-brunton-question)
+- [Mouse Connectome](#mouse-connectome)
+- [License & Acknowledgments](#license--acknowledgments)
+- [References](#references)
+
+## Setup Requirements
+
+- **Python 3.12**
+- **[Flyvis](https://github.com/TuragaLab/flyvis) 1.1.3** (`pip install -e .[examples]`), the connectome-constrained Drosophila visual system model this project is built on
+- **PyTorch with CUDA** (developed against CUDA 12.8)
+- **GPU**: all training and evaluation in this project ran on a single Quadro RTX 8000 (46GB); any CUDA-capable GPU with comparable memory should work, but per-checkpoint evaluation is CPU/single-GPU-bound, not something that benefits from multi-GPU parallelism (tested directly, found slower, not faster)
+- `scipy`, `numpy`, `matplotlib` for the analysis and plotting scripts
+
+## Quick Start
+
+Once Flyvis is installed and the required data is in place (see [Data & Reproducibility](#data--reproducibility) below), the untrained real-vs-random comparison from item 1 can be reproduced with:
+
+```bash
+python test_item1_all_null_schemes.py \
+    --n_models 10 --n_permutations 10000 \
+    --results_root /path/to/trained/null/networks \
+    --polarity on_off --checkpoint first
+```
+
+This is a real, verified command from this project's own analysis pipeline, not a simplified illustration. Swap `--checkpoint first` for `--checkpoint last` to reproduce the trained comparison, or `--stimulus_set henning_8dir` for the Henning condition.
+
+## Data & Reproducibility
+
+Reproducing this work end to end requires two things that aren't bundled in this repository:
+
+1. **The pretrained Flyvis ensemble.** `flyvis download-pretrained` does **not** provide the `flow/0000/000...049` ensemble structure this project's scripts expect, this was confirmed directly during this project (the download succeeds and passes its checksum, but unpacks connectome/rendering data, not trained model checkpoints). Where this real ensemble came from originally is not fully resolved; the practical workaround used throughout this project is the saved population-vector files below, which don't require re-deriving the ensemble at all.
+2. **The trained null-scheme networks** (degree-preserving swap, Erdős–Rényi), custom-trained for this project through Flyvis's own training pipeline. These are not currently packaged for external distribution.
+
+What *is* directly reusable without either of the above: the saved real-CC population matrices (`results_exp1_50models_full_shiu.npz`, `results_exp2_50models_full_shiu.npz`, `results_exp1_8dir_50models_full_shiu.npz`), each containing pre-computed per-model population vectors and RDMs for the pretrained ensemble under a specific stimulus condition. Any of item 1 or item 3's real-CC-side comparisons can be rerun directly against these files.
+
+## Key Findings
+
+- **Untrained real wiring is clearly distinguishable from random wiring** by representational geometry, for every null scheme and stimulus condition tested (Table 0).
+- **Once both are actually trained**, that distinction narrows substantially, and in one specific case (Erdős–Rényi, OFF-polarity structure) closes completely to statistical indistinguishability, the direct test of Brunton et al.'s untested prediction (item 3).
+- **Convergence with training is abrupt, not gradual**: nearly the entire shift happens within the first few percent of a network's training run, then plateaus for the rest (Figure 6).
+- **What determines a network's individual fidelity trend appears to be training-process randomness, not wiring identity**, no significant evidence on the more trustworthy reference that wiring realization drives the direction a given network's trend takes (item 5).
+- **The original biological reference was invalidated and replaced**: Maisak et al. (2013) turned out to be dominated by circular stimulus structure rather than real tuning signal; the Henning et al. (2022) dataset provides a validated non-circular replacement (item 2).
+- **On mouse visual cortex (MICrONS)**, wiring reliably predicts functional geometry under fixed, non-trained simulation, and this specificity narrows to one structural property in particular: scrambling excitatory/inhibitory composition breaks the relationship; scrambling degree, space, or cell type does not.
 
 ## Background
 
@@ -280,3 +354,32 @@ The literal trained-wiring test from the fly work, real versus random wiring aft
 Note: The mouse findings above are static-wiring results, real and informative on their own terms, but they don't independently complete Brunton's training-specific question the way the fly work's Experiment 5 does, since nothing in this pipeline is ever trained, on either the real or null side.
 
 Happy to go deeper on the mouse side separately if useful.
+
+## License & Acknowledgments
+
+**License:** Not yet assigned. *(Placeholder, worth a deliberate decision before this repository is made public, rather than defaulting to one.)*
+
+**Acknowledgments:**
+
+- Built on [Flyvis](https://github.com/TuragaLab/flyvis) (Lappalainen et al. 2024), the connectome-constrained Drosophila visual system model this project's entire fly-side analysis depends on.
+- The mouse-side work uses the MICrONS connectome and co-registered functional recordings.
+- Thanks to Prof. Jennifer Hasler for ongoing advising, and to Prof. Hannah Choi for feedback that shaped several of the methodological corrections in this document.
+- This project exists because of Brunton et al. (2026)'s Digital Sphinx finding, which raised the question this whole line of work tries to answer.
+
+## References
+
+Brunton, B. W. et al. (2026). *Digital Sphinx.* [Add full citation once available.]
+
+Frankle, J., Dziugaite, G. K., Roy, D. M., & Carbin, M. (2020). Linear mode connectivity and the lottery ticket hypothesis. *Proceedings of the 37th International Conference on Machine Learning.*
+
+Henning, M., Ramos-Traslosheros, G., Gür, B., & Silies, M. (2022). Populations of local direction-selective cells encode global motion patterns generated by self-motion. *eLife.*
+
+Kim, J. Z. & Choi, H. (2026). PV self-inhibition stabilizes long-range SST projections in a spatially structured mean-field model of V1. *Physical Review E*, 113, 054406.
+
+Kriegeskorte, N., Mur, M., & Bandettini, P. (2008). Representational similarity analysis – connecting the branches of systems neuroscience. *Frontiers in Systems Neuroscience.*
+
+Lappalainen, J. K. et al. (2024). Connectome-constrained deep mechanistic networks predict neural responses across the fly visual system at single-neuron resolution. *Nature.*
+
+Maisak, M. S. et al. (2013). A directional tuning map of Drosophila elementary motion detectors. *Nature.*
+
+*Full citations for entries marked incomplete above should be verified against the actual published sources before this document is shared externally.*
