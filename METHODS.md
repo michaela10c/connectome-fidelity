@@ -72,7 +72,7 @@ This turns out to have a specific, identifiable cause. ON+OFF's 24-condition RDM
 
 One further asymmetry surfaced by this decomposition, not yet explained: the real CC ensemble's own within-CC consistency is itself lower on OFF-only structure (r = 0.634) than on ON-only structure (r = 0.838), independent of any null-scheme comparison. Worth flagging as a separate, standalone observation rather than folding into the wiring-distinguishability question.
 
-**<u>Answer:</u>** **Yes, geometry distinguishes real from random wiring when *untrained*, for both topology-randomizing null schemes items 3-5 depend on, not just the original weight-shuffled baseline.** ON+OFF's smaller gap isn't a real exception, it reflects dilution by shared ON/OFF-discrimination structure, and disappears once within-polarity structure is isolated. Whether this distinction survives once random wiring is actually trained, the same question item 3 asks through a biology-mediated method, is addressed there directly, using this same individual-pairwise approach as a second, independent method.
+**<u>Answer:</u>** **Yes, geometry distinguishes real from random wiring when untrained, for both topology-randomizing null schemes items 3-5 depend on, not just the original weight-shuffled baseline.** ON+OFF's smaller gap isn't a real exception, it reflects dilution by shared ON/OFF-discrimination structure, and disappears once within-polarity structure is isolated. Whether this distinction survives once random wiring is actually trained, the same question item 3 asks through a biology-mediated method, is addressed there directly, using this same individual-pairwise approach as a second, independent method.
 
 ![Figure 1](figures/moving_edge_on_rdms_50models_full_shiu.png)
 
@@ -130,7 +130,7 @@ A follow-up test on the real data itself adds a reassuring, complementary result
 
 Both are far above anything pure noise could produce under either pipeline (Table 2a), the Henning dataset carries substantial, genuine, replicable signal regardless of reconstruction method. The gap between the two methods persists here too, though, and in the same direction: fitted is not just higher but also three times more consistent across resamples, a pattern consistent with the fitting step smoothing over real cell-to-cell heterogeneity that raw data preserves rather than manufacturing structure from nothing. Both versions are used throughout what follows, but where they disagree, raw should be read as the more trustworthy reference.
 
-**<u>Answer:</u>** **No, not entirely. The original reference was measuring circular stimulus structure more than direction tuning.** The Henning dataset provides a validated non-circular replacement.
+**<u>Answer:</u>** **No, not entirely. The original reference was measuring circular stimulus structure more than direction tuning.** The Henning dataset is still substantially circular, but has a meaningfully smaller circular component than Maisak, and **the non-circular remainder has been independently validated, via split-half reliability tested against a synthetic-noise floor, as genuine, reproducible signal rather than reconstruction artifact.**
 
 ### 3. Does geometry distinguish real wiring from trained random wiring?
 
