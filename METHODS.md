@@ -274,7 +274,42 @@ That leans toward training-process randomness, though genuine heterogeneity acro
 
 ## Mouse Connectome
 
-A parallel line of work applies the same representational-geometry framework to mouse visual cortex, using the MICrONS connectome instead of Flyvis. Under fixed, non-trained simulation, wiring reliably predicts functional geometry. Testing this against three structured null schemes (100 seeds per family), real connectivity beats every null: degree-preserving (z = 13.6), distance-constrained (z = 18.8), and cell-type-shuffled (z = 21.1), all p ≤ 0.01. But this structural test holds the simulation fixed on the real connectome and only varies the null, which is somewhat circular. Re-running the full simulation on each null connectome and comparing directly against measured biology (N = 50 per family) gives a sharper answer: real connectivity still beats distance-constrained (z = 5.92, p = 0.020) and cell-type-shuffled (z = 12.44, p = 0.020) nulls decisively, but is not distinguishable from a degree-preserving null (z = 1.30, p = 0.157, real exceeds 43 of 50 draws). The honest reading is that degree structure specifically accounts for the connectome-constrained model's resemblance to real neural activity; specific wiring beyond degree carries no biological-geometry signal detectable at this prototype's resolution. Whether excitatory/inhibitory structure carries additional signal beyond degree is a separate, still-open question: a degree-preserving null may be structurally incapable of meaningfully perturbing inhibitory wiring in the first place (dense inhibitory blocks retain 24-27% of real edges even after a twentyfold range of swap intensity), so this hasn't been resolved into a clean result yet.
+A parallel line of work applies the same representational-geometry framework to mouse visual cortex, using the MICrONS connectome instead of Flyvis.
+
+The first test is static, no simulation at all: does the real connectome's wiring geometry, on its own, predict measured functional geometry (a signal-correlation RDM built directly from calcium imaging) better than structured-random wiring does?
+
+**Table 8.** Static structure-to-function RSA, real connectome vs. three structured null schemes (n = 899 neurons, no simulation).
+
+| Model | Spearman r | Permutation p |
+|---|---|---|
+| Real connectome | 0.026 | < 0.001 |
+| Degree-preserving | −0.006 | 0.42 |
+| Distance-constrained | 0.003 | 0.65 |
+| Cell-type-block-shuffled | 0.001 | 0.80 |
+
+Only the real connectome shows a significant relationship; all three structured nulls sit at r ≈ 0. No single wiring statistic, degree, spatial proximity, or cell-type-block structure, reproduces the relationship on its own, it requires the specific connectivity. This is a necessary precondition for the fidelity question, not an answer to it: if wiring geometry didn't predict functional geometry at all, there would be no basis for expecting a simulation built on that wiring to be faithful either. It establishes that the wiring carries a functional signal worth simulating, which motivates the two simulation-based tests below.
+
+Under fixed, non-trained simulation, wiring reliably predicts functional geometry.
+
+**Table 9.** Structural test: real connectivity vs. three structured null schemes, holding the simulation fixed on the real connectome (100 seeds per null family).
+
+| Null scheme | z | p |
+|---|---|---|
+| Degree-preserving | 13.6 | ≤ 0.01 |
+| Distance-constrained | 18.8 | ≤ 0.01 |
+| Cell-type-shuffled | 21.1 | ≤ 0.01 |
+
+Real connectivity beats every null here, but this test is somewhat circular, it holds the simulation fixed on the real connectome and only varies the null. Re-running the full simulation on each null connectome and comparing directly against measured biology gives a sharper answer.
+
+**Table 10.** Null-through-simulation test: real connectivity vs. the same three null schemes, each fully re-simulated (N = 50 per null family).
+
+| Null scheme | z | p | Real exceeds |
+|---|---|---|---|
+| Degree-preserving | 1.30 | 0.157 | 43/50 |
+| Distance-constrained | 5.92 | 0.020 | 50/50 |
+| Cell-type-shuffled | 12.44 | 0.020 | 50/50 |
+
+Real connectivity still beats distance-constrained and cell-type-shuffled nulls decisively, but is not distinguishable from a degree-preserving null. The honest reading is that degree structure specifically accounts for the connectome-constrained model's resemblance to real neural activity; specific wiring beyond degree carries no biological-geometry signal detectable at this prototype's resolution. Whether excitatory/inhibitory structure carries additional signal beyond degree is a separate, still-open question: a degree-preserving null may be structurally incapable of meaningfully perturbing inhibitory wiring in the first place (dense inhibitory blocks retain 24-27% of real edges even after a twentyfold range of swap intensity), so this hasn't been resolved into a clean result yet.
 
 Two further attempts to push this toward more biological realism, cell-type-specific weighting and a conductance-based simulation (motivated directly by Kim & Choi's own finding that conductance-based synapses are necessary for cell-type-specific effects), both produced real, negative results and were not pursued further. That degree structure alone accounts for the biological-geometry signal, while added realism didn't rescue a weaker one, is itself informative: the method is sensitive to a specific kind of structural property, not just noise, but the current prototype's resolution may simply be too coarse to detect anything finer.
 
