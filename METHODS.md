@@ -155,21 +155,23 @@ One direction this resampling can't rule out, worth naming rather than leaving i
 
 **Method B: Direct RDM comparison, no biological reference**
 
-Item 1 already established, using individual-pairwise RDM correlation rather than a biology-mediated statistic, that real and random wiring are distinguishable when untrained (Table 0). The same method, applied now to each null scheme's final, fully-trained checkpoint instead of checkpoint 0, gives a second, independent answer to this section's question.
+Item 1 already established, using individual-pairwise RDM correlation rather than a biology-mediated statistic, that real and random wiring are distinguishable when untrained (Table 0). The same method, applied now across every checkpoint of training rather than just checkpoint 0, gives a second, independent answer to this section's question, and a direct look at how that distinction evolves, not just whether it survives.
 
-![Figure 5](figures/training_convergence_start_end.png)
+Every checkpoint of every network was evaluated for all three stimulus conditions (n=10 networks per scheme, 71-72 checkpoints each).
 
-**Figure 5.** Individual-pairwise CC-vs-null wiring similarity, before and after training, across three stimulus conditions and both null schemes. Each line connects one comparison's untrained value (checkpoint 0) to its trained value (final checkpoint); color indicates stimulus condition, marker shape indicates null scheme. ON-only and Henning 8-direction, the two conditions with essentially no untrained relationship, both converge sharply toward the within-CC baseline once trained. ON+OFF, already substantially converged before training, shows almost no further shift. The pattern holds nearly identically for both null schemes within each stimulus condition, indicating the size of the shift is governed by how much separation existed to begin with, not by which wiring scheme is used.
+![Figure 5](figures/trajectory_convergence_on.png)
 
-Training produces real, substantial convergence, but the convergence amount depends entirely on how much separation existed beforehand, not on which null scheme is used. The two conditions that started at near-zero relationship, ON-only and Henning, both converge sharply with training (average shift +0.588). ON+OFF, already partly converged before training even began, barely moves (average shift +0.026, more than 20-fold smaller). Both null schemes behave near-identically within each stimulus condition; this is a property of training interacting with the untrained starting point, not something specific to either wiring scheme.
-
-This compares only the first and last checkpoints, not the trajectory between them, and the follow-up has since been run. Every checkpoint of every network was evaluated for the Henning 8-direction condition (n=10 networks per scheme, 71-72 checkpoints each).
+**Figure 5.** Individual-pairwise CC-vs-null mean r across every checkpoint, ON-only, both null schemes, against the within-CC baseline (dashed). Starting from essentially no relationship (checkpoint 0: −0.023 degree-preserving, +0.256 Erdős–Rényi), both schemes rise sharply within the first 10-20 checkpoints, degree-preserving briefly nears the baseline itself (peak ≈0.80 around checkpoint 20) before settling back, then both plateau in a noisy band through the rest of training (final: 0.695 and 0.707, against a baseline of 0.838).
 
 ![Figure 6](figures/trajectory_convergence_henning.png)
 
-**Figure 6.** Individual-pairwise CC-vs-null mean r across every checkpoint, Henning 8-direction, both null schemes, against the within-CC baseline (dashed). Convergence is abrupt, not gradual: nearly the entire rise from near-zero to ~0.6 happens within the first 2-3 checkpoints. From checkpoint ~10 onward, roughly 86% of the full training run, both schemes plateau in a stable band (0.58-0.75) with no further net movement, well short of the within-CC baseline (~0.79). Both null schemes track each other closely throughout, reinforcing that this is a property of training dynamics generally, not either scheme specifically.
+**Figure 6.** Individual-pairwise CC-vs-null mean r across every checkpoint, Henning 8-direction, both null schemes, against the within-CC baseline (dashed). The same pattern as ON-only: near-zero start, abrupt rise within the first 2-3 checkpoints, then a long, stable plateau (0.58-0.75) for the remaining ~86% of training, well short of the baseline (~0.79).
 
-The full trajectory resolves the question cleanly: this is neither gradual convergence nor a non-monotonic process, it's a fast, early jump followed by a long, stable plateau that never fully closes the gap. The checkpoint-0-vs-final comparison used elsewhere in this analysis was not missing a slow developing story, nearly all the signal it captured was already present within the first few percent of training.
+![Figure 7](figures/trajectory_convergence_onoff.png)
+
+**Figure 7.** Individual-pairwise CC-vs-null mean r across every checkpoint, ON+OFF, both null schemes, against the within-CC baseline (dashed). No jump at all: both schemes start already near their final level (checkpoint 0: 0.761 degree-preserving, 0.794 Erdős–Rényi) and simply oscillate in that same range for the entire run (final: 0.803 and 0.807, against a baseline of 0.850). Degree-preserving shows occasional sharp, transient drops (checkpoints ~17 and ~38, down to ~0.72-0.73) that Erdős–Rényi doesn't, a volatility asymmetry not clearly present in the other two conditions.
+
+All three trajectories resolve the question with one unified rule: **the shape of a network's convergence trajectory is set entirely by how much distinguishability existed at checkpoint 0, not by wiring scheme, not by a separate gradual training process.** ON-only and Henning both started with essentially no untrained relationship and both show the same abrupt-jump-then-plateau shape. ON+OFF started already close to its final value and shows no jump at all, just noise around an already-settled level, because there was nothing left to converge toward. This is neither gradual convergence nor a non-monotonic process in any of the three conditions; it's fast equilibration to whatever level a given condition settles at, followed by stable noise, and how large that initial jump looks depends entirely on how far the starting point was from that level. The checkpoint-0-vs-final comparisons used elsewhere in this analysis were not missing a slow developing story in any condition, nearly all the signal each one captured was already present within the first few percent of training.
 
 **Table 5.** Within-polarity decomposition, ON+OFF, individual-pairwise CC-vs-null, trained.
 
@@ -214,9 +216,9 @@ This is now a genuinely solid finding, not a partial one: the matched CC-vs-untr
 
 All 20 trained networks (both null schemes, 10 each) were evaluated at every available checkpoint across their full 250,000-iteration training run, not just at the end, to see whether the negative trend develops gradually.
 
-![Figure 7](figures/training_trajectory_plot.png)
+![Figure 8](figures/training_trajectory_plot.png)
 
-**Figure 7.** Fidelity vs. training progress for all 20 trained networks, both biological references. X marks on the lower axis indicate checkpoints excluded by a precision guard. Individual trajectories are visibly coherent, not random jitter, but fan out in both directions from near zero with no shared population-level trend.
+**Figure 8.** Fidelity vs. training progress for all 20 trained networks, both biological references. X marks on the lower axis indicate checkpoints excluded by a precision guard. Individual trajectories are visibly coherent, not random jitter, but fan out in both directions from near zero with no shared population-level trend.
 
 The answer is yes, but not in the way a single "training pushes fidelity down" story would predict. Individual networks show strong, statistically robust trends over their own training, several reach |ρ| above 0.7-0.9 at p < 0.0001, genuine effects, not noise. But the direction is idiosyncratic per network: within the degree-preserving scheme alone, four networks trend strongly negative while five trend strongly positive, same scheme, same recipe, opposite directions. A sign test across all 20 networks finds no consistent direction (11/20 negative, p = 0.82 von Mises; 13/20 negative, p = 0.26 raw), while a combined significance test is overwhelming on both references (χ² = 260.4, p < 0.0001 von Mises; χ² = 250.3, p < 0.0001 raw), strong evidence that something real happens within nearly every network, just not the same something.
 
@@ -236,9 +238,9 @@ This maps directly onto an established result in the deep learning literature. F
 
 Eight seed networks were tested: five from item 4's degree-preserving scheme (three negative, two positive), and three from Erdős–Rényi (all negative, the only direction that scheme shows). Networks were ranked by von Mises rho, the lead reference in items 3-4, though its fitting step is now known to inflate spurious correlation (item 2), so this selection carries that same caveat, both references are still evaluated in the actual comparison below, so any discrepancy would be visible. One seed was added specifically to test this: a network raw ranks as its strongest negative trend but von Mises rates as flat. The rest were chosen for having the strongest, most unambiguous original signal in each group, only a strong original trend makes the replicate comparison interpretable, and spanning both directions guards against a direction-specific confound. Each network was retrained twice from identical wiring with different training-noise seeds.
 
-![Figure 8](figures/replicate_seeds_degree_preserving_swap.png)
+![Figure 9](figures/replicate_seeds_degree_preserving_swap.png)
 
-**Figure 8.** Replicate rho per seed network, both references, all five degree-preserving networks. 0002 clusters tightly; 0003 and 0005 show real internal scatter but stay same-signed as their own original.
+**Figure 9.** Replicate rho per seed network, both references, all five degree-preserving networks. 0002 clusters tightly; 0003 and 0005 show real internal scatter but stay same-signed as their own original.
 
 0007 and 0009 looked like the same pattern at first, an apparent clean sign flip from original to replicates, but they turn out to be three different things once the full trajectory is examined, not just two. 0007's own original trajectory reverses direction mid-training (first-half rho −0.819, second-half +0.736), the near-zero full-trajectory value that got it selected in the first place was never a real "flat" signal, it was two opposing trends canceling out. Checking its replicates' own full trajectories reveals something sharper than a simple mismatch: seed1 also reverses, but in the opposite temporal order, positive first, then negative, the mirror image of the original, while seed2 shows no reversal at all, stable and monotonic throughout. Three qualitatively different dynamics from one wiring, not just three different endpoints.
 
@@ -246,9 +248,9 @@ Eight seed networks were tested: five from item 4's degree-preserving scheme (th
 
 Neither pattern is explained by the aggregate wiring-vs-noise test below. 0007 in particular looks less like scatter and more like a wiring sitting near a genuine bifurcation, capable of distinct dynamical regimes depending on training noise, arguably a closer match to Frankle et al.'s basin-switching framing than the population-level result itself.
 
-![Figure 9](figures/replicate_seeds_erdos_renyi.png)
+![Figure 10](figures/replicate_seeds_erdos_renyi.png)
 
-**Figure 9.** Replicate rho per seed network, both references, all three Erdős–Rényi networks. 0002 shows the tightest clustering of any network in the entire experiment, especially on raw. 0004 and 0006 each scatter, and in both cases the two references disagree sharply within the same network, von Mises suggesting real clustering where raw shows none.
+**Figure 10.** Replicate rho per seed network, both references, all three Erdős–Rényi networks. 0002 shows the tightest clustering of any network in the entire experiment, especially on raw. 0004 and 0006 each scatter, and in both cases the two references disagree sharply within the same network, von Mises suggesting real clustering where raw shows none.
 
 **Table 7.** Permutation test results, replicate rho as within- vs. between-group scatter.
 
