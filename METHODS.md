@@ -31,11 +31,20 @@ Five experiments test this, building on each other:
 
 Using the pretrained Flyvis ensemble (Lappalainen et al. 2024), I compared connectome-constrained (CC) networks against random wiring baselines, testing whether population-level representational geometry differs between them. Random baselines here are untrained, sign-preserving connectivity shuffles, not independently trained-from-scratch networks, a distinction that matters later.
 
-Across two stimulus conditions, the ensemble-mean RDM correlation between CC and random is r = 0.686 (ON edges only, n=50, p < 0.0001) and r = 0.846 (ON+OFF edges, n=50, p < 0.0001). Taken alone, these numbers are ambiguous, both are numerically high, and could be misread as evidence of similarity rather than difference. The correct comparison is relative, not absolute: how similar CC models are to each other versus to random. Directly testing this, using every individual model pair rather than the two ensemble-mean RDMs, real CC networks are significantly more similar to each other than to random wiring, on both stimulus sets (ON: within-CC r = 0.721 vs. CC-vs-random r = 0.404, Mann-Whitney p = 1.7×10⁻³⁰⁴; ON+OFF: within-CC r = 0.838 vs. CC-vs-random r = 0.754, p = 1.2×10⁻¹⁴¹). Averaging models together before correlating, as the ensemble-mean statistic does, smooths out individual-model noise and understates this gap considerably; the individual-pairwise comparison is the one that actually supports the claim.
+Across two stimulus conditions, the ensemble-mean RDM correlation between CC and random is r = 0.686 (ON edges only, n=50, p < 0.0001) and r = 0.846 (ON+OFF edges, n=50, p < 0.0001). Taken alone, these numbers are ambiguous, both are numerically high, and could be misread as evidence of similarity rather than difference. The correct comparison is relative, not absolute: how similar CC models are to each other versus to random.
+
+**Table 0.** Individual-pairwise CC-vs-random comparison, weight-shuffled baseline, both stimulus conditions (n=50).
+
+| Stimulus set | Ensemble-mean r | Within-CC r | CC-vs-random r | Mann-Whitney p |
+|---|---|---|---|---|
+| ON-only | 0.686 | 0.721 | 0.404 | 1.7×10⁻³⁰⁴ |
+| ON+OFF | 0.846 | 0.838 | 0.754 | 1.2×10⁻¹⁴¹ |
+
+Directly testing this, using every individual model pair rather than the two ensemble-mean RDMs, real CC networks are significantly more similar to each other than to random wiring, on both stimulus sets. Averaging models together before correlating, as the ensemble-mean statistic does, smooths out individual-model noise and understates this gap considerably; the individual-pairwise comparison is the one that actually supports the claim.
 
 This weight-shuffled baseline is only one kind of random wiring, and not the one items 3-5 actually build on. Degree-preserving swap and Erdős–Rényi, the two null schemes used throughout the rest of this work, randomize the connectome's topology directly rather than shuffling a trained network's weight values in place. Worth checking directly whether "distinguishable before training" holds for these specific schemes too, using the same individual-pairwise methodology, rather than assuming it carries over.
 
-**Table 0.** Individual-pairwise CC-vs-null comparison (n=10 models each, checkpoint 0, untrained), across three stimulus conditions.
+**Table 0a.** Individual-pairwise CC-vs-null comparison (n=10 models each, checkpoint 0, untrained), across three stimulus conditions.
 
 | Stimulus set | Within-CC | Scheme | CC-vs-null r | Mann-Whitney p |
 |---|---|---|---|---|
@@ -48,7 +57,7 @@ This weight-shuffled baseline is only one kind of random wiring, and not the one
 
 Every comparison reaches significance, real wiring is distinguishable from both null schemes, untrained, across all three stimulus sets. But the size of that gap varies considerably and follows a consistent pattern: ON-only and the independent Henning 8-direction set agree closely with each other, both show degree-preserving swap essentially uncorrelated with real wiring and Erdős–Rényi showing a modest but real relationship. ON+OFF stands apart from both, showing a much smaller gap for both null schemes, still significant, but a qualitatively different picture.
 
-**Table 0a.** Within-polarity decomposition, ON+OFF, individual-pairwise CC-vs-null, untrained.
+**Table 0b.** Within-polarity decomposition, ON+OFF, individual-pairwise CC-vs-null, untrained.
 
 | Scheme | Comparison | CC-vs-null r | Mann-Whitney p |
 |---|---|---|---|
@@ -59,7 +68,7 @@ Every comparison reaches significance, real wiring is distinguishable from both 
 | Erdős–Rényi | ON-ON sub-block only | 0.259 ± 0.149 | 3.50×10⁻²² |
 | Erdős–Rényi | OFF-OFF sub-block only | 0.319 ± 0.190 | 3.93×10⁻¹⁴ |
 
-This turns out to have a specific, identifiable cause. ON+OFF's 24-condition RDM contains a component ON-only and Henning structurally cannot have: whether a stimulus is ON- or OFF-polarity, a coarse distinction plausibly reproduced by any network, real or random. Decomposing the ON+OFF RDM into its ON-ON and OFF-OFF sub-blocks and discarding the cross-polarity terms (Table 0a), both null schemes' apparent convergence disappears, landing almost exactly on the independently-run pure ON-only result from Table 0. The apparent convergence in the full ON+OFF comparison was real, but it was measuring shared ON/OFF-discrimination ability, not a genuine loss of fine-grained direction-tuning distinctiveness. ON+OFF is not a different result from ON-only and Henning, it is the same result diluted by a confound.
+This turns out to have a specific, identifiable cause. ON+OFF's 24-condition RDM contains a component ON-only and Henning structurally cannot have: whether a stimulus is ON- or OFF-polarity, a coarse distinction plausibly reproduced by any network, real or random. Decomposing the ON+OFF RDM into its ON-ON and OFF-OFF sub-blocks and discarding the cross-polarity terms (Table 0b), both null schemes' apparent convergence disappears, landing almost exactly on the independently-run pure ON-only result from Table 0a. The apparent convergence in the full ON+OFF comparison was real, but it was measuring shared ON/OFF-discrimination ability, not a genuine loss of fine-grained direction-tuning distinctiveness. ON+OFF is not a different result from ON-only and Henning, it is the same result diluted by a confound.
 
 One further asymmetry surfaced by this decomposition, not yet explained: the real CC ensemble's own within-CC consistency is itself lower on OFF-only structure (r = 0.634) than on ON-only structure (r = 0.838), independent of any null-scheme comparison. Worth flagging as a separate, standalone observation rather than folding into the wiring-distinguishability question.
 
@@ -155,7 +164,7 @@ One direction this resampling can't rule out, worth naming rather than leaving i
 
 **Method B: Direct RDM comparison, no biological reference**
 
-Item 1 already established, using individual-pairwise RDM correlation rather than a biology-mediated statistic, that real and random wiring are distinguishable when untrained (Table 0). The same method, applied now across every checkpoint of training rather than just checkpoint 0, gives a second, independent answer to this section's question, and a direct look at how that distinction evolves, not just whether it survives.
+Item 1 already established, using individual-pairwise RDM correlation rather than a biology-mediated statistic, that real and random wiring are distinguishable when untrained (Table 0a). The same method, applied now across every checkpoint of training rather than just checkpoint 0, gives a second, independent answer to this section's question, and a direct look at how that distinction evolves, not just whether it survives.
 
 Every checkpoint of every network was evaluated for all three stimulus conditions (n=10 networks per scheme, 71-72 checkpoints each).
 
@@ -182,7 +191,7 @@ All three trajectories resolve the question with one unified rule: **the shape o
 | Erdős–Rényi | ON-ON sub-block only | 0.707 ± 0.123 | 1.92×10⁻⁹ |
 | Erdős–Rényi | OFF-OFF sub-block only | 0.592 ± 0.165 | 0.087 |
 
-The untrained decomposition (Table 0a, item 1) was rerun on the trained condition too, and the result is not the same story as untrained. The ON-ON sub-block, extracted from the pooled trained data, matches the standalone trained ON-only result almost exactly (degree-preserving swap: 0.695 vs. 0.695; Erdős–Rényi: 0.707 vs. 0.706), confirming the decomposition is behaving consistently. But unlike the untrained case, where isolating within-polarity structure fully restored strong separation, trained OFF-OFF does not: it stays significant for degree-preserving swap, but loses significance entirely for Erdős–Rényi, the first non-significant CC-vs-null result anywhere in this analysis. The untrained confound explanation doesn't contradict this, it's specific to untrained wiring; once training happens, real convergence occurs within each sub-block independently, and for Erdős–Rényi on OFF-polarity structure specifically, that convergence goes all the way to statistical indistinguishability.
+The untrained decomposition (Table 0b, item 1) was rerun on the trained condition too, and the result is not the same story as untrained. The ON-ON sub-block, extracted from the pooled trained data, matches the standalone trained ON-only result almost exactly (degree-preserving swap: 0.695 vs. 0.695; Erdős–Rényi: 0.707 vs. 0.706), confirming the decomposition is behaving consistently. But unlike the untrained case, where isolating within-polarity structure fully restored strong separation, trained OFF-OFF does not: it stays significant for degree-preserving swap, but loses significance entirely for Erdős–Rényi, the first non-significant CC-vs-null result anywhere in this analysis. The untrained confound explanation doesn't contradict this, it's specific to untrained wiring; once training happens, real convergence occurs within each sub-block independently, and for Erdős–Rényi on OFF-polarity structure specifically, that convergence goes all the way to statistical indistinguishability.
 
 **<u>Answer:</u>** **No, largely, and two independent methods now agree.** Method A (biology-mediated): once properly size-matched, real and trained-random wiring are statistically indistinguishable from both null schemes, on both references. Method B (direct RDM comparison): training substantially narrows the real-vs-random gap wherever an untrained gap existed, and in one specific case, trained Erdős–Rényi on OFF-polarity structure, closes it completely to statistical indistinguishability, the only comparison across either method where that happens outright. The full trajectory confirms this convergence happens almost immediately at the start of training and then holds steady, not a gradual erosion over the full training run. The two methods converge on the same overall answer through independent routes, adding real weight to the conclusion that training, not wiring identity, is what drives the loss of distinguishability once both are compared fairly.
 
@@ -268,7 +277,7 @@ Von Mises reaches significance twice, degree-preserving swap alone and the poole
 
 At the population level, whether geometry distinguishes real from random wiring once both are trained depends on which method is used. The biology-mediated comparison finds a clean null: real and trained-random wiring are statistically indistinguishable. The direct RDM comparison finds something more qualified: training narrows the gap substantially, but real wiring stays distinguishable in every case except one, **trained Erdős-Rényi on OFF-polarity structure, where it closes completely.** Either way, this is a stronger test of Brunton's claim than her own paper provides, since she never trained the connectome itself, but **the honest answer is "mostly no, with one clean exception," not an unqualified null.**
 
-**The gap narrowing so much, even where it doesn't fully close, is real evidence that training has an effect, not evidence that training is inert.** Every trained population shows a real, statistically detectable shift in fidelity, regardless of wiring; the one population never trained at all shows no such trend, expected, since there was no training process to generate one, and distinct from item 1's separate finding that untrained real and random wiring are themselves geometrically distinguishable before any training occurs.
+**That the gap narrows so much even where it doesn't fully close isn't because training is inert.** Every trained population shows a real, statistically detectable shift in fidelity, regardless of wiring; the one population never trained at all shows no such trend, expected, since there was no training process to generate one, and distinct from item 1's separate finding that untrained real and random wiring are themselves geometrically distinguishable before any training occurs.
 
 Whether that individual-level shift is driven by wiring identity or training randomness has now been tested directly, across all eight seed networks and two null schemes. **The honest answer, on the more trustworthy reference, is a consistent null: no significant evidence that wiring identity determines the direction a network's fidelity trend takes.**
 
@@ -291,7 +300,7 @@ The first test is static, no simulation at all: does the real connectome's wirin
 
 Only the real connectome shows a significant relationship; all three structured nulls sit at r ≈ 0. No single wiring statistic, degree, spatial proximity, or cell-type-block structure, reproduces the relationship on its own, it requires the specific connectivity. This is a necessary precondition for the fidelity question, not an answer to it: if wiring geometry didn't predict functional geometry at all, there would be no basis for expecting a simulation built on that wiring to be faithful either. It establishes that the wiring carries a functional signal worth simulating, which motivates the two simulation-based tests below.
 
-**Under fixed, non-trained simulation, wiring reliably predicts functional geometry.**
+Under fixed, non-trained simulation, wiring reliably predicts functional geometry.
 
 **Table 9.** Structural test: real connectivity vs. three structured null schemes, holding the simulation fixed on the real connectome (100 seeds per null family).
 
@@ -317,5 +326,5 @@ Two further attempts to push this toward more biological realism, cell-type-spec
 
 The literal trained-wiring test from the fly work, real versus random wiring after both are trained to task adequacy, can't be run on mouse at all: no trainable, connectome-constrained model of mouse V1 currently exists. This is a scoping boundary, not an open question, closing it would mean building a new kind of model, not running an existing one further.
 
-**Note: The mouse findings above are static-wiring results, real and informative on their own terms, but they don't independently complete Brunton's training-specific question the way the fly work's Experiment 5 does, since nothing in this pipeline is ever trained, on either the real or null side.**
+Note: The mouse findings above are static-wiring results, real and informative on their own terms, but they don't independently complete Brunton's training-specific question the way the fly work's Experiment 5 does, since nothing in this pipeline is ever trained, on either the real or null side.
 
