@@ -72,7 +72,7 @@ This turns out to have a specific, identifiable cause. ON+OFF's 24-condition RDM
 
 One further asymmetry surfaced by this decomposition, not yet explained: the real CC ensemble's own within-CC consistency is itself lower on OFF-only structure (r = 0.634) than on ON-only structure (r = 0.838), independent of any null-scheme comparison. Worth flagging as a separate, standalone observation rather than folding into the wiring-distinguishability question.
 
-**<u>Answer:</u>** **Yes, geometry distinguishes real from random wiring when untrained, for both topology-randomizing null schemes items 3-5 depend on, not just the original weight-shuffled baseline.** ON+OFF's smaller gap isn't a real exception, it reflects dilution by shared ON/OFF-discrimination structure, and disappears once within-polarity structure is isolated. Whether this distinction survives once random wiring is actually trained, the same question item 3 asks through a biology-mediated method, is addressed there directly, using this same individual-pairwise approach as a second, independent method.
+**<u>Answer:</u>** **Yes, geometry distinguishes real from random wiring when *untrained*, for both topology-randomizing null schemes items 3-5 depend on, not just the original weight-shuffled baseline.** ON+OFF's smaller gap isn't a real exception, it reflects dilution by shared ON/OFF-discrimination structure, and disappears once within-polarity structure is isolated. Whether this distinction survives once random wiring is actually trained, the same question item 3 asks through a biology-mediated method, is addressed there directly, using this same individual-pairwise approach as a second, independent method.
 
 ![Figure 1](figures/moving_edge_on_rdms_50models_full_shiu.png)
 
