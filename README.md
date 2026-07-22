@@ -1,6 +1,6 @@
 # Representational Geometry as a Fidelity Metric for Connectome-Constrained Neural Emulations
 
-**Evidence from Drosophila and Mouse Visual Systems.** Testing whether the pattern of similarity between a population's responses to different stimuli, representational geometry, can distinguish real connectome wiring from random wiring where behavior alone cannot, directly extending Brunton et al. (2026)'s finding that behavioral fidelity doesn't require biological fidelity.
+**Evidence from *Drosophila* and Mouse Visual Systems.** Testing whether the pattern of similarity between a population's responses to different stimuli, representational geometry, can distinguish real connectome wiring from random wiring where behavior alone cannot, directly extending Brunton et al. (2026)'s finding that behavioral fidelity doesn't require biological fidelity.
 
 **Author:** Michael Zhou · **Advisor:** Prof. Jennifer Hasler
 
@@ -35,7 +35,7 @@
 ## Setup Requirements
 
 - **Python 3.12**
-- **[Flyvis](https://github.com/TuragaLab/flyvis) 1.1.3** (`pip install -e .[examples]`), the connectome-constrained Drosophila visual system model this project is built on
+- **[Flyvis](https://github.com/TuragaLab/flyvis) 1.1.3** (`pip install -e .[examples]`), the connectome-constrained *Drosophila* visual system model this project is built on
 - **PyTorch with CUDA** (developed against CUDA 12.8)
 - **GPU**: all training and evaluation in this project ran on a single Quadro RTX 8000 (46GB); any CUDA-capable GPU with comparable memory should work, but per-checkpoint evaluation is CPU/single-GPU-bound, not something that benefits from multi-GPU parallelism (tested directly, found slower, not faster)
 - `scipy`, `numpy`, `matplotlib` for the analysis and plotting scripts
@@ -73,7 +73,7 @@ What *is* directly reusable without either of the above: the saved real-CC popul
 
 ## Background
 
-Brunton et al. (2026) demonstrated that a connectome, taken from one species (C. elegans) and used to control the body of another (Drosophila), can produce realistic behavior even when only a downstream interface is trained. The connectome's own synaptic weights and cellular parameters were never optimized; behavior emerged entirely from training the decoder mapping its outputs to the target body. The authors note this role could be fulfilled equally well by a randomly connected network, since all the learning happens in the decoder, this shows behavioral fidelity is achievable without biological fidelity: a model can look right without its underlying structure being correct. That raises a direct question: **if behavior alone can't verify fidelity, what can?**
+Brunton et al. (2026) demonstrated that a connectome, taken from one species (*C. elegans*) and used to control the body of another (*Drosophila*), can produce realistic behavior even when only a downstream interface is trained. The connectome's own synaptic weights and cellular parameters were never optimized; behavior emerged entirely from training the decoder mapping its outputs to the target body. The authors note this role could be fulfilled equally well by a randomly connected network, since all the learning happens in the decoder, this shows behavioral fidelity is achievable without biological fidelity: a model can look right without its underlying structure being correct. That raises a direct question: **if behavior alone can't verify fidelity, what can?**
 
 This project tests one candidate, **representational geometry**, asking whether the structure of a population's response patterns can distinguish a real connectome from a random one, in a way behavior alone cannot.
 
@@ -83,7 +83,7 @@ The complete, item-by-item methodology, tables, and figures behind the findings 
 
 ## Acknowledgments
 
-- Built on [Flyvis](https://github.com/TuragaLab/flyvis) (Lappalainen et al. 2024), the connectome-constrained Drosophila visual system model this project's entire fly-side analysis depends on.
+- Built on [Flyvis](https://github.com/TuragaLab/flyvis) (Lappalainen et al. 2024), the connectome-constrained *Drosophila* visual system model this project's entire fly-side analysis depends on.
 - The mouse-side work uses the MICrONS connectome and co-registered functional recordings.
 - Thanks to Prof. Jennifer Hasler for ongoing advising, and to Prof. Hannah Choi for feedback that shaped several of the methodological corrections in this document.
 - This project exists because of Brunton et al. (2026)'s Digital Sphinx finding, which raised the question this whole line of work tries to answer.
@@ -102,4 +102,4 @@ Kriegeskorte, N., Mur, M., & Bandettini, P. (2008). Representational similarity 
 
 Lappalainen, J. K., Tschopp, F. D., Prakhya, S., et al. (2024). Connectome-constrained networks predict neural activity across the fly visual system. *Nature*, 634, 1132–1140. https://doi.org/10.1038/s41586-024-07939-3
 
-Maisak, M. S., Haag, J., Ammer, G., Serbe, E., Meier, M., Leonhardt, A., Schilling, T., Bahl, A., Rubin, G. M., Nern, A., Dickson, B. J., Reiff, D. F., Hopp, E., & Borst, A. (2013). A directional tuning map of Drosophila elementary motion detectors. *Nature*, 500(7461), 212–216. https://doi.org/10.1038/nature12320
+Maisak, M. S., Haag, J., Ammer, G., Serbe, E., Meier, M., Leonhardt, A., Schilling, T., Bahl, A., Rubin, G. M., Nern, A., Dickson, B. J., Reiff, D. F., Hopp, E., & Borst, A. (2013). A directional tuning map of *Drosophila* elementary motion detectors. *Nature*, 500(7461), 212–216. https://doi.org/10.1038/nature12320
