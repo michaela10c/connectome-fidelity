@@ -291,7 +291,7 @@ The first test is static, no simulation at all: does the real connectome's wirin
 
 Only the real connectome shows a significant relationship; all three structured nulls sit at r ≈ 0. No single wiring statistic, degree, spatial proximity, or cell-type-block structure, reproduces the relationship on its own, it requires the specific connectivity. This is a necessary precondition for the fidelity question, not an answer to it: if wiring geometry didn't predict functional geometry at all, there would be no basis for expecting a simulation built on that wiring to be faithful either. It establishes that the wiring carries a functional signal worth simulating, which motivates the two simulation-based tests below.
 
-Under fixed, non-trained simulation, wiring reliably predicts functional geometry.
+**Under fixed, non-trained simulation, wiring reliably predicts functional geometry.**
 
 **Table 9.** Structural test: real connectivity vs. three structured null schemes, holding the simulation fixed on the real connectome (100 seeds per null family).
 
