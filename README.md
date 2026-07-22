@@ -11,12 +11,13 @@
 ⚠️ The published preprint predates most of the content in this README (item 1's untrained-null-scheme extension, item 3's Method B, the OFF-polarity Erdős–Rényi finding, item 5's full K=8 result). This README is the current, up-to-date account; treat the DOI'd version as the last formally published snapshot, not the latest results.
 
 ```bibtex
-@misc{zhou2026representational,
-  title        = {Representational Geometry as a Fidelity Metric for Connectome-Constrained Neural Emulations},
-  author       = {Zhou, Michael},
-  year         = {2026},
-  doi          = {10.64898/2026.06.10.731214},
-  url          = {https://doi.org/10.64898/2026.06.10.731214}
+@article{zhou2026representational,
+  title     = {Representational geometry as a fidelity metric for connectome-constrained networks: evidence from the Drosophila visual system},
+  author    = {Zhou, Michael G. and Hasler, Jennifer O.},
+  journal   = {bioRxiv},
+  year      = {2026},
+  doi       = {10.64898/2026.06.10.731214},
+  url       = {https://doi.org/10.64898/2026.06.10.731214}
 }
 ```
 
