@@ -377,5 +377,3 @@ Kriegeskorte, N., Mur, M., & Bandettini, P. (2008). Representational similarity 
 Lappalainen, J. K., Tschopp, F. D., Prakhya, S., et al. (2024). Connectome-constrained networks predict neural activity across the fly visual system. *Nature*, 634, 1132–1140. https://doi.org/10.1038/s41586-024-07939-3
 
 Maisak, M. S., Haag, J., Ammer, G., Serbe, E., Meier, M., Leonhardt, A., Schilling, T., Bahl, A., Rubin, G. M., Nern, A., Dickson, B. J., Reiff, D. F., Hopp, E., & Borst, A. (2013). A directional tuning map of Drosophila elementary motion detectors. *Nature*, 500(7461), 212–216. https://doi.org/10.1038/nature12320
-
-*All seven references above are now verified against their original sources.*
