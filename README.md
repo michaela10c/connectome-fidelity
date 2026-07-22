@@ -107,4 +107,4 @@ Lappalainen, J. K., Tschopp, F. D., Prakhya, S., et al. (2024). Connectome-const
 
 Maisak, M. S., Haag, J., Ammer, G., Serbe, E., Meier, M., Leonhardt, A., Schilling, T., Bahl, A., Rubin, G. M., Nern, A., Dickson, B. J., Reiff, D. F., Hopp, E., & Borst, A. (2013). A directional tuning map of *Drosophila* elementary motion detectors. *Nature*, 500(7461), 212–216. https://doi.org/10.1038/nature12320
 
-The MICrONS Consortium. (2025). Functional connectomics spanning multiple areas of mouse visual cortex. *Nature*, 640, 435.
+The MICrONS Consortium. (2025). Functional connectomics spanning multiple areas of mouse visual cortex. *Nature*, 640, 435–447. https://doi.org/10.1038/s41586-025-08790-w
