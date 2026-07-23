@@ -304,11 +304,11 @@ Under fixed, non-trained simulation, wiring reliably predicts functional geometr
 
 **Table 9.** Structural test: real connectivity vs. three structured null schemes, holding the simulation fixed on the real connectome (100 seeds per null family).
 
-| Null scheme | z | p |
-|---|---|---|
-| Degree-preserving | 13.6 | ≤ 0.01 |
-| Distance-constrained | 18.8 | ≤ 0.01 |
-| Cell-type-shuffled | 21.1 | ≤ 0.01 |
+| Null scheme | z | p | Real exceeds |
+|---|---|---|---|
+| Degree-preserving | 13.6 | ≤ 0.01 | 100/100 |
+| Distance-constrained | 18.8 | ≤ 0.01 | 100/100 |
+| Cell-type-shuffled | 21.1 | ≤ 0.01 | 100/100 |
 
 Real connectivity beats every null here, but this test is somewhat circular, it holds the simulation fixed on the real connectome and only varies the null. Re-running the full simulation on each null connectome and comparing directly against measured biology gives a sharper answer.
 
