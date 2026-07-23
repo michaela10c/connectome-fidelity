@@ -235,7 +235,7 @@ Worth noting explicitly: this is a final-checkpoint snapshot across many network
 
 Separately: effects are consistently larger in magnitude on the von Mises reference than on raw, across every comparison in items 3-4. A direct test (see item 2) confirms this is at least partly a fitting artifact: pure synthetic noise run through the von Mises pipeline produces correlations nearly 2x larger than the same noise run through raw, on data with no genuine signal at all. Raw should be read as the more trustworthy reference where the two disagree, though how much of this section's own von-Mises-vs-raw gap specifically is that same artifact versus real signal hasn't been separately decomposed.
 
-**<u>Answer:</u>** **(a) Yes, this is about training, not wiring**, and this now holds up cleanly across a fair, size-matched comparison, not just a favorable but mismatched one. **(b) Yes, individual networks shift strongly over their own training, but in different directions from each other**, ruling out a simple shared trend and raising a new question: what determines which direction a given network goes.
+**<u>Answer:</u>** **(a) Yes, this is about training, not wiring: training makes a network more likely to trend negative**, and this now holds up cleanly across a fair, size-matched comparison, not just a favorable but mismatched one. **(b) Yes, individual networks shift strongly over their own training, but in different directions from each other**, ruling out a simple shared trend and raising a new question: what determines which direction a given network goes.
 
 ### 5. Does wiring identity or training randomness determine that direction?
 
