@@ -106,9 +106,9 @@ This invalidated Experiment 3 and broke the first version of Experiment 5, which
 
 It led directly to finding and validating the Henning dataset (Henning, Ramos-Traslosheros, Gür & Silies 2022) as a replacement: real per-cell T4/T5 direction-tuning data, not idealized summary curves, substantially less circular than Maisak.
 
-**Table 1.** Variance explained by circular structure, by reference.
+**Table 1.** Variance explained by circular structure (r²), by reference.
 
-| Reference | Variance explained by circular structure |
+| Reference | Variance explained by circular structure (r²) |
 |---|---|
 | Henning, raw | 63.5% |
 | Henning, von Mises | 82.3% |
