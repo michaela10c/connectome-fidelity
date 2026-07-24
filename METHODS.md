@@ -31,9 +31,11 @@ Five experiments test this, building on each other:
 
 Using the pretrained Flyvis ensemble (Lappalainen et al. 2024), I compared connectome-constrained (CC) networks against random wiring baselines, testing whether population-level representational geometry differs between them. Random baselines here are untrained, sign-preserving connectivity shuffles, not independently trained-from-scratch networks, a distinction that matters later.
 
+**To be explicit about what's actually being compared throughout this section: wiring, real or random, is what differs between the two conditions being built, but nothing about the wiring diagram itself is directly measured.** Each network, whichever wiring it has, is simulated in response to an actual set of visual stimuli (moving edges at 12 directions, ON and/or OFF polarity depending on the experiment), and each network's *simulated population response* to that stimulus set is recorded. Every RDM, correlation, and table below compares these simulated response patterns to each other, not the underlying connectome structure. The question throughout is whether a difference in wiring produces a measurable downstream difference in how the resulting network represents things, which is why the comparison has to happen at the level of simulated activity, not the wiring diagram.
+
 Across two stimulus conditions, the ensemble-mean RDM correlation between CC and random is r = 0.686 (ON edges only, n=50, p < 0.0001) and r = 0.846 (ON+OFF edges, n=50, p < 0.0001). Taken alone, these numbers are ambiguous, both are numerically high, and could be misread as evidence of similarity rather than difference. The correct comparison is relative, not absolute: how similar CC models are to each other versus to random.
 
-**Table 0.** Individual-pairwise CC-vs-random comparison, weight-shuffled baseline, both stimulus conditions (n=50).
+**Table 0.** Individual-pairwise comparison of simulated-response RDMs, CC vs. random (weight-shuffled baseline), both stimulus conditions (n=50). Each r is a correlation between two networks' simulated response patterns to the same stimulus set, not a comparison of wiring structure.
 
 | Stimulus set | Ensemble-mean r | Within-CC r | CC-vs-random r | Mann-Whitney p |
 |---|---|---|---|---|
@@ -44,7 +46,7 @@ Directly testing this, using every individual model pair rather than the two ens
 
 This weight-shuffled baseline is only one kind of random wiring, and not the one items 3-5 actually build on. Degree-preserving swap and Erdős–Rényi, the two null schemes used throughout the rest of this work, randomize the connectome's topology directly rather than shuffling a trained network's weight values in place. Worth checking directly whether "distinguishable before training" holds for these specific schemes too, using the same individual-pairwise methodology, rather than assuming it carries over.
 
-**Table 0a.** Individual-pairwise CC-vs-null comparison (n=10 models each, checkpoint 0, untrained), across three stimulus conditions.
+**Table 0a.** Individual-pairwise comparison of simulated-response RDMs, CC vs. null wiring schemes (n=10 models each, checkpoint 0, untrained), across three stimulus conditions. Each r again compares simulated response patterns, not wiring diagrams.
 
 | Stimulus set | Within-CC | Scheme | CC-vs-null r | Mann-Whitney p |
 |---|---|---|---|---|
@@ -57,7 +59,7 @@ This weight-shuffled baseline is only one kind of random wiring, and not the one
 
 Every comparison reaches significance, real wiring is distinguishable from both null schemes, untrained, across all three stimulus sets. But the size of that gap varies considerably and follows a consistent pattern: ON-only and the independent Henning 8-direction set agree closely with each other, both show degree-preserving swap essentially uncorrelated with real wiring and Erdős–Rényi showing a modest but real relationship. ON+OFF stands apart from both, showing a much smaller gap for both null schemes, still significant, but a qualitatively different picture.
 
-**Table 0b.** Within-polarity decomposition, ON+OFF, individual-pairwise CC-vs-null, untrained.
+**Table 0b.** Within-polarity decomposition, ON+OFF, of the same simulated-response RDMs, CC vs. null, untrained.
 
 | Scheme | Comparison | CC-vs-null r | Mann-Whitney p |
 |---|---|---|---|
@@ -76,15 +78,15 @@ One further asymmetry surfaced by this decomposition, not yet explained: the rea
 
 ![Figure 1](figures/moving_edge_on_rdms_50models_full_shiu.png)
 
-**Figure 1.** Representational dissimilarity matrices for connectome-constrained (CC) and random-wiring networks under cosine and Euclidean distance, Experiment 1 (12 directions, ON edges only, n=50 models). CC networks show smooth, graded dissimilarity consistent with continuous direction tuning; random networks instead show a qualitatively different block structure, splitting responses into two large clusters rather than a graded direction-tuned pattern.
+**Figure 1.** Representational dissimilarity matrices built from each network's simulated population response to the stimulus set, connectome-constrained (CC) vs. random-wiring networks, under cosine and Euclidean distance, Experiment 1 (12 directions, ON edges only, n=50 models). These matrices reflect response patterns, not the wiring itself. CC networks show smooth, graded dissimilarity consistent with continuous direction tuning; random networks instead show a qualitatively different block structure, splitting responses into two large clusters rather than a graded direction-tuned pattern.
 
 ![Figure 2](figures/moving_edge_on_off_rdms_50models_full_shiu.png)
 
-**Figure 2.** Representational dissimilarity matrices for connectome-constrained (CC) and random-wiring networks, shown under cosine distance (left two panels) and Euclidean distance (right two panels), across 24 stimulus conditions (12 directions × ON/OFF polarity, n=50 models). CC networks show a sharp, regular checkerboard pattern reflecting consistent ON/OFF discrimination across all directions; random networks show this structure only weakly (cosine) or not at all (Euclidean). Note the Euclidean color scales differ substantially between CC and random panels (0-30 vs. 0-100,000) and are not directly comparable in raw magnitude.
+**Figure 2.** Representational dissimilarity matrices built from each network's simulated population response to the stimulus set, connectome-constrained (CC) vs. random-wiring networks, shown under cosine distance (left two panels) and Euclidean distance (right two panels), across 24 stimulus conditions (12 directions × ON/OFF polarity, n=50 models). CC networks show a sharp, regular checkerboard pattern reflecting consistent ON/OFF discrimination across all directions; random networks show this structure only weakly (cosine) or not at all (Euclidean). Note the Euclidean color scales differ substantially between CC and random panels (0-30 vs. 0-100,000) and are not directly comparable in raw magnitude.
 
 ![Figure 3](figures/untrained_rdms.png)
 
-**Figure 3.** Representational dissimilarity matrices for CC (left) and untrained degree-preserving-swap wiring (right), across three independently-built stimulus conditions. ON-only (top; 12 directions, individual-pairwise r = −0.032) and the Henning 8-direction set (bottom; 8 directions, r = −0.089) each show CC and null wiring as essentially unrelated. ON+OFF (middle; 12 directions × 2 polarities, r = 0.764) shows a much smaller gap, real wiring and null wiring look considerably more alike once OFF-polarity stimuli are included. Since ON-only and Henning were built independently and agree closely with each other, ON+OFF is the condition that stands apart, not the other way around.
+**Figure 3.** Representational dissimilarity matrices built from each network's simulated population response, CC (left) vs. untrained degree-preserving-swap wiring (right), across three independently-built stimulus conditions. ON-only (top; 12 directions, individual-pairwise r = −0.032) and the Henning 8-direction set (bottom; 8 directions, r = −0.089) each show CC and null wiring's simulated responses as essentially unrelated. ON+OFF (middle; 12 directions × 2 polarities, r = 0.764) shows a much smaller gap, real wiring and null wiring produce considerably more similar responses once OFF-polarity stimuli are included. Since ON-only and Henning were built independently and agree closely with each other, ON+OFF is the condition that stands apart, not the other way around.
 
 ### 2. Is the biological reference actually measuring direction tuning?
 
@@ -316,5 +318,5 @@ Two further attempts to push this toward more biological realism, cell-type-spec
 
 The literal trained-wiring test from the fly work, real versus random wiring after both are trained to task adequacy, can't be run on mouse at all: no trainable, connectome-constrained model of mouse V1 currently exists. This is a scoping boundary, not an open question, closing it would mean building a new kind of model, not running an existing one further.
 
-**Note: The mouse findings above are static-wiring results, real and informative on their own terms, but they don't independently complete Brunton's training-specific question the way the fly work's Experiment 5 does, since nothing in this pipeline is ever trained, on either the real or null side.**
+Note: The mouse findings above are static-wiring results, real and informative on their own terms, but they don't independently complete Brunton's training-specific question the way the fly work's Experiment 5 does, since nothing in this pipeline is ever trained, on either the real or null side.
 
