@@ -54,7 +54,7 @@ python test_item1_all_null_schemes.py \
     --polarity on_off --checkpoint first
 ```
 
-This is a real, verified command from this project's own analysis pipeline, not a simplified illustration. Swap `--checkpoint first` for `--checkpoint last` to reproduce the trained comparison, or `--stimulus_set henning_8dir` for the Henning condition.
+This is a real, verified command from this project's own analysis pipeline, not a simplified illustration. Swap `--checkpoint first` for `--checkpoint last` to reproduce the trained comparison, `--polarity on_off` for `--polarity on` to reproduce the ON-only condition, or `--stimulus_set henning_8dir` for the Henning condition.
 
 ## Data & Reproducibility
 
