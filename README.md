@@ -31,6 +31,7 @@
 - [Key Findings](#key-findings)
 - [Full Methodology & Results](#full-methodology--results)
 - [Acknowledgments](#acknowledgments)
+- [AI Assistance Disclosure](#ai-assistance-disclosure)
 - [References](#references)
 
 ## Setup Requirements
@@ -88,6 +89,10 @@ The complete, item-by-item methodology, tables, and figures behind the findings 
 - The mouse-side work uses the MICrONS connectome and co-registered functional recordings.
 - Thanks to Prof. Jennifer Hasler for ongoing advising, and to Prof. Hannah Choi for feedback that shaped several of the methodological corrections in this document.
 - This project exists because of Brunton et al. (2026)'s Digital Sphinx finding, which raised the question this whole line of work tries to answer.
+
+## AI Assistance Disclosure
+
+Claude (Anthropic) was used throughout this project to help write and debug analysis scripts, restructure and edit this documentation, format and verify citations, and think through statistical interpretation and framing. All experiments, training runs, and results were run independently on the author's own infrastructure; all scientific conclusions, methodological decisions, and interpretations are the author's own.
 
 ## References
 
