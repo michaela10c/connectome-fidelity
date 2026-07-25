@@ -8,8 +8,6 @@
 
 **Preprint:** [doi.org/10.64898/2026.06.10.731214](https://doi.org/10.64898/2026.06.10.731214)
 
-⚠️ The published preprint predates most of the content in this README ([item 1](METHODS.md#1-can-geometry-tell-real-wiring-from-random-wiring)'s untrained-null-scheme extension, [item 3](METHODS.md#3-does-geometry-distinguish-real-wiring-from-trained-random-wiring)'s Method B, the OFF-polarity Erdős–Rényi finding, [item 5](METHODS.md#5-does-wiring-identity-or-training-randomness-determine-that-direction)'s full K=8 result). This README is the current, up-to-date account; treat the DOI'd version as the last formally published snapshot, not the latest results.
-
 ```bibtex
 @article{zhou2026representational,
   title     = {Representational geometry as a fidelity metric for connectome-constrained networks: evidence from the Drosophila visual system},
