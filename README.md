@@ -1,6 +1,6 @@
 # Representational Geometry as a Fidelity Metric for Connectome-Constrained Neural Emulations
 
-**Evidence from *Drosophila* and Mouse Visual Systems.** Testing whether the pattern of similarity between a population's responses to different stimuli, representational geometry, can distinguish real connectome wiring from random wiring where behavior alone cannot, directly extending Brunton et al. (2026)'s finding that behavioral fidelity doesn't require biological fidelity.
+**Evidence from the *Drosophila* Visual System.** Testing whether the pattern of similarity between a population's responses to different stimuli, representational geometry, can distinguish real connectome wiring from random wiring where behavior alone cannot, directly extending Brunton et al. (2026)'s finding that behavioral fidelity doesn't require biological fidelity.
 
 **Author:** Michael Zhou · **Advisor:** Prof. Jennifer Hasler
 
@@ -30,6 +30,7 @@
 - [Background](#background)
 - [Key Findings](#key-findings)
 - [Full Methodology & Results](#full-methodology--results)
+- [Related Work](#related-work)
 - [Acknowledgments](#acknowledgments)
 - [AI Assistance Disclosure](#ai-assistance-disclosure)
 - [References](#references)
@@ -77,16 +78,18 @@ This project tests one candidate, **representational geometry**, asking whether 
 - **A network's convergence trajectory is shaped entirely by how much distinguishability existed before training, not by a separate gradual process**: conditions that started near-zero (ON-only, Henning) show an abrupt jump within the first few percent of training, then a stable plateau; the condition that started already near its final value (ON+OFF) shows no jump at all, just noise around an already-settled level ([Figures 5-7](METHODS.md#3-does-geometry-distinguish-real-wiring-from-trained-random-wiring)).
 - **What determines a network's individual fidelity trend remains genuinely unresolved**: no significant evidence on the more trustworthy reference that wiring realization drives the direction, which leans toward training-process randomness, but real heterogeneity across networks (some cluster tightly, others scatter or flip) means this could equally reflect the test remaining underpowered at n=8, not a clean resolution either way ([item 5](METHODS.md#5-does-wiring-identity-or-training-randomness-determine-that-direction)).
 - **The original biological reference was invalidated and replaced**: Maisak et al. (2013) turned out to be dominated by circular stimulus structure rather than real tuning signal; the Henning et al. (2022) dataset provides a validated non-circular replacement ([item 2](METHODS.md#2-is-the-biological-reference-actually-measuring-direction-tuning)).
-- **On mouse visual cortex (MICrONS)**, wiring reliably predicts functional geometry under fixed, non-trained simulation. Real connectivity beats distance-constrained and cell-type-shuffled null wiring decisively, but is not distinguishable from a degree-preserving null, suggesting degree structure specifically, not finer wiring detail, accounts for the connectome's resemblance to real neural activity. Whether excitatory/inhibitory structure carries additional signal beyond degree remains an open, unresolved question.
 
 ## Full Methodology & Results
 
-The complete, item-by-item methodology, tables, and figures behind the findings above live in **[METHODS.md](METHODS.md)**: five experiments building on each other (real-vs-random wiring untrained and trained, the biological-reference validation, the training-vs-wiring analysis, and the retraining-based instability test), plus the parallel mouse-connectome work and the full answer to the Brunton question. Throughout this README, "item N" refers to the correspondingly numbered section in METHODS.md, linked below wherever it's mentioned.
+The complete, item-by-item methodology, tables, and figures behind the findings above live in **[METHODS.md](METHODS.md)**: five experiments building on each other (real-vs-random wiring untrained and trained, the biological-reference validation, the training-vs-wiring analysis, and the retraining-based instability test) and the full answer to the Brunton question. Throughout this README, "item N" refers to the correspondingly numbered section in METHODS.md, linked below wherever it's mentioned.
+
+## Related Work
+
+A parallel line of work applies this same representational-geometry framework to mouse visual cortex, using the MICrONS connectome instead of Flyvis. It lives in a separate repository, [connectome-fidelity-microns](https://github.com/michaela10c/connectome-fidelity-microns), with its own environment and setup instructions, not part of this preprint or its reproduction pipeline.
 
 ## Acknowledgments
 
 - Built on [Flyvis](https://github.com/TuragaLab/flyvis) (Lappalainen et al. 2024), the connectome-constrained *Drosophila* visual system model this project's entire fly-side analysis depends on.
-- The mouse-side work uses the MICrONS connectome and co-registered functional recordings.
 - Thanks to Prof. Jennifer Hasler for ongoing advising, and to Prof. Hannah Choi for feedback that shaped several of the methodological corrections in this document.
 - This project exists because of Brunton et al. (2026)'s Digital Sphinx finding, which raised the question this whole line of work tries to answer.
 
@@ -98,18 +101,12 @@ Claude (Anthropic) was used throughout this project to help write and debug anal
 
 Brunton, B. W., Abe, E. T. T., Hu, L. J., & Tuthill, J. C. (2026). The digital sphinx: Can a worm brain control a fly body? *bioRxiv*. https://doi.org/10.64898/2026.03.20.713233
 
-Ding, Z., Fahey, P. G., Papadopoulos, S., et al. (2025). Functional connectomics reveals general wiring rule in mouse visual cortex. *Nature*, 640, 459. https://doi.org/10.1038/s41586-025-08840-3
-
 Frankle, J., Dziugaite, G. K., Roy, D., & Carbin, M. (2020). Linear mode connectivity and the lottery ticket hypothesis. *Proceedings of the 37th International Conference on Machine Learning*, PMLR 119, 3259–3269. https://proceedings.mlr.press/v119/frankle20a.html
 
 Henning, M., Ramos-Traslosheros, G., Gür, B., & Silies, M. (2022). Populations of local direction-selective cells encode global motion patterns generated by self-motion. *Science Advances*, 8, eabi7112. https://doi.org/10.1126/sciadv.abi7112
-
-Kim, S. H., & Choi, H. (2025). Inhibitory cell type heterogeneity in a spatially structured mean-field model of V1. *bioRxiv*, 2025.03.13.643046. https://doi.org/10.1101/2025.03.13.643046
 
 Kriegeskorte, N., Mur, M., & Bandettini, P. (2008). Representational similarity analysis – connecting the branches of systems neuroscience. *Frontiers in Systems Neuroscience*, 2, 4. https://doi.org/10.3389/neuro.06.004.2008
 
 Lappalainen, J. K., Tschopp, F. D., Prakhya, S., et al. (2024). Connectome-constrained networks predict neural activity across the fly visual system. *Nature*, 634, 1132–1140. https://doi.org/10.1038/s41586-024-07939-3
 
 Maisak, M. S., Haag, J., Ammer, G., Serbe, E., Meier, M., Leonhardt, A., Schilling, T., Bahl, A., Rubin, G. M., Nern, A., Dickson, B. J., Reiff, D. F., Hopp, E., & Borst, A. (2013). A directional tuning map of *Drosophila* elementary motion detectors. *Nature*, 500(7461), 212–216. https://doi.org/10.1038/nature12320
-
-The MICrONS Consortium. (2025). Functional connectomics spanning multiple areas of mouse visual cortex. *Nature*, 640, 435–447. https://doi.org/10.1038/s41586-025-08790-w

@@ -11,7 +11,6 @@ Full item-by-item methodology, tables, and figures for [Representational Geometr
   - [4. Is the negative-trending pattern driven by training, or by wiring?](#4-is-the-negative-trending-pattern-driven-by-training-or-by-wiring)
   - [5. Does wiring identity or training randomness determine that direction?](#5-does-wiring-identity-or-training-randomness-determine-that-direction)
 - [Answer to the Brunton Question](#answer-to-the-brunton-question)
-- [Mouse Connectome](#mouse-connectome)
 
 ## Fly Connectome
 
@@ -290,39 +289,4 @@ At the population level, whether geometry distinguishes real from random wiring 
 Whether that individual-level shift is driven by wiring identity or training randomness has now been tested directly, across all eight seed networks and two null schemes. **The honest answer, on the more trustworthy reference, is a consistent null: no significant evidence that wiring identity determines the direction a network's fidelity trend takes.**
 
 That leans toward training-process randomness, though genuine heterogeneity across individual networks, some cluster tightly, others scatter or flip entirely, means this may reflect the test remaining underpowered rather than a clean resolution in either direction.
-
-## Mouse Connectome
-
-A parallel line of work applies the same representational-geometry framework to mouse visual cortex, using the MICrONS connectome instead of Flyvis.
-
-This test compares two things directly, neither of them simulated. On one side: the connectome's own wiring geometry, an RDM built directly from the structural connectivity pattern itself, which neurons connect to which, how strongly, with no simulation run at all. This is a genuine departure from the fly work's methodology, where every comparison is built from simulated responses to stimuli, never from wiring structure directly; here, wiring structure is exactly what's being measured. On the other side: measured functional geometry, an RDM built from real, recorded calcium-imaging data, actual neural activity measured directly from the mouse, not simulated in any way either. So this test asks a purely empirical question, does the real connectome's own structure predict real, measured neural activity, better than a null connectome's structure does, with nothing simulated on either side.
-
-**Table 8.** Static structure-to-function RSA, real connectome vs. three structured null schemes (n = 899 neurons, no simulation).
-
-| Model | Spearman r | Permutation p |
-|---|---|---|
-| Real connectome | 0.026 | < 0.001 |
-| Degree-preserving | −0.006 | 0.42 |
-| Distance-constrained | 0.003 | 0.65 |
-| Cell-type-block-shuffled | 0.001 | 0.80 |
-
-Only the real connectome shows a significant relationship; all three structured nulls sit at r ≈ 0. No single wiring statistic, degree, spatial proximity, or cell-type-block structure, reproduces the relationship on its own, it requires the specific connectivity. This is a necessary precondition for the fidelity question, not an answer to it: if wiring geometry didn't predict functional geometry at all, there would be no basis for expecting a simulation built on that wiring to be faithful either. It establishes that the wiring carries a functional signal worth simulating, which motivates the two simulation-based tests below.
-
-This test compares something different: not wiring structure directly, but what each connectome actually produces once it's run. Each connectome, real or one of the three null schemes, is used to build a full network, which is then simulated end to end, actually generating population activity in response to input, not just measured as a static graph. That simulated activity is what gets compared against the same real, measured calcium-imaging functional geometry used above. So where the static test above asked "does the connectome's structure predict real activity," this test asks "does a network actually built and run from that connectome produce activity that resembles real activity," matching the fly work's own methodology of comparing simulated responses, just without the training step Experiment 5 applies on the fly side.
-
-**Table 9.** Null-through-simulation test: real connectivity vs. three structured null schemes, each fully re-simulated (N = 50 per null family).
-
-| Null scheme | z | p | Real exceeds |
-|---|---|---|---|
-| Degree-preserving | 1.30 | 0.157 | 43/50 |
-| Distance-constrained | 5.92 | 0.020 | 50/50 |
-| Cell-type-shuffled | 12.44 | 0.020 | 50/50 |
-
-Real connectivity still beats distance-constrained and cell-type-shuffled nulls decisively, but is not distinguishable from a degree-preserving null. The honest reading is that degree structure specifically accounts for the connectome-constrained model's resemblance to real neural activity; specific wiring beyond degree carries no biological-geometry signal detectable at this prototype's resolution. Whether excitatory/inhibitory structure carries additional signal beyond degree is a separate, still-open question: a degree-preserving null may be structurally incapable of meaningfully perturbing inhibitory wiring in the first place (dense inhibitory blocks retain 24-27% of real edges even after a twentyfold range of swap intensity), so this hasn't been resolved into a clean result yet.
-
-Two further attempts to push this toward more biological realism, cell-type-specific weighting and a conductance-based simulation (motivated directly by Kim & Choi's own finding that conductance-based synapses are necessary for cell-type-specific effects), both produced real, negative results and were not pursued further. That degree structure alone accounts for the biological-geometry signal, while added realism didn't rescue a weaker one, is itself informative: the method is sensitive to a specific kind of structural property, not just noise, but the current prototype's resolution may simply be too coarse to detect anything finer.
-
-The literal trained-wiring test from the fly work, real versus random wiring after both are trained to task adequacy, can't be run on mouse at all: no trainable, connectome-constrained model of mouse V1 currently exists. This is a scoping boundary, not an open question, closing it would mean building a new kind of model, not running an existing one further.
-
-Note: The mouse findings above are static-wiring results, real and informative on their own terms, but they don't independently complete Brunton's training-specific question the way the fly work's Experiment 5 does, since nothing in this pipeline is ever trained, on either the real or null side.
 
