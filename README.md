@@ -8,6 +8,8 @@
 
 **Preprint:** [doi.org/10.64898/2026.06.10.731214](https://doi.org/10.64898/2026.06.10.731214)
 
+**Note:** A revised version of the preprint has been submitted to bioRxiv and is pending posting; bioRxiv typically takes a few days to process and publish revisions, so the DOI above may still resolve to the earlier version for a short while. This README and METHODS.md already reflect the current, revised content.
+
 ```bibtex
 @article{zhou2026representational,
   title     = {Representational geometry as a fidelity metric for connectome-constrained networks: evidence from the Drosophila visual system},
