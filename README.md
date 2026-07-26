@@ -97,6 +97,8 @@ Claude (Anthropic) was used throughout this project to help write and debug anal
 
 ## References
 
+Achille, A., Rovere, M., & Soatto, S. (2019). Critical learning periods in deep networks. *7th International Conference on Learning Representations (ICLR 2019)*. https://openreview.net/forum?id=BkeStsCcKQ
+
 Brunton, B. W., Abe, E. T. T., Hu, L. J., & Tuthill, J. C. (2026). The digital sphinx: Can a worm brain control a fly body? *bioRxiv*. https://doi.org/10.64898/2026.03.20.713233
 
 Frankle, J., Dziugaite, G. K., Roy, D., & Carbin, M. (2020). Linear mode connectivity and the lottery ticket hypothesis. *Proceedings of the 37th International Conference on Machine Learning*, PMLR 119, 3259–3269. https://proceedings.mlr.press/v119/frankle20a.html

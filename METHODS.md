@@ -189,6 +189,8 @@ Every checkpoint of every network was evaluated for all three stimulus condition
 
 All three trajectories resolve the question with one unified rule: **the shape of a network's convergence trajectory is set entirely by how much distinguishability existed at checkpoint 0, not by wiring scheme, not by a separate gradual training process.** ON-only and Henning both started with essentially no untrained relationship and both show the same abrupt-jump-then-plateau shape. ON+OFF started already close to its final value and shows no jump at all, just noise around an already-settled level, because there was nothing left to converge toward. This is neither gradual convergence nor a non-monotonic process in any of the three conditions; it's fast equilibration to whatever level a given condition settles at, followed by stable noise, and how large that initial jump looks depends entirely on how far the starting point was from that level. The checkpoint-0-vs-final comparisons used elsewhere in this analysis were not missing a slow developing story in any condition, nearly all the signal each one captured was already present within the first few percent of training.
 
+Concretely, this window is narrow relative to the full training run: the sharp rise completes within the first 10-20 of 72 evaluated checkpoints for ON-only, and within just 2-3 checkpoints for Henning, after which the trajectory holds a stable plateau for roughly the remaining 86% of training. This pattern is consistent with the broader critical-learning-periods literature in deep networks (Achille, Rovere & Soatto, 2019, ICLR), which similarly finds that a brief early transient, small relative to total training length, determines much of a network's eventual solution, after which further training moves the network comparatively little; our checkpoint-level trajectories may be a domain-specific instance of that same general phenomenon rather than something unique to this task. To be explicit about the scope of this connection: we claim only that the observed trajectory shape matches this broader pattern, not that the same underlying mechanism is responsible. Achille et al. attribute their critical periods to the Fisher Information of the network's weights rising and then falling as the network crosses a curvature bottleneck early in training; we have not measured Fisher Information or curvature in this system, and make no claim that the same mechanism explains our result.
+
 **Table 5.** Within-polarity decomposition, ON+OFF, individual-pairwise CC-vs-null, trained.
 
 | Scheme | Comparison | CC-vs-null r | Mann-Whitney p |
@@ -208,9 +210,9 @@ Item 3 found real wiring and Erdős–Rényi diverging on the von Mises referenc
 
 **(a) The pooled check: is this about training, not wiring?**
 
-Every population tested was sorted into trained (CC, degree-preserving swap, Erdős-Rényi) or untrained (weight-shuffled random, never trained at all) and checked for the same negative-trending pattern against the von Mises reference.
+Every population tested was sorted into trained (CC, degree-preserving swap, Erdős-Rényi) or untrained (weight-shuffled random, never trained at all) and checked for the same negative-trending pattern against the von Mises reference. As throughout this document, these are partial correlations with circular structure already removed (item 2), not raw correlations, so this check is not confounded by the circularity issue established earlier.
 
-**Table 6.** Fraction of networks trending negative against the von Mises reference, trained vs. untrained populations.
+**Table 6.** Fraction of networks trending negative against the von Mises reference, trained vs. untrained populations. "% negative" is the fraction of models in each population whose own single correlation against the reference is itself negative, a snapshot measure, not a within-network trend.
 
 | Population | Trained? | n | % negative | Significance |
 |---|---|---|---|---|
@@ -220,7 +222,9 @@ Every population tested was sorted into trained (CC, degree-preserving swap, Erd
 | Pooled trained (both null schemes) | Yes | 20 | 85% | p = 0.003 |
 | Weight-shuffled random | No | 50 | 54% | not significant (chance) |
 
-The cleanest single comparison here is CC vs. weight-shuffled random, matched in size (n=50 each) and significantly different (Mann-Whitney p = 0.008). The two trained-random null schemes point the same direction, one significant alone (Erdős–Rényi), one not (degree-preserving swap), and reach significance when pooled (n=20, 85% negative, p = 0.003) against the same n=50 untrained group.
+The cleanest single comparison here is CC vs. weight-shuffled random, matched in size (n=50 each) and significantly different on the raw reference (Mann-Whitney p = 0.008). The two trained-random null schemes point the same direction, one significant alone (Erdős–Rényi), one not (degree-preserving swap), and reach significance when pooled (n=20, 85% negative, p = 0.003) against the same n=50 untrained group.
+
+One further check, applied to every population in Table 6, is worth reporting directly: whether the ensemble-mean correlation (averaging RDMs before correlating) and the per-network mean (averaging already-computed per-network correlations) actually agree, the same ensemble-mean-versus-individual-pairwise concern raised in item 1, applied here to this different statistic. For weight-shuffled random specifically, they diverge on both references, with the ensemble-mean and per-network mean disagreeing in sign on both, not just in magnitude. Its snapshot result in Table 6 is reported as is, but should be read with that caveat: the ensemble-level summary for this population is not representative of how its individual networks actually behave.
 
 Given the pooled comparison's own size mismatch (n=20 vs. n=50), the same resampling check already applied to item 3's Erdős-Rényi result was run here too: the untrained population was repeatedly subsampled down to n=20 (10,000 draws, no new training needed) and the comparison rerun on each draw. Unlike item 3's result, this one holds up robustly: median p = 0.0077 across all draws (IQR 0.0028-0.0193), with 92.7% of size-matched draws reaching p < 0.05. The pooled trained-vs-untrained finding was never actually riding on the size mismatch.
 
