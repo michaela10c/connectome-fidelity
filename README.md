@@ -8,7 +8,7 @@
 
 **Preprint:** [doi.org/10.64898/2026.06.10.731214](https://doi.org/10.64898/2026.06.10.731214)
 
-**Note:** A revised version of the preprint has been submitted to bioRxiv and is pending posting; bioRxiv typically takes a few days to process and publish revisions, so the DOI above may still resolve to the earlier version for a short while. This README and METHODS.md already reflect the current, revised content.
+**Note:** This README and METHODS.md reflect content beyond what is currently live on bioRxiv. bioRxiv has asked that revisions be batched into substantial updates no more than once every 3 months, so the changes described here are accumulating locally for the next eligible resubmission rather than being submitted incrementally. The DOI above currently resolves to an earlier version of the preprint.
 
 ```bibtex
 @article{zhou2026representational,
