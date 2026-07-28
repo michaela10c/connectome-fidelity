@@ -8,7 +8,7 @@
 
 **Preprint:** [doi.org/10.64898/2026.06.10.731214](https://doi.org/10.64898/2026.06.10.731214)
 
-**Note:** This README and METHODS.md reflect content beyond what is currently live on bioRxiv. bioRxiv has asked that revisions be batched into substantial updates no more than once every 3 months, so the changes described here are accumulating locally for the next eligible resubmission rather than being submitted incrementally. The DOI above currently resolves to an earlier version of the preprint.
+**Note:** This README and METHODS.md reflect content beyond what is currently live on bioRxiv. bioRxiv has asked that revisions be batched into substantial updates no more than once every 3 months; the next eligible resubmission date is October 14, 2026, and a new preprint version incorporating the changes described here is planned for mid-October. The DOI above currently resolves to an earlier version of the preprint.
 
 ```bibtex
 @article{zhou2026representational,
