@@ -69,7 +69,7 @@ What *is* directly reusable without either of the above: the saved real-CC popul
 
 Brunton et al. (2026) demonstrated that a connectome, taken from one species (*C. elegans*) and used to control the body of another (*Drosophila*), can produce realistic behavior even when only a downstream interface is trained. The connectome's own synaptic weights and cellular parameters were never optimized; behavior emerged entirely from training the decoder mapping its outputs to the target body. The authors note this role could be fulfilled equally well by a randomly connected network, since all the learning happens in the decoder, this shows behavioral fidelity is achievable without biological fidelity: a model can look right without its underlying structure being correct. That raises a direct question: **if behavior alone can't verify fidelity, what can?**
 
-This project tests one candidate, **representational geometry**, asking whether the structure of a population's response patterns can distinguish a real connectome from a random one, in a way behavior alone cannot.
+Conceptual work has begun surveying the broader landscape of possible fidelity tests for whole-brain emulation (Linssen & Koene 2025), but without proposing and empirically validating a specific candidate metric against connectome-constrained models. This project tests one candidate, **representational geometry**, asking whether the structure of a population's response patterns can distinguish a real connectome from a random one, in a way behavior alone cannot.
 
 ## Key Findings
 
@@ -110,5 +110,7 @@ Henning, M., Ramos-Traslosheros, G., Gür, B., & Silies, M. (2022). Populations 
 Kriegeskorte, N., Mur, M., & Bandettini, P. (2008). Representational similarity analysis – connecting the branches of systems neuroscience. *Frontiers in Systems Neuroscience*, 2, 4. https://doi.org/10.3389/neuro.06.004.2008
 
 Lappalainen, J. K., Tschopp, F. D., Prakhya, S., et al. (2024). Connectome-constrained networks predict neural activity across the fly visual system. *Nature*, 634, 1132–1140. https://doi.org/10.1038/s41586-024-07939-3
+
+Linssen, C., & Koene, R. (2025). Functional tests to guide complex "fidelity" tradeoffs in Whole-Brain Emulation. *Journal of Ethics and Emerging Technologies*, 35, 1. https://doi.org/10.55613/jeet.v35i1.152
 
 Maisak, M. S., Haag, J., Ammer, G., Serbe, E., Meier, M., Leonhardt, A., Schilling, T., Bahl, A., Rubin, G. M., Nern, A., Dickson, B. J., Reiff, D. F., Hopp, E., & Borst, A. (2013). A directional tuning map of *Drosophila* elementary motion detectors. *Nature*, 500(7461), 212–216. https://doi.org/10.1038/nature12320
