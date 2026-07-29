@@ -79,6 +79,8 @@ Conceptual work has begun surveying the broader landscape of possible fidelity t
 - **What determines a network's individual fidelity trend remains genuinely unresolved**: no significant evidence on the more trustworthy reference that wiring realization drives the direction, which leans toward training-process randomness, but real heterogeneity across networks (some cluster tightly, others scatter or flip) means this could equally reflect the test remaining underpowered at n=8, not a clean resolution either way ([item 5](METHODS.md#5-does-wiring-identity-or-training-randomness-determine-that-direction)).
 - **The original biological reference was invalidated and replaced**: Maisak et al. (2013) turned out to be dominated by circular stimulus structure rather than real tuning signal; the Henning et al. (2022) dataset provides a validated non-circular replacement ([item 2](METHODS.md#2-is-the-biological-reference-actually-measuring-direction-tuning)).
 
+**A separate, preliminary note, not one of the validated findings above:** an early, single-condition analysis adapting Beiran & Litwin-Kumar (2025)'s neuron-selection method finds that a small subset of cell types (4 of 65, dominated by T4 subtypes) can reconstruct most of the full-population representational geometry. This hasn't been through the same validation as the findings above and is noted only as a sign this direction is tractable; see [METHODS.md, item 1](METHODS.md#1-can-geometry-tell-real-wiring-from-random-wiring) for detail.
+
 ## Full Methodology & Results
 
 The complete, item-by-item methodology, tables, and figures behind the findings above live in **[METHODS.md](METHODS.md)**: five experiments building on each other (real-vs-random wiring untrained and trained, the biological-reference validation, the training-vs-wiring analysis, and the retraining-based instability test) and the full answer to the Brunton question. Throughout this README, "item N" refers to the correspondingly numbered section in METHODS.md, linked below wherever it's mentioned.
@@ -100,6 +102,8 @@ Claude (Anthropic) was used throughout this project to help write and debug anal
 ## References
 
 Achille, A., Rovere, M., & Soatto, S. (2019). Critical learning periods in deep networks. *7th International Conference on Learning Representations (ICLR 2019)*. https://openreview.net/forum?id=BkeStsCcKQ
+
+Beiran, M., & Litwin-Kumar, A. (2025). Prediction of neural activity in connectome-constrained recurrent networks. *Nature Neuroscience*, 28, 2561–2574. https://doi.org/10.1038/s41593-025-02080-4
 
 Brunton, B. W., Abe, E. T. T., Hu, L. J., & Tuthill, J. C. (2026). The digital sphinx: Can a worm brain control a fly body? *bioRxiv*. https://doi.org/10.64898/2026.03.20.713233
 
