@@ -10,7 +10,7 @@
 
 **Current draft (ahead of the October resubmission):** [Google Drive link](https://drive.google.com/file/d/1U9f0EAlJd4A3v0HTd-I5ak7LrOuD-J1K/view?usp=sharing)
 
-**Note:** This README and METHODS.md reflect content beyond what is currently live on bioRxiv. bioRxiv has asked that revisions be batched into substantial updates no more than once every 3 months; the next eligible resubmission date is October 14, 2026, and a new preprint version incorporating the changes described here is planned for mid-October. The DOI above currently resolves to an earlier version of the preprint.
+**Note:** This README and METHODS.md reflect content beyond what is currently live on bioRxiv. bioRxiv has asked that revisions be batched into substantial updates no more than once every 3 months; the next eligible resubmission date is October 14, 2026, and a new preprint version incorporating the changes described here is planned for mid-October. The DOI above currently resolves to an earlier version of the preprint; the Google Drive link above reflects the current draft.
 
 ```bibtex
 @article{zhou2026representational,
