@@ -94,7 +94,7 @@ A parallel line of work applies this same representational-geometry framework to
 ## Acknowledgments
 
 - Built on [Flyvis](https://github.com/TuragaLab/flyvis) (Lappalainen et al. 2024), the connectome-constrained *Drosophila* visual system model this project's entire fly-side analysis depends on.
-- Thanks to Prof. Jennifer Hasler for ongoing advising, and to Prof. Hannah Choi for feedback that shaped several of the methodological corrections in this document.
+- Thanks to Prof. Jennifer Hasler for ongoing advising.
 - This project exists because of Brunton et al. (2026)'s Digital Sphinx finding, which raised the question this whole line of work tries to answer.
 
 ## AI Assistance Disclosure
